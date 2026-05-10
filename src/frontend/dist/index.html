@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Krishkar Pharmaceuticals HR System</title>
+    <meta name="description" content="Krishkar Pharmaceuticals — Field Staff HR Management System" />
+    <meta property="og:title" content="Krishkar Pharmaceuticals HR System" />
+    <meta property="og:description" content="Krishkar Pharmaceuticals — Field Staff HR Management System" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- PWA / installability -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="manifest" href="/manifest.json" />
+
+    <!-- Theme color: sky blue for PWA splash/toolbar; white for normal browser tab -->
+    <meta name="theme-color" content="#0ea5e9" media="(display-mode: standalone)" />
+    <meta name="theme-color" content="#ffffff" media="(display-mode: browser)" />
+    <meta name="color-scheme" content="light" />
+
+    <!-- iOS PWA -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Krishkar HR" />
+    <link rel="apple-touch-icon" href="/icons/icon-192.svg" />
+
+    <!-- Prevent auto-scaling on mobile -->
+    <meta name="format-detection" content="telephone=no" />
+    <script type="module" crossorigin src="/assets/index-CkWIaxDT.js"></script>
+    <link rel="modulepreload" crossorigin href="/assets/charts-BJVbloRH.js">
+    <link rel="stylesheet" crossorigin href="/assets/index-Dnrf5RII.css">
+  </head>
+  <body>
+    <div id="root"></div>
+    <script>
+      // PWA service worker registration
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function () {
+          navigator.serviceWorker.register('/sw.js').catch(function () {
+            // Service worker registration failed silently
+          });
+        });
+      }
+    </script>
+  </body>
+</html>

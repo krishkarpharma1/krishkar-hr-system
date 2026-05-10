@@ -1,0 +1,4116 @@
+type ZsmKpis = 
+ record {
+   mrsNotCheckedInToday: nat;
+   mtpAdherenceRate: float64;
+   pendingApprovals: nat;
+   totalMrsInZone: nat;
+   zoneChemistVisits: nat;
+   zoneDcrRate: float64;
+   zoneDoctorCallsCount: nat;
+   zoneDoctorCallsTarget: nat;
+ };
+type ZoneRecord = 
+ record {
+   code: text;
+   createdAt: Timestamp;
+   id: LocationId;
+   isActive: bool;
+   name: text;
+ };
+type WorkingStyleRecord = 
+ record {
+   additionalArea: opt text;
+   date: int;
+   employeeId: text;
+   id: text;
+   otherStationName: opt text;
+   stationSource: WorkingStationSource;
+   submittedAt: int;
+   workingMode: WorkingStyleMode;
+   workingType: opt text;
+   workingWithName: opt text;
+   workingWithUserId: opt text;
+ };
+type WorkingStyleMode = 
+ variant {
+   WorkingAlone;
+   WorkingWith;
+ };
+type WorkingStationSource__1 = 
+ variant {
+   AsPerTP;
+   OtherStation;
+ };
+type WorkingStationSource = 
+ variant {
+   AsPerPlan;
+   OtherStation;
+ };
+type WorkingMode = 
+ variant {
+   WorkingAlone;
+   WorkingWith;
+ };
+type WorkType = 
+ variant {
+   Field;
+   Holiday;
+   Leave;
+   Office;
+ };
+type UserWithPrimaryHq = 
+ record {
+   employeeId: text;
+   hqName: text;
+   name: text;
+   primaryHqId: opt LocationId;
+   role: text;
+   userId: UserId;
+ };
+type UserStatus = 
+ variant {
+   Active;
+   Inactive;
+ };
+type UserLocationAllotment = 
+ record {
+   areaIds: vec nat;
+   employeeId: text;
+   hqAssignments: vec HqAssignment;
+   hqIds: vec nat;
+   name: text;
+   role: Role;
+   stateIds: vec nat;
+   territoryIds: vec nat;
+   userId: UserId;
+   zoneIds: vec nat;
+ };
+type UserInfo = 
+ record {
+   areaIds: vec nat;
+   createdAt: Timestamp;
+   dateOfBirth: opt text;
+   department: text;
+   designation: text;
+   email: text;
+   employeeId: text;
+   hqAssignments: vec HqAssignment;
+   hqIds: vec nat;
+   id: UserId;
+   joinDate: text;
+   migrationDone: bool;
+   name: text;
+   phone: text;
+   primaryHqId: opt LocationId;
+   reportsTo: opt UserId;
+   role: Role;
+   salary: SalaryComponents;
+   stateIds: vec nat;
+   status: UserStatus;
+   territory: text;
+   territoryIds: vec nat;
+   username: text;
+   zoneIds: vec nat;
+ };
+type UserId = nat;
+type UpdateZoneInput = 
+ record {
+   code: opt text;
+   name: opt text;
+ };
+type UpdateUserInput = 
+ record {
+   areaIds: opt vec nat;
+   dateOfBirth: opt text;
+   department: opt text;
+   designation: opt text;
+   email: opt text;
+   hqAssignments: opt vec HqAssignment;
+   hqIds: opt vec nat;
+   joinDate: opt text;
+   name: opt text;
+   newPassword: opt text;
+   phone: opt text;
+   primaryHqId: opt LocationId;
+   reportsTo: opt opt UserId;
+   role: opt Role;
+   salary: opt SalaryComponents;
+   stateIds: opt vec nat;
+   status: opt UserStatus;
+   territory: opt text;
+   territoryIds: opt vec nat;
+   zoneIds: opt vec nat;
+ };
+type UpdateTerritoryInput = 
+ record {
+   name: opt text;
+   stateId: opt LocationId;
+ };
+type UpdateSuggestionStatusInput = 
+ record {
+   remark: opt text;
+   status: text;
+   suggestionId: nat;
+ };
+type UpdateStockistRequest = 
+ record {
+   address: opt text;
+   areaId: opt nat;
+   drugLicenseNumber: opt text;
+   emailId: opt text;
+   gstNumber: opt text;
+   id: StockistId;
+   isActive: opt bool;
+   mobileNumber: opt text;
+   name: opt text;
+   proprietorName: opt text;
+   remarks: opt text;
+ };
+type UpdateStationInput = 
+ record {
+   isActive: opt bool;
+   stationName: opt text;
+ };
+type UpdateStateInput = 
+ record {
+   name: opt text;
+   zoneId: opt LocationId;
+ };
+type UpdatePricelistProductInput = 
+ record {
+   composition: opt text;
+   mrp: opt float64;
+   name: opt text;
+   ptr: opt float64;
+   pts: opt float64;
+ };
+type UpdateLetterInput = 
+ record {
+   body: opt text;
+   date: opt text;
+   details: opt LetterDetails;
+   recipientName: opt text;
+   status: opt LetterStatus;
+   subject: opt text;
+ };
+type UpdateLeaveStatusInput = 
+ record {
+   approverId: EmployeeId;
+   leaveId: text;
+   remark: opt text;
+   status: LeaveStatus;
+ };
+type UpdateIncentivePlanInput = 
+ record {
+   isActive: opt bool;
+   planId: nat;
+   slabs: opt vec IncentiveSlab;
+ };
+type UpdateHolidayInput = 
+ record {
+   applicableTo: opt HolidayApplicableTo;
+   date: opt int;
+   holidayType: opt HolidayType;
+   id: nat;
+   isActive: opt bool;
+   name: opt text;
+   remarks: opt text;
+ };
+type UpdateHQInput = 
+ record {
+   name: opt text;
+   territoryId: opt LocationId;
+ };
+type UpdateGiftArticleInput = 
+ record {
+   category: opt text;
+   description: opt text;
+   isActive: opt bool;
+   name: opt text;
+ };
+type UpdateCompanyProfileInput = 
+ record {
+   address: opt text;
+   companyName: opt text;
+   contactNumber: opt text;
+   emailId: opt text;
+   logoUrl: opt text;
+   website: opt text;
+ };
+type UpdateAreaInput = 
+ record {
+   hqId: opt LocationId;
+   name: opt text;
+ };
+type UpdateAdvanceInput = 
+ record {
+   installmentAmount: opt float64;
+   remarks: opt text;
+   totalInstallments: opt nat;
+ };
+type UpdateAdminMessageInput = 
+ record {
+   attachmentUrls: opt vec text;
+   content: opt text;
+   id: text;
+   isActive: opt bool;
+   scheduledDate: opt text;
+   title: opt text;
+ };
+type UpdateAdditionalChargeInput = 
+ record {
+   additionalHqAssignments: opt vec AdditionalHqAssignment;
+   chargeId: text;
+   effectiveFrom: opt Timestamp;
+   effectiveTo: opt Timestamp;
+   remarks: opt text;
+ };
+type TravelPlanStatus = 
+ variant {
+   Draft;
+   Submitted;
+ };
+type TravelPlanInfo = 
+ record {
+   createdAt: Timestamp;
+   date: text;
+   id: TravelPlanId;
+   notes: text;
+   plannedStation: text;
+   status: TravelPlanStatus;
+   updatedAt: Timestamp;
+   userId: UserId;
+ };
+type TravelPlanId = nat;
+type TravelPlanExportRow = 
+ record {
+   date: text;
+   notes: text;
+   planId: nat;
+   plannedStation: text;
+   role: text;
+   status: text;
+   userId: text;
+   userName: text;
+ };
+type TrailDoctorCall = 
+ record {
+   doctorName: text;
+   doctorSpecialization: text;
+   station: text;
+ };
+type Timestamp = int;
+type TerritoryRecord = 
+ record {
+   createdAt: Timestamp;
+   id: LocationId;
+   isActive: bool;
+   name: text;
+   stateId: LocationId;
+ };
+type TerritoryCoverage = 
+ record {
+   territory: text;
+   totalDoctors: nat;
+   visitedThisMonth: nat;
+ };
+type TargetVsActual = 
+ record {
+   achievementPct: float64;
+   actualAmount: float64;
+   area: opt text;
+   employeeId: text;
+   month: nat;
+   name: text;
+   remainingTarget: float64;
+   role: Role;
+   targetAmount: float64;
+   territory: opt text;
+   userId: UserId;
+   year: nat;
+ };
+type TargetRevision = 
+ record {
+   newAmount: float64;
+   previousAmount: float64;
+   remarks: opt text;
+   revisedAt: Timestamp;
+   revisedBy: UserId;
+ };
+type TargetPeriod = 
+ variant {
+   HalfYearly;
+   Monthly;
+   Quarterly;
+   Yearly;
+ };
+type TargetHierarchyNode = 
+ record {
+   area: opt text;
+   children: vec TargetHierarchyNode;
+   halfYearly: nat;
+   isOverridden: bool;
+   monthly: nat;
+   name: text;
+   overrideReason: opt text;
+   quarterly: nat;
+   role: Role;
+   status: CalculationStatus;
+   territory: opt text;
+   userId: UserId;
+   yearly: nat;
+ };
+type TargetAdjustmentLog = 
+ record {
+   changedAt: Timestamp;
+   changedBy: UserId;
+   id: nat;
+   month: opt nat;
+   newValue: float64;
+   period: TargetPeriod;
+   previousValue: float64;
+   reason: opt text;
+   role: Role;
+   userId: UserId;
+   year: nat;
+ };
+type TargetAdjustmentFilter = 
+ record {
+   changedBy: opt UserId;
+   endDate: opt text;
+   period: opt TargetPeriod;
+   role: opt Role;
+   startDate: opt text;
+   userId: opt UserId;
+   year: opt nat;
+ };
+type TaggedCallEntry = 
+ record {
+   date: text;
+   doctorsVisited: vec DoctorVisitEntry;
+   employeeId: nat;
+   employeeName: text;
+   primaryRole: text;
+   samplesDistributed: vec SampleDistributed;
+ };
+type TaDaTotals = 
+ record {
+   daTotal: nat;
+   taTotal: nat;
+ };
+type TaDaGrade = 
+ record {
+   daExStationRate: nat;
+   daHqRate: nat;
+   daOutStationRate: nat;
+   gradeName: text;
+   lodgingEntitlement: nat;
+   mealAllowance: nat;
+   taPerKmRate: nat;
+ };
+type TaDaExpense = 
+ record {
+   approvedBy: opt EmployeeId;
+   dailyAllowance: nat;
+   date: text;
+   distanceKm: nat;
+   employeeId: EmployeeId;
+   fromLocation: opt text;
+   gpsLocation: opt GpsCoord;
+   gradeName: opt text;
+   id: nat;
+   lodgingExpense: opt nat;
+   miscExpense: opt nat;
+   miscNarration: opt text;
+   modeOfTransport: opt text;
+   purpose: text;
+   stationType: StationType;
+   status: ExpenseStatus;
+   submittedAt: Timestamp;
+   submittedByRole: text;
+   toLocation: opt text;
+   totalAmount: nat;
+   totalClaimAmount: opt nat;
+   travelAmount: nat;
+   updatedAt: Timestamp;
+ };
+type SystemAlert = 
+ record {
+   alertId: nat;
+   alertType: text;
+   createdAt: int;
+   message: text;
+   severity: text;
+ };
+type SuggestionSubmission = 
+ record {
+   attachmentUrl: opt text;
+   closingRemark: opt text;
+   description: text;
+   hrReply: opt text;
+   hrReplyAt: opt int;
+   hrReplyByName: opt text;
+   id: nat;
+   isReadByEmployee: bool;
+   isReadByHR: bool;
+   priority: text;
+   status: text;
+   statusUpdatedAt: opt int;
+   subject: text;
+   submissionType: text;
+   submittedAt: int;
+   submittedByEmployeeId: text;
+   submittedByName: text;
+   submittedByRole: text;
+   submittedByUserId: text;
+ };
+type SuggestionFilter = 
+ record {
+   employeeName: opt text;
+   fromDate: opt int;
+   priority: opt text;
+   status: opt text;
+   submissionType: opt text;
+   submittedByRole: opt text;
+   toDate: opt int;
+ };
+type SubmitWorkingStyleInput = 
+ record {
+   additionalArea: opt text;
+   date: int;
+   employeeId: text;
+   otherStationName: opt text;
+   stationSource: WorkingStationSource;
+   token: text;
+   workingMode: WorkingStyleMode;
+   workingType: opt text;
+   workingWithUserId: opt text;
+ };
+type SubmitSuggestionInput = 
+ record {
+   attachmentUrl: opt text;
+   description: text;
+   priority: text;
+   subject: text;
+   submissionType: text;
+ };
+type StockistRecord = 
+ record {
+   address: text;
+   areaId: nat;
+   createdAt: Timestamp;
+   createdBy: UserId;
+   drugLicenseNumber: opt text;
+   emailId: opt text;
+   gstNumber: opt text;
+   hqId: nat;
+   id: StockistId;
+   isActive: bool;
+   mobileNumber: text;
+   name: text;
+   proprietorName: text;
+   remarks: opt text;
+ };
+type StockistId = nat;
+type StockistFilter = 
+ record {
+   areaId: opt nat;
+   hqId: opt nat;
+   isActive: opt bool;
+   nameSearch: opt text;
+ };
+type StockistCallInput = 
+ record {
+   area: text;
+   date: text;
+   gpsLocation: GpsCoord;
+   orderQty: text;
+   productsDiscussed: vec ProductEnquired;
+   remarks: text;
+   station: text;
+   stockistId: nat;
+   stockistName: text;
+ };
+type StockistCallInfo = 
+ record {
+   area: text;
+   createdAt: Timestamp;
+   date: text;
+   gpsLocation: GpsCoord;
+   id: nat;
+   mrId: UserId;
+   orderQty: text;
+   productsDiscussed: vec ProductEnquired;
+   remarks: text;
+   station: text;
+   stockistId: nat;
+   stockistName: text;
+ };
+type StationType = 
+ variant {
+   ExHQ;
+   HQ;
+   Local;
+   Outstation;
+ };
+type StationRecord = 
+ record {
+   createdAt: Timestamp;
+   hqId: LocationId;
+   isActive: bool;
+   stationId: LocationId;
+   stationName: text;
+   updatedAt: Timestamp;
+ };
+type StateRecord = 
+ record {
+   createdAt: Timestamp;
+   id: LocationId;
+   isActive: bool;
+   name: text;
+   zoneId: LocationId;
+ };
+type SfaReminderSettings = 
+ record {
+   dcrReminderEnabled: bool;
+   dcrReminderHour: nat;
+   mtpDeadlineDay: nat;
+   mtpReminderDaysBeforeDeadline: nat;
+   mtpReminderEnabled: bool;
+ };
+type SetMonthlyTargetInput = 
+ record {
+   chemistTarget: opt nat;
+   doctorCallTarget: opt nat;
+   month: nat;
+   newDoctorsTarget: opt nat;
+   productTargets: opt vec ProductTarget;
+   remarks: opt text;
+   stockistTarget: opt nat;
+   targetAmount: float64;
+   userId: UserId;
+   year: nat;
+ };
+type Session = 
+ record {
+   employeeId: text;
+   expiresAt: Timestamp;
+   name: text;
+   role: Role;
+   token: text;
+   userId: UserId;
+ };
+type SecondarySaleRecord = 
+ record {
+   areaId: nat;
+   createdAt: Timestamp;
+   hqId: nat;
+   id: SecondarySaleId;
+   products: vec SaleProductEntry;
+   saleDate: Timestamp;
+   stockistId: nat;
+   submittedBy: UserId;
+   totalNetSaleValue: float64;
+ };
+type SecondarySaleId = nat;
+type SecondarySaleFilter = 
+ record {
+   areaId: opt nat;
+   fromDate: opt Timestamp;
+   stockistId: opt nat;
+   submittedBy: opt UserId;
+   toDate: opt Timestamp;
+ };
+type SampleUsageInput = 
+ record {
+   doctorId: nat;
+   doctorName: text;
+   productId: nat;
+   productName: text;
+   qtyUsed: int;
+ };
+type SampleItem = 
+ record {
+   productName: text;
+   quantity: nat;
+ };
+type SampleGivenDetail = 
+ record {
+   productId: ProductId;
+   productName: text;
+   quantity: nat;
+ };
+type SampleDistributed = 
+ record {
+   productId: ProductId;
+   quantity: nat;
+ };
+type SampleBalanceView = 
+ record {
+   allocatedQty: int;
+   month: nat;
+   productCode: text;
+   productId: nat;
+   productName: text;
+   remainingQty: int;
+   usedQty: int;
+   year: nat;
+ };
+type SampleAllocationInput = 
+ record {
+   allocatedQty: int;
+   month: nat;
+   mrId: UserId;
+   productId: nat;
+   productName: text;
+   remarks: text;
+   year: nat;
+ };
+type SampleAllocationInfo = 
+ record {
+   allocatedAt: Timestamp;
+   allocatedBy: UserId;
+   allocatedQty: int;
+   id: nat;
+   month: nat;
+   mrId: UserId;
+   productId: nat;
+   productName: text;
+   remarks: text;
+   usedQty: int;
+   year: nat;
+ };
+type SalesTrackingData = 
+ record {
+   actualSales: float64;
+   crmSpent: float64;
+   dailyAvgSales: float64;
+   doctorId: DoctorId;
+   doctorName: text;
+   projectedEndTarget: float64;
+   salesProgressPercent: float64;
+ };
+type SalesTargetId = nat;
+type SalesTarget = 
+ record {
+   createdAt: Timestamp;
+   description: text;
+   id: SalesTargetId;
+   month: nat;
+   targetAmount: float64;
+   userId: UserId;
+   year: nat;
+ };
+type SalesDashboardSummary = 
+ record {
+   doctorBreakdown: vec SalesTrackingData;
+   overallProgressPercent: float64;
+   totalActualSales: float64;
+   totalCrmSpent: float64;
+ };
+type SaleProductEntry = 
+ record {
+   mrp: float64;
+   netSaleValue: float64;
+   productId: nat;
+   productName: text;
+   ptr: float64;
+   pts: float64;
+   quantitySold: nat;
+ };
+type SalaryComponents = 
+ record {
+   basic: nat;
+   esiPercent: nat;
+   hra: nat;
+   pfPercent: nat;
+   ta: float64;
+ };
+type RsmKpis = 
+ record {
+   directMrCount: nat;
+   mrsNotCheckedInToday: nat;
+   mtpAdherenceRate: float64;
+   pendingApprovals: nat;
+   regionChemistVisits: nat;
+   regionDcrRate: float64;
+   regionDoctorCallsCount: nat;
+   regionDoctorCallsTarget: nat;
+   totalMrsInRegion: nat;
+ };
+type RoleLeaveQuota = 
+ record {
+   casualTotal: nat;
+   coTotal: nat;
+   lwpTotal: nat;
+   mlTotal: nat;
+   plTotal: nat;
+   role: Role;
+   sickTotal: nat;
+   unpaidTotal: nat;
+   year: nat;
+ };
+type RoleHierarchyConfig = record {roleOrder: vec Role;};
+type Role = 
+ variant {
+   ASM;
+   Admin;
+   HRManager;
+   MR;
+   RSM;
+   ZSM;
+ };
+type ReportingChainEntry = 
+ record {
+   name: text;
+   role: text;
+   userId: UserId;
+ };
+type ReportStatus = 
+ variant {
+   Approved;
+   Draft;
+   Rejected;
+   Submitted;
+ };
+type ReportId = nat;
+type RepairResult = 
+ record {
+   fixedCounts: vec record {
+                      text;
+                      nat;
+                    };
+   repairedTypes: vec text;
+   updatedReport: HealthCheckReport;
+ };
+type RepairLog = 
+ record {
+   details: text;
+   fixedCount: nat;
+   repairType: text;
+   timestamp: int;
+   triggeredBy: text;
+ };
+type ReactivationLogEntry = 
+ record {
+   employeeCode: text;
+   employeeId: UserId;
+   employeeName: text;
+   needsReview: bool;
+   reactivatedAt: Timestamp;
+   reactivatedBy: UserId;
+   reactivatedByName: text;
+ };
+type ProductVisitDetail = 
+ record {
+   detailsDiscussed: text;
+   productId: ProductId;
+   productName: text;
+ };
+type ProductTarget = 
+ record {
+   productId: text;
+   productName: text;
+   targetQty: float64;
+ };
+type ProductInfo = 
+ record {
+   category: ProductCategory;
+   createdAt: Timestamp;
+   description: text;
+   division: text;
+   id: ProductId;
+   isActive: bool;
+   mrpPaise: nat;
+   name: text;
+   packSize: text;
+   productCode: text;
+ };
+type ProductId = nat;
+type ProductEnquired = 
+ record {
+   enquiryType: text;
+   productId: nat;
+   productName: text;
+ };
+type ProductCommitment = 
+ record {
+   expectedQuantity: nat;
+   productId: ProductId;
+   productName: text;
+ };
+type ProductCategory = 
+ variant {
+   Capsule;
+   Injection;
+   Ointment;
+   Other;
+   Syrup;
+   Tablet;
+ };
+type PrimaryHqInfo = 
+ record {
+   id: LocationId;
+   level: LocationLevel;
+   name: text;
+ };
+type PricelistProductInfo = 
+ record {
+   composition: text;
+   createdAt: Timestamp;
+   id: PricelistProductId;
+   mrp: float64;
+   name: text;
+   ptr: float64;
+   pts: float64;
+   srNo: nat;
+   updatedAt: Timestamp;
+ };
+type PricelistProductId = nat;
+type PerformanceStatus = 
+ variant {
+   OnTrack;
+   SignificantlyBehind;
+   SlightlyBehind;
+ };
+type PerformanceRow = 
+ record {
+   achievementPct: float64;
+   actualSales: float64;
+   area: opt text;
+   employeeId: text;
+   name: text;
+   performanceStatus: PerformanceStatus;
+   projectedAchievement: float64;
+   remainingTarget: float64;
+   role: Role;
+   targetAmount: float64;
+   territory: opt text;
+   userId: UserId;
+ };
+type PerformanceRecord = 
+ record {
+   callsMade: nat;
+   chemistOrders: nat;
+   doctorsVisited: nat;
+   employeeId: EmployeeId;
+   id: nat;
+   month: nat;
+   recordedAt: Timestamp;
+   recordedBy: EmployeeId;
+   remarks: text;
+   totalSales: nat;
+   year: nat;
+ };
+type PerformanceFilter = 
+ record {
+   drillDownFrom: opt UserId;
+   managerId: UserId;
+   month: opt nat;
+   period: TargetPeriod;
+   year: nat;
+ };
+type PendingApprovalCounts = 
+ record {
+   dcrPending: nat;
+   leavePending: nat;
+   mtpPending: nat;
+   rsmLevelLeavePending: nat;
+   rsmLevelTadaPending: nat;
+   tadaPending: nat;
+ };
+type PayrollRecord = 
+ record {
+   advanceRecovery: nat;
+   basicPay: nat;
+   daAllowance: nat;
+   employeeId: EmployeeId;
+   esiDeduction: nat;
+   grossPay: nat;
+   hra: nat;
+   id: nat;
+   isApproved: bool;
+   month: nat;
+   netPay: nat;
+   payableDays: nat;
+   pfDeduction: nat;
+   processedAt: Timestamp;
+   processedBy: EmployeeId;
+   taAllowance: nat;
+   year: nat;
+ };
+type PaymentStatus = 
+ variant {
+   DueForPayment;
+   Paid;
+   Pending;
+ };
+type PasswordResetResult = 
+ variant {
+   err: text;
+   ok: text;
+ };
+type OverrideBottomUpTargetInput = 
+ record {
+   newAmount: nat;
+   overrideReason: text;
+   targetId: nat;
+ };
+type OrderStatus = 
+ variant {
+   Cancelled;
+   Confirmed;
+   Delivered;
+   Dispatched;
+   Pending;
+ };
+type OrderItem = 
+ record {
+   productId: ProductId;
+   productName: text;
+   quantity: nat;
+   scheme: text;
+   unitPrice: nat;
+ };
+type OrderId = nat;
+type OnLeaveEmployee = 
+ record {
+   approvedAt: opt int;
+   approvedByName: text;
+   employeeId: text;
+   employeeName: text;
+   fromDate: text;
+   leaveId: nat;
+   leaveType: text;
+   reason: text;
+   role: text;
+   toDate: text;
+ };
+type OfficialLetterView = 
+ record {
+   body: text;
+   createdAt: int;
+   createdBy: nat;
+   date: text;
+   details: LetterDetails;
+   emailLogs: vec EmailInitiationLog;
+   employeeId: opt nat;
+   employeeName: opt text;
+   id: nat;
+   issuedAt: int;
+   issuedBy: nat;
+   letterRefNumber: opt text;
+   letterType: LetterType;
+   recipientName: text;
+   status: LetterStatus;
+   subject: text;
+   updatedAt: int;
+ };
+type NotificationType = 
+ variant {
+   absenceWarningDay1;
+   absenceWarningDay2;
+   autoInactivated;
+   birthday;
+   dcrReminder;
+   doctorCallBatch;
+   doctorCallSubmitted;
+   mrModeAssigned;
+   mrModeDcrSubmitted;
+   mtpReminder;
+   reactivated;
+ };
+type NotificationSettings = 
+ record {
+   batchMinCount: nat;
+   batchWindowSeconds: nat;
+   batchingEnabled: bool;
+   cascadeLevel: text;
+   doctorCallNotificationsEnabled: bool;
+   quietHoursEnabled: bool;
+   quietHoursEnd: text;
+   quietHoursStart: text;
+ };
+type NotificationRecord = 
+ record {
+   body: text;
+   createdAt: int;
+   id: text;
+   isRead: bool;
+   notificationType: NotificationType;
+   recipientId: text;
+   relatedEntityId: opt text;
+   relatedEntityType: opt text;
+   senderId: text;
+   title: text;
+ };
+type MutationResult = 
+ variant {
+   err: text;
+   ok;
+ };
+type MrMonthlySummary = 
+ record {
+   month: text;
+   mrId: UserId;
+   totalCalls: nat;
+   totalOrderValue: nat;
+   totalOrders: nat;
+   uniqueDoctors: nat;
+ };
+type MrKpis = 
+ record {
+   chemistVisitsCount: nat;
+   chemistVisitsTarget: nat;
+   dcrSubmissionRate: float64;
+   doctorCallsCount: nat;
+   doctorCallsTarget: nat;
+   mtpAdherenceRate: float64;
+   newDoctorsAdded: nat;
+   newDoctorsTarget: nat;
+   sampleBalanceCount: nat;
+   stockistVisitsCount: nat;
+   stockistVisitsTarget: nat;
+ };
+type MrGroupEntry = 
+ record {
+   mrId: UserId;
+   mrName: text;
+ };
+type MrDailyActivityRow = 
+ record {
+   checkInStatus: bool;
+   checkInTime: opt int;
+   chemistVisitsToday: nat;
+   dcrStatusToday: text;
+   doctorCallsToday: nat;
+   lastGpsLat: opt float64;
+   lastGpsLng: opt float64;
+   lastGpsTime: opt int;
+   mrId: UserId;
+   mrName: text;
+   stockistVisitsToday: nat;
+ };
+type MonthlyVisitData = 
+ record {
+   doctorsVisited: nat;
+   monthYear: text;
+   mrId: nat;
+   mrName: text;
+   totalDoctors: nat;
+   visitPercentage: float64;
+ };
+type MonthlyTargetFilter = 
+ record {
+   area: opt text;
+   month: opt nat;
+   role: opt Role;
+   territory: opt text;
+   userId: opt UserId;
+   year: opt nat;
+ };
+type MonthlyTarget = 
+ record {
+   chemistTarget: nat;
+   createdAt: Timestamp;
+   createdBy: UserId;
+   doctorCallTarget: nat;
+   id: text;
+   month: nat;
+   newDoctorsTarget: nat;
+   productTargets: vec ProductTarget;
+   remarks: opt text;
+   revisionHistory: vec TargetRevision;
+   role: Role;
+   stockistTarget: nat;
+   targetAmount: float64;
+   updatedAt: Timestamp;
+   updatedBy: UserId;
+   userId: UserId;
+   year: nat;
+ };
+type MonthlySummary = 
+ record {
+   absentDays: nat;
+   employeeId: EmployeeId;
+   halfDays: nat;
+   holidays: nat;
+   leaveDays: nat;
+   month: nat;
+   payableDays: nat;
+   presentDays: nat;
+   weeklyOffs: nat;
+   year: nat;
+ };
+type MissedVisitAlert = 
+ record {
+   area: text;
+   daysSinceLastVisit: int;
+   doctorId: nat;
+   doctorName: text;
+   lastVisitDate: int;
+   mrId: nat;
+   mrName: text;
+ };
+type MissedDoctorInfo = 
+ record {
+   doctorId: nat;
+   doctorName: text;
+   visitCount: nat;
+ };
+type MRMissedSummary = 
+ record {
+   mrId: nat;
+   mrName: text;
+   totalAllotted: nat;
+   totalMissed: nat;
+   visited0: nat;
+   visited1: nat;
+   visited2Plus: nat;
+ };
+type MRCallSummary = 
+ record {
+   totalDaysWorked: nat;
+   totalDoctorVisits: nat;
+   totalSamplesGiven: nat;
+ };
+type LoginResult = 
+ variant {
+   err: text;
+   ok: Session;
+ };
+type LocationRecord = 
+ record {
+   employeeId: text;
+   lat: float64;
+   lng: float64;
+   timestamp: Timestamp;
+   userId: UserId;
+ };
+type LocationLevel = 
+ variant {
+   Area;
+   Region;
+   Station;
+   Zone;
+ };
+type LocationId = nat;
+type LocationHierarchyPath = 
+ record {
+   areaId: opt LocationId;
+   areaName: opt text;
+   level: LocationLevel;
+   locationId: LocationId;
+   locationName: text;
+   regionId: opt LocationId;
+   regionName: opt text;
+   stationId: opt LocationId;
+   stationName: opt text;
+   zoneId: opt LocationId;
+   zoneName: opt text;
+ };
+type LetterType = 
+ variant {
+   appointmentLetter;
+   confirmationLetter;
+   experienceLetter;
+   incrementLetter;
+   promotionLetter;
+   showCauseNotice;
+   terminationLetter;
+   transferLetter;
+   warningLetter;
+ };
+type LetterStatus = 
+ variant {
+   draft;
+   final;
+ };
+type LetterDetails = 
+ record {
+   confirmationDate: opt text;
+   currentDesignation: opt text;
+   currentPosting: opt text;
+   currentSalary: opt nat;
+   disciplinaryAction: opt text;
+   finalSettlementRef: opt text;
+   incrementAmount: opt nat;
+   incrementEffectiveDate: opt text;
+   lastWorkingDay: opt text;
+   newDesignation: opt text;
+   newGrade: opt text;
+   newHQ: opt text;
+   newPosting: opt text;
+   newSalary: opt nat;
+   probationEndDate: opt text;
+   promotedSalary: opt nat;
+   promotionEffectiveDate: opt text;
+   resignationDate: opt text;
+   revisedDesignation: opt text;
+   revisedSalary: opt nat;
+   transferEffectiveDate: opt text;
+   warningReason: opt text;
+ };
+type LeaveType = 
+ variant {
+   casual;
+   co;
+   lwp;
+   ml;
+   pl;
+   sick;
+   unpaid;
+ };
+type LeaveStatus = 
+ variant {
+   approved;
+   pending;
+   rejected;
+ };
+type LeaveFilter = 
+ record {
+   leaveType: opt LeaveType;
+   month: opt nat;
+   role: opt Role;
+   status: opt LeaveStatus;
+   userId: opt EmployeeId;
+   year: opt nat;
+ };
+type LeaveExportRow = 
+ record {
+   appliedAt: text;
+   approverName: opt text;
+   employeeId: text;
+   employeeName: text;
+   fromDate: text;
+   leaveId: text;
+   leaveType: text;
+   numDays: nat;
+   reason: text;
+   remark: opt text;
+   role: text;
+   status: text;
+   toDate: text;
+ };
+type LeaveApplication = 
+ record {
+   appliedAt: Timestamp;
+   approvedBy: opt EmployeeId;
+   approverId: opt EmployeeId;
+   approverRemark: opt text;
+   attachmentUrl: opt text;
+   employeeId: EmployeeId;
+   fromDate: text;
+   gpsLocation: opt GpsCoord;
+   id: nat;
+   leaveType: LeaveType;
+   notes: opt text;
+   numDays: nat;
+   reason: text;
+   status: LeaveStatus;
+   toDate: text;
+   updatedAt: Timestamp;
+ };
+type JfwSummaryRow = 
+ record {
+   avgRating: float64;
+   jfwCount: nat;
+   managerId: UserId;
+   managerName: text;
+   mrId: UserId;
+   mrName: text;
+   period: text;
+ };
+type JfwRating = 
+ variant {
+   Average;
+   Excellent;
+   Good;
+   Poor;
+ };
+type JfwInput = 
+ record {
+   areaVisited: text;
+   date: text;
+   doctorsJointlyVisited: vec DoctorVisited;
+   mrId: UserId;
+   observations: text;
+   rating: JfwRating;
+   stationVisited: text;
+ };
+type JfwInfo = 
+ record {
+   areaVisited: text;
+   createdAt: Timestamp;
+   date: text;
+   doctorsJointlyVisited: vec DoctorVisited;
+   id: nat;
+   managerId: UserId;
+   mrAcknowledged: bool;
+   mrAcknowledgedAt: opt Timestamp;
+   mrId: UserId;
+   mrName: text;
+   observations: text;
+   rating: JfwRating;
+   stationVisited: text;
+ };
+type InvalidHqEmployee = 
+ record {
+   employeeId: text;
+   expectedLevel: LocationLevel;
+   name: text;
+   primaryHqId: opt LocationId;
+   reason: text;
+   role: text;
+   userId: UserId;
+ };
+type IntendedUse = 
+ variant {
+   Gift;
+   Sample;
+ };
+type IncentiveType = 
+ variant {
+   Fixed;
+   PercentOfSalary;
+   PercentOfTarget;
+ };
+type IncentiveSlab = 
+ record {
+   incentiveType: IncentiveType;
+   maxAchievementPct: float64;
+   minAchievementPct: float64;
+   value: float64;
+ };
+type IncentivePlan = 
+ record {
+   createdAt: Timestamp;
+   createdBy: UserId;
+   id: nat;
+   isActive: bool;
+   month: nat;
+   period: TargetPeriod;
+   role: Role;
+   slabs: vec IncentiveSlab;
+   updatedAt: Timestamp;
+   year: nat;
+ };
+type IncentiveMonthEntry = 
+ record {
+   achievementPct: float64;
+   incentiveAmount: float64;
+   month: nat;
+   slabApplied: text;
+   year: nat;
+ };
+type IncentiveFilter = 
+ record {
+   month: opt nat;
+   period: opt TargetPeriod;
+   role: opt Role;
+   status: opt IncentiveCalculationStatus;
+   userId: opt UserId;
+   year: opt nat;
+ };
+type IncentiveCalculationStatus = 
+ variant {
+   Calculated;
+   HRApproved;
+   PaidOnSlip;
+ };
+type IncentiveCalculation = 
+ record {
+   achievementPct: float64;
+   actualAmount: float64;
+   adjustedAmount: opt float64;
+   aggregatedTarget: float64;
+   approvedBy: opt UserId;
+   calculatedAt: Timestamp;
+   id: nat;
+   incentiveAmount: float64;
+   month: opt nat;
+   notes: opt text;
+   period: TargetPeriod;
+   role: Role;
+   slabApplied: text;
+   status: IncentiveCalculationStatus;
+   targetAmount: float64;
+   userId: UserId;
+   year: nat;
+ };
+type IncentiveBonusSheetFilter = 
+ record {
+   employeeId: opt text;
+   paymentStatus: opt PaymentStatus;
+   quarter: opt nat;
+   year: opt nat;
+ };
+type IncentiveBonusSheet = 
+ record {
+   bonusEntries: vec BonusEntry;
+   employeeId: text;
+   generatedAt: int;
+   id: text;
+   markedPaidBy: opt text;
+   monthlyBreakdown: vec IncentiveMonthEntry;
+   paymentDate: opt int;
+   paymentStatus: PaymentStatus;
+   quarter: nat;
+   totalAmount: float64;
+   totalBonusAmount: float64;
+   totalIncentiveAmount: float64;
+   year: nat;
+ };
+type HrKpis = 
+ record {
+   autoInactivatedPending: nat;
+   employeesOnLeaveToday: nat;
+   lateCheckInsToday: nat;
+   pendingLeaveApplications: nat;
+   pendingTadaClaims: nat;
+   totalActiveEmployees: nat;
+   totalEmployees: nat;
+   upcomingBirthdaysCount: nat;
+ };
+type HqHierarchyEmployee = 
+ record {
+   employeeCode: text;
+   employeeName: text;
+   hqAssignments: vec HqHierarchyBlock;
+   mobileNumber: text;
+   primaryHqName: text;
+   reportingManagerId: opt UserId;
+   reportingManagerName: text;
+   role: text;
+   status: text;
+   territory: text;
+   userId: UserId;
+ };
+type HqHierarchyBlock = 
+ record {
+   areaNames: vec text;
+   hqId: LocationId;
+   hqName: text;
+   stationNames: vec text;
+ };
+type HqAssignment = 
+ record {
+   areaIds: vec LocationId;
+   exStationIds: vec LocationId;
+   hqId: LocationId;
+   stationIds: vec LocationId;
+ };
+type HolidayType = 
+ variant {
+   FestivalHoliday;
+   NationalHoliday;
+   OptionalHoliday;
+   RegionalHoliday;
+ };
+type HolidayExportRow = 
+ record {
+   applicableTo: text;
+   date: int;
+   dayOfWeek: text;
+   holidayType: text;
+   name: text;
+   srNo: nat;
+ };
+type HolidayApplicableTo = 
+ variant {
+   AllEmployees;
+   SpecificRoles: vec Role;
+   SpecificTerritories: vec text;
+ };
+type HealthCheckReport = 
+ record {
+   anomalies: vec HealthAnomaly;
+   anomalyCount: nat;
+   passed: bool;
+   timestamp: int;
+ };
+type HealthAnomaly = 
+ record {
+   affectedIds: vec text;
+   anomalyType: text;
+   description: text;
+ };
+type HQRecord = 
+ record {
+   createdAt: Timestamp;
+   id: LocationId;
+   isActive: bool;
+   name: text;
+   territoryId: LocationId;
+ };
+type GpsTrailRecord = 
+ record {
+   coords: vec GpsCoord;
+   date: text;
+   userId: UserId;
+ };
+type GpsOverrideEntry = 
+ record {
+   active: bool;
+   employeeId: UserId;
+   grantedBy: UserId;
+   id: nat;
+   overrideDate: opt text;
+   reason: text;
+   timestamp: int;
+ };
+type GpsCoord = 
+ record {
+   lat: float64;
+   lng: float64;
+   timestamp: int;
+ };
+type GpsActivityFilter = 
+ record {
+   dateFrom: opt text;
+   dateTo: opt text;
+   role: opt Role;
+   userId: opt UserId;
+ };
+type GpsActivityEntry = 
+ record {
+   accuracy: opt float64;
+   capturedAt: Timestamp;
+   id: nat;
+   lat: float64;
+   lng: float64;
+   source: text;
+   userId: UserId;
+ };
+type GpsAccuracyCategory = 
+ variant {
+   lowAccuracy;
+   none;
+   verified;
+ };
+type GiftItem = 
+ record {
+   itemName: text;
+   quantity: nat;
+ };
+type GiftGivenDetail = 
+ record {
+   articleId: GiftArticleId;
+   articleName: text;
+   quantity: nat;
+ };
+type GiftArticleInfo = 
+ record {
+   category: text;
+   createdAt: Timestamp;
+   createdBy: UserId;
+   description: text;
+   id: GiftArticleId;
+   isActive: bool;
+   name: text;
+ };
+type GiftArticleId = nat;
+type GiftArticleDistributedV2 = 
+ record {
+   giftArticleId: GiftArticleId;
+   giftArticleName: text;
+   quantity: nat;
+ };
+type ExportFilter = 
+ record {
+   endDate: opt text;
+   month: opt text;
+   role: opt text;
+   startDate: opt text;
+   userId: opt text;
+ };
+type ExpenseStatus = 
+ variant {
+   approved;
+   pending;
+   rejected;
+ };
+type ExpenseSheetFilter = 
+ record {
+   employeeId: opt text;
+   month: opt nat;
+   paymentStatus: opt PaymentStatus;
+   year: opt nat;
+ };
+type ExpenseSheet = 
+ record {
+   employeeId: text;
+   generatedAt: int;
+   id: text;
+   lineItems: vec ExpenseLineItem;
+   markedPaidBy: opt text;
+   month: nat;
+   paymentDate: opt int;
+   paymentStatus: PaymentStatus;
+   totalAmount: float64;
+   year: nat;
+ };
+type ExpenseLineItem = 
+ record {
+   amount: float64;
+   date: int;
+   description: opt text;
+   expenseType: text;
+   sourceCallReportId: opt text;
+ };
+type ExpenseClaimSummaryRow = 
+ record {
+   byType: vec record {
+                 text;
+                 float64;
+               };
+   chemistVisitsInPeriod: nat;
+   doctorCallsInPeriod: nat;
+   mrId: UserId;
+   mrName: text;
+   stockistVisitsInPeriod: nat;
+   totalClaimed: float64;
+ };
+type EnrichedTrailEvent = 
+ record {
+   activityType: text;
+   coord: GpsCoord;
+   doctorCalls: vec TrailDoctorCall;
+ };
+type EmployeeId = nat;
+type EmployeeDocument = 
+ record {
+   documentType: DocumentType;
+   employeeId: EmployeeId;
+   fileName: text;
+   id: nat;
+   storageUrl: text;
+   uploadedAt: Timestamp;
+   uploadedBy: EmployeeId;
+ };
+type EmployeeAdvance = 
+ record {
+   advanceAmount: float64;
+   advanceDate: int;
+   amountRecovered: float64;
+   cancelRemark: opt text;
+   createdAt: int;
+   createdBy: text;
+   employeeId: text;
+   firstDeductionMonth: nat;
+   firstDeductionYear: nat;
+   id: text;
+   installmentAmount: float64;
+   installmentStartMonth: nat;
+   installmentStartYear: nat;
+   installmentsCompleted: nat;
+   isPaused: bool;
+   reason: text;
+   remarks: opt text;
+   status: AdvanceStatus;
+   totalInstallments: nat;
+ };
+type EmpIdConfig = 
+ record {
+   padWidth: nat;
+   prefix: text;
+   roleKey: text;
+   startingNumber: nat;
+ };
+type EmailInitiationLog = 
+ record {
+   action: text;
+   initiatedAt: int;
+   initiatedBy: text;
+   initiatedByRole: text;
+   letterRef: text;
+ };
+type DocumentType = 
+ variant {
+   agreement;
+   idProof;
+   offerLetter;
+   other;
+ };
+type DoctorVisited = 
+ record {
+   doctorId: nat;
+   doctorName: text;
+   station: text;
+ };
+type DoctorVisitExportRow = 
+ record {
+   daAmount: nat;
+   date: text;
+   doctorId: nat;
+   giftArticles: vec text;
+   productsDiscussed: vec text;
+   reportId: nat;
+   role: text;
+   samplesDistributed: vec text;
+   userId: text;
+   userName: text;
+ };
+type DoctorVisitEntry = 
+ record {
+   detailsPerProduct: vec record {
+                            ProductId;
+                            text;
+                          };
+   doctorId: DoctorId;
+   giftArticles: vec GiftArticleDistributedV2;
+   gps: opt GpsCoord;
+   notes: text;
+   productIds: vec ProductId;
+   samplesDistributed: vec SampleDistributed;
+   submittedByRole: opt text;
+   submittedViaMRCharge: opt bool;
+ };
+type DoctorVisitDetail = 
+ record {
+   category: text;
+   doctorId: DoctorId;
+   doctorName: text;
+   giftsGiven: vec GiftGivenDetail;
+   products: vec ProductVisitDetail;
+   remarks: text;
+   samplesGiven: vec SampleGivenDetail;
+   specialization: text;
+   station: text;
+ };
+type DoctorSaleProductEntry = 
+ record {
+   productId: nat;
+   productName: text;
+   quantity: nat;
+   remarks: opt text;
+   saleValue: float64;
+ };
+type DoctorQualification = 
+ variant {
+   BAMS;
+   BDS;
+   BHMS;
+   DM;
+   DNB;
+   MBBS;
+   MBBSdgo;
+   MBBSdnb;
+   MBBSent;
+   MBBSmd;
+   MBBSms;
+   MBBSortho;
+   MCh;
+   MD;
+   MDS;
+   MS;
+   Other: text;
+ };
+type DoctorProductAssignment = 
+ record {
+   doctorId: DoctorId;
+   mrId: UserId;
+   productIds: vec ProductId;
+   sampleIds: vec ProductId;
+   updatedAt: Timestamp;
+ };
+type DoctorInfo = 
+ record {
+   address: text;
+   area: text;
+   areaId: nat;
+   assignedMRId: nat;
+   category: text;
+   clinicName: text;
+   contactPhone: text;
+   createdAt: Timestamp;
+   createdBy: UserId;
+   dateOfBirth: opt text;
+   email: text;
+   hqId: nat;
+   id: DoctorId;
+   isActive: bool;
+   isCoreDoctor: bool;
+   name: text;
+   qualification: DoctorQualification;
+   specialization: text;
+   station: text;
+   territory: text;
+   visitFrequencyTarget: nat;
+ };
+type DoctorId = nat;
+type DcrWorkingType = 
+ variant {
+   FieldWork;
+   Holiday;
+   Leave;
+   OfficeWork;
+   SickLeave;
+   Training;
+ };
+type DcrSummaryRow = 
+ record {
+   date: text;
+   isLate: bool;
+   mrId: UserId;
+   mrName: text;
+   status: DcrStatus;
+   totalChemists: nat;
+   totalDoctors: nat;
+   totalStockists: nat;
+ };
+type DcrStatus = 
+ variant {
+   Approved;
+   Draft;
+   Late;
+   Rejected;
+   Submitted;
+ };
+type DcrSettingsInfo = 
+ record {
+   dailyDeadlineHour: nat;
+   dailyDeadlineMinute: nat;
+   isEnabled: bool;
+ };
+type DcrReminderStatus = 
+ record {
+   checkedIn: bool;
+   dcrSubmitted: bool;
+   deadlineHour: nat;
+ };
+type DcrInput = 
+ record {
+   areaCovered: text;
+   date: text;
+   gpsLocation: opt GpsCoord;
+   remarks: text;
+   stationCovered: text;
+   totalChemistsVisited: nat;
+   totalDoctorsVisited: nat;
+   totalStockistsVisited: nat;
+   workingType: DcrWorkingType;
+ };
+type DcrInfo = 
+ record {
+   approvedAt: opt Timestamp;
+   approvedBy: opt UserId;
+   approverRemark: text;
+   areaCovered: text;
+   createdAt: Timestamp;
+   date: text;
+   gpsLocation: opt GpsCoord;
+   id: nat;
+   isLate: bool;
+   mrId: UserId;
+   remarks: text;
+   stationCovered: text;
+   status: DcrStatus;
+   submittedAt: opt Timestamp;
+   totalChemistsVisited: nat;
+   totalDoctorsVisited: nat;
+   totalStockistsVisited: nat;
+   workingType: DcrWorkingType;
+ };
+type DcrApprovalInput = 
+ record {
+   dcrId: nat;
+   remark: text;
+   status: DcrStatus;
+ };
+type DayCallSummary = 
+ record {
+   date: text;
+   doctorCount: nat;
+   doctorNames: vec text;
+   giftsGiven: vec GiftItem;
+   productsDiscussed: vec text;
+   samplesGiven: vec SampleItem;
+   station: text;
+   workingMode: text;
+ };
+type DataCleanupLog = 
+ record {
+   adminUsername: text;
+   id: nat;
+   reason: text;
+   recordsDeleted: vec record {
+                         text;
+                         nat;
+                       };
+   status: text;
+   timestamp: int;
+ };
+type DashboardAggregates = 
+ variant {
+   admin: AdminKpis;
+   asm: AsmKpis;
+   hr: HrKpis;
+   mr: MrKpis;
+   rsm: RsmKpis;
+   zsm: ZsmKpis;
+ };
+type DaReportRow = 
+ record {
+   daAmount: float64;
+   date: text;
+   role: text;
+   stationType: text;
+   userId: text;
+   userName: text;
+ };
+type DaRate = 
+ variant {
+   rate250;
+   rate300;
+ };
+type DaHistoryRow = 
+ record {
+   daAmount: nat;
+   date: text;
+   doctorCount: nat;
+   stationType: text;
+ };
+type DaConfig = 
+ record {
+   exStationRate: nat;
+   hqRate: nat;
+   outStationRate: nat;
+   role: text;
+ };
+type CrmStatus = 
+ variant {
+   Approved;
+   Pending;
+   Rejected;
+ };
+type CrmRequestInfo = 
+ record {
+   approvedAt: opt Timestamp;
+   approvedBy: opt UserId;
+   createdAt: Timestamp;
+   crmAmount: float64;
+   doctorId: DoctorId;
+   doctorName: text;
+   id: CrmRequestId;
+   productCommitments: vec ProductCommitment;
+   rejectionReason: opt text;
+   requestNotes: opt text;
+   salesTargetId: opt SalesTargetId;
+   status: CrmStatus;
+   updatedAt: Timestamp;
+   userId: UserId;
+ };
+type CrmRequestId = nat;
+type CrmExportRow = 
+ record {
+   crmAmount: float64;
+   doctorId: nat;
+   doctorName: text;
+   month: text;
+   products: vec text;
+   requestId: nat;
+   salesTarget: float64;
+   status: text;
+   userId: text;
+   userName: text;
+ };
+type CrmDoctorSaleRecord = 
+ record {
+   areaId: nat;
+   createdAt: Timestamp;
+   doctorId: nat;
+   id: CrmDoctorSaleId;
+   products: vec DoctorSaleProductEntry;
+   saleDate: Timestamp;
+   submittedBy: UserId;
+   totalSaleValue: float64;
+ };
+type CrmDoctorSaleId = nat;
+type CrmDoctorSaleFilter = 
+ record {
+   areaId: opt nat;
+   doctorId: opt nat;
+   fromDate: opt Timestamp;
+   submittedBy: opt UserId;
+   toDate: opt Timestamp;
+ };
+type CreateZoneInput = 
+ record {
+   code: text;
+   name: text;
+ };
+type CreateUserInput = 
+ record {
+   areaIds: opt vec nat;
+   dateOfBirth: opt text;
+   department: text;
+   designation: text;
+   email: text;
+   employeeId: text;
+   hqAssignments: opt vec HqAssignment;
+   hqIds: opt vec nat;
+   joinDate: text;
+   name: text;
+   password: text;
+   phone: text;
+   primaryHqId: opt LocationId;
+   reportsTo: opt UserId;
+   role: Role;
+   salary: SalaryComponents;
+   stateIds: opt vec nat;
+   territory: text;
+   territoryIds: opt vec nat;
+   username: text;
+   zoneIds: opt vec nat;
+ };
+type CreateTravelPlanInput = 
+ record {
+   date: text;
+   notes: text;
+   plannedStation: text;
+ };
+type CreateTerritoryInput = 
+ record {
+   name: text;
+   stateId: LocationId;
+ };
+type CreateStockistRequest = 
+ record {
+   address: text;
+   areaId: nat;
+   drugLicenseNumber: opt text;
+   emailId: opt text;
+   gstNumber: opt text;
+   mobileNumber: text;
+   name: text;
+   proprietorName: text;
+   remarks: opt text;
+ };
+type CreateStationInput = 
+ record {
+   hqId: LocationId;
+   stationName: text;
+ };
+type CreateStateInput = 
+ record {
+   name: text;
+   zoneId: LocationId;
+ };
+type CreateSecondarySaleRequest = 
+ record {
+   products: vec SaleProductEntry;
+   saleDate: Timestamp;
+   stockistId: nat;
+ };
+type CreateSalesTargetInput = 
+ record {
+   description: text;
+   month: nat;
+   targetAmount: float64;
+   year: nat;
+ };
+type CreateReportInput = 
+ record {
+   date: text;
+   doctorsVisited: vec DoctorVisitEntry;
+   endLocation: GpsCoord;
+   gps: GpsCoord;
+   remarks: text;
+   samplesDistributed: vec SampleDistributed;
+   startLocation: GpsCoord;
+   stationType: text;
+   workType: WorkType;
+   workingMode: opt WorkingMode;
+   workingStation: opt text;
+   workingStationSource: opt WorkingStationSource__1;
+   workingWithUserId: opt UserId;
+   workingWithUserName: opt text;
+ };
+type CreateProductInput = 
+ record {
+   category: ProductCategory;
+   description: text;
+   division: text;
+   mrpPaise: nat;
+   name: text;
+   packSize: text;
+   productCode: text;
+ };
+type CreateOrderInput = 
+ record {
+   chemistId: ChemistId;
+   date: text;
+   gpsLocation: opt GpsCoord;
+   items: vec OrderItem;
+   remarks: text;
+   totalValue: nat;
+ };
+type CreateLetterInput = 
+ record {
+   body: text;
+   date: text;
+   details: opt LetterDetails;
+   employeeId: opt nat;
+   employeeName: opt text;
+   letterType: LetterType;
+   recipientName: text;
+   status: LetterStatus;
+   subject: text;
+ };
+type CreateIncentivePlanInput = 
+ record {
+   month: nat;
+   period: TargetPeriod;
+   role: Role;
+   slabs: vec IncentiveSlab;
+   year: nat;
+ };
+type CreateHolidayInput = 
+ record {
+   applicableTo: HolidayApplicableTo;
+   date: int;
+   holidayType: HolidayType;
+   name: text;
+   remarks: opt text;
+ };
+type CreateHQInput = 
+ record {
+   name: text;
+   territoryId: LocationId;
+ };
+type CreateGiftArticleInput = 
+ record {
+   category: text;
+   description: text;
+   name: text;
+ };
+type CreateDoctorInput = 
+ record {
+   area: text;
+   contactPhone: text;
+   dateOfBirth: opt text;
+   name: text;
+   qualification: DoctorQualification;
+   specialization: text;
+   station: text;
+   territory: text;
+ };
+type CreateCrmRequestInput = 
+ record {
+   crmAmount: float64;
+   doctorId: DoctorId;
+   doctorName: text;
+   productCommitments: vec ProductCommitment;
+   requestNotes: opt text;
+   salesTargetId: opt SalesTargetId;
+ };
+type CreateCrmDoctorSaleRequest = 
+ record {
+   doctorId: nat;
+   products: vec DoctorSaleProductEntry;
+   saleDate: Timestamp;
+ };
+type CreateChemistInput = 
+ record {
+   address: text;
+   area: text;
+   contactPhone: text;
+   name: text;
+   shopName: text;
+   territory: text;
+ };
+type CreateBusinessReportInput = 
+ record {
+   actualSales: float64;
+   doctorId: DoctorId;
+   doctorName: text;
+   linkedCrmRequestId: opt CrmRequestId;
+   month: nat;
+   prescriptionCount: nat;
+   reportNotes: opt text;
+   year: nat;
+ };
+type CreateBottomUpTargetInput = 
+ record {
+   description: opt text;
+   period: TargetPeriod;
+   targetAmount: nat;
+   userId: UserId;
+   year: nat;
+ };
+type CreateAreaInput = 
+ record {
+   hqId: LocationId;
+   name: text;
+ };
+type CreateAdvanceInput = 
+ record {
+   advanceAmount: float64;
+   advanceDate: int;
+   employeeId: text;
+   installmentStartMonth: nat;
+   installmentStartYear: nat;
+   reason: text;
+   remarks: opt text;
+   totalInstallments: nat;
+ };
+type CreateAdminMessageInput = 
+ record {
+   attachmentUrls: vec text;
+   content: text;
+   scheduledDate: opt text;
+   title: text;
+ };
+type CoverageRow = 
+ record {
+   area: text;
+   chemistVisits: nat;
+   mrId: UserId;
+   mrName: text;
+   period: text;
+   station: text;
+   stockistVisits: nat;
+ };
+type ConsolidatedMonthData = 
+ record {
+   avgVisitPercentage: float64;
+   monthYear: text;
+   totalMRs: nat;
+ };
+type CompanyProfile = 
+ record {
+   address: text;
+   companyName: text;
+   contactNumber: text;
+   emailId: opt text;
+   logoUrl: opt text;
+   updatedAt: int;
+   website: opt text;
+ };
+type CompanyHoliday = 
+ record {
+   applicableTo: HolidayApplicableTo;
+   createdAt: int;
+   createdBy: text;
+   date: int;
+   holidayType: HolidayType;
+   id: nat;
+   isActive: bool;
+   name: text;
+   remarks: opt text;
+ };
+type ChemistOrderInfo = 
+ record {
+   chemistId: ChemistId;
+   createdAt: Timestamp;
+   date: text;
+   gpsLocation: opt GpsCoord;
+   id: OrderId;
+   items: vec OrderItem;
+   mrId: UserId;
+   remarks: text;
+   status: OrderStatus;
+   totalValue: nat;
+ };
+type ChemistInfo = 
+ record {
+   address: text;
+   area: text;
+   contactPhone: text;
+   createdAt: Timestamp;
+   createdBy: UserId;
+   id: ChemistId;
+   isActive: bool;
+   name: text;
+   shopName: text;
+   territory: text;
+ };
+type ChemistId = nat;
+type ChemistCallInput = 
+ record {
+   area: text;
+   chemistId: nat;
+   chemistName: text;
+   date: text;
+   gpsLocation: GpsCoord;
+   orderNoted: text;
+   productsEnquired: vec ProductEnquired;
+   remarks: text;
+   station: text;
+ };
+type ChemistCallInfo = 
+ record {
+   area: text;
+   chemistId: nat;
+   chemistName: text;
+   createdAt: Timestamp;
+   date: text;
+   gpsLocation: GpsCoord;
+   id: nat;
+   mrId: UserId;
+   orderNoted: text;
+   productsEnquired: vec ProductEnquired;
+   remarks: text;
+   station: text;
+ };
+type CheckInStatus = 
+ variant {
+   matched;
+   unmatched;
+ };
+type ChargeType = 
+ variant {
+   Area;
+   Role;
+ };
+type CallReportInfo = 
+ record {
+   createdAt: Timestamp;
+   daAmount: nat;
+   date: text;
+   doctorsVisited: vec DoctorVisitEntry;
+   endLocation: GpsCoord;
+   gps: GpsCoord;
+   id: ReportId;
+   mrId: UserId;
+   remarks: text;
+   reviewNote: text;
+   reviewedAt: opt Timestamp;
+   reviewedBy: opt UserId;
+   samplesDistributed: vec SampleDistributed;
+   startLocation: GpsCoord;
+   stationType: text;
+   status: ReportStatus;
+   updatedAt: Timestamp;
+   workType: WorkType;
+   workingMode: opt WorkingMode;
+   workingStation: opt text;
+   workingStationSource: opt WorkingStationSource__1;
+   workingWithUserId: opt UserId;
+   workingWithUserName: opt text;
+ };
+type CallReportExportRow = 
+ record {
+   daAmount: nat;
+   date: text;
+   doctorCount: nat;
+   reportId: nat;
+   role: text;
+   stationType: text;
+   status: text;
+   userId: text;
+   userName: text;
+ };
+type CallReportDetail = 
+ record {
+   date: text;
+   doctorVisits: vec DoctorVisitDetail;
+   mrId: UserId;
+   mrName: text;
+   reportId: ReportId;
+   submittedAt: Timestamp;
+ };
+type CalculationStatus = 
+ variant {
+   AutoCalculated;
+   ManuallyOverridden;
+ };
+type BusinessReportInfo = 
+ record {
+   actualSales: float64;
+   createdAt: Timestamp;
+   doctorId: DoctorId;
+   doctorName: text;
+   id: BusinessReportId;
+   linkedCrmRequestId: opt CrmRequestId;
+   month: nat;
+   prescriptionCount: nat;
+   reportNotes: opt text;
+   userId: UserId;
+   year: nat;
+ };
+type BusinessReportId = nat;
+type BulkUploadResult = 
+ record {
+   errors: vec text;
+   failed: nat;
+   succeeded: nat;
+ };
+type BulkUploadRecord = 
+ record {
+   errors: vec text;
+   id: nat;
+   savedRows: nat;
+   skippedRows: nat;
+   totalRows: nat;
+   uploadType: text;
+   uploadedAt: int;
+   uploadedBy: nat;
+ };
+type BulkTargetRow = 
+ record {
+   chemistTarget: opt nat;
+   doctorCallTarget: opt nat;
+   newDoctorsTarget: opt nat;
+   remarks: opt text;
+   stockistTarget: opt nat;
+   targetAmount: float64;
+   userId: UserId;
+ };
+type BulkStockistInput = 
+ record {
+   address: text;
+   areaId: nat;
+   drugLicenseNumber: opt text;
+   gstNumber: opt text;
+   mobileNumber: text;
+   name: text;
+   proprietorName: text;
+   remarks: opt text;
+ };
+type BulkStationImportRowResult = 
+ record {
+   errorReason: opt text;
+   hqName: text;
+   rowIndex: nat;
+   stationName: text;
+   status: variant {
+             error;
+             ok;
+           };
+ };
+type BulkStationImportResult = 
+ record {
+   rowResults: vec BulkStationImportRowResult;
+   saved: nat;
+   skipped: nat;
+   totalRows: nat;
+   uploadedAt: int;
+   uploadedBy: text;
+ };
+type BulkStationImportInput = 
+ record {
+   hqName: text;
+   stationName: text;
+ };
+type BulkSetMonthlyTargetsInput = 
+ record {
+   month: nat;
+   rows: vec BulkTargetRow;
+   year: nat;
+ };
+type BulkImportResult = 
+ record {
+   errors: vec text;
+   failed: nat;
+   succeeded: nat;
+ };
+type BulkImportDoctorResult = 
+ record {
+   errors: vec text;
+   failed: nat;
+   newDoctorIds: vec record {
+                       DoctorId;
+                       text;
+                     };
+   succeeded: nat;
+ };
+type BulkImportDoctorInput = 
+ record {
+   area: text;
+   contactPhone: text;
+   name: text;
+   qualification: text;
+   specialization: text;
+   station: text;
+ };
+type BulkImportChemistInput = 
+ record {
+   address: text;
+   area: text;
+   contactPhone: text;
+   name: text;
+   shopName: text;
+ };
+type BulkGiftArticleImportResult = 
+ record {
+   created: nat;
+   errors: vec BulkGiftArticleImportError;
+   skipped: nat;
+   totalRows: nat;
+ };
+type BulkGiftArticleImportError = 
+ record {
+   name: text;
+   reason: text;
+   row: nat;
+ };
+type BulkDeleteResult = 
+ record {
+   deleted: nat;
+   failed: nat;
+ };
+type BulkAddResult = 
+ record {
+   added: nat;
+   errors: vec text;
+ };
+type BottomUpTargetSummaryRow = 
+ record {
+   area: text;
+   employeeName: text;
+   halfYearly: nat;
+   level: text;
+   monthly: nat;
+   overrideNotes: text;
+   quarterly: nat;
+   status: text;
+   territory: text;
+   yearly: nat;
+ };
+type BottomUpTarget = 
+ record {
+   calculationStatus: CalculationStatus;
+   createdAt: Timestamp;
+   createdBy: UserId;
+   id: nat;
+   isOverridden: bool;
+   lastModifiedAt: Timestamp;
+   lastModifiedBy: UserId;
+   overrideReason: opt text;
+   period: TargetPeriod;
+   role: Role;
+   targetAmount: nat;
+   userId: UserId;
+   year: nat;
+ };
+type BookingStatus = 
+ variant {
+   Approved;
+   Pending;
+   Rejected;
+ };
+type BookingRequestInfo = 
+ record {
+   createdAt: Timestamp;
+   id: BookingId;
+   intendedUse: BookingIntendedUse;
+   itemName: text;
+   notes: opt text;
+   quantity: nat;
+   rejectionReason: opt text;
+   reviewedAt: opt Timestamp;
+   reviewedBy: opt UserId;
+   status: BookingStatus;
+   targetDate: text;
+   updatedAt: Timestamp;
+   userId: UserId;
+   userName: text;
+   userRole: text;
+ };
+type BookingIntendedUse = 
+ variant {
+   Gift;
+   Sample;
+ };
+type BookingId = nat;
+type BonusEntry = 
+ record {
+   amount: float64;
+   bonusType: text;
+   remarks: opt text;
+ };
+type AttendanceStatus = 
+ variant {
+   absent;
+   companyHoliday;
+   halfDay;
+   onLeave;
+   onLeaveCL;
+   onLeaveCO;
+   onLeaveLWP;
+   onLeaveML;
+   onLeavePL;
+   onLeaveSL;
+   onLeaveUPL;
+   present;
+   weeklyOff;
+ };
+type AttendanceRecord = 
+ record {
+   checkInGps: opt GpsCoord;
+   checkInTime: opt text;
+   correctedBy: opt text;
+   correctionAt: opt Timestamp;
+   correctionRemark: opt text;
+   date: text;
+   employeeId: EmployeeId;
+   holidayId: opt nat;
+   id: nat;
+   leaveApplicationId: opt nat;
+   recordedAt: Timestamp;
+   status: AttendanceStatus;
+ };
+type AttendanceCorrectionInput = 
+ record {
+   date: text;
+   employeeId: nat;
+   newStatus: AttendanceStatus;
+   reason: text;
+ };
+type AttendanceCheckIn = 
+ record {
+   checkOutGps: opt GpsCoord;
+   checkOutTime: opt Timestamp;
+   date: text;
+   distance: float64;
+   gpsCoord: GpsCoord;
+   matchedLocation: opt text;
+   recordedAt: Timestamp;
+   status: CheckInStatus;
+   userId: UserId;
+ };
+type AssignProductsInput = 
+ record {
+   doctorId: DoctorId;
+   productIds: vec ProductId;
+   sampleIds: vec ProductId;
+ };
+type AssignAdditionalChargeInput = 
+ record {
+   additionalArea: opt text;
+   additionalAreaId: opt nat;
+   additionalHqAssignments: opt vec AdditionalHqAssignment;
+   additionalHqId: opt nat;
+   additionalRole: opt Role;
+   chargeType: ChargeType;
+   effectiveFrom: Timestamp;
+   effectiveTo: Timestamp;
+   employeeId: UserId;
+   remarks: opt text;
+ };
+type AsmMrGroup = 
+ record {
+   asmId: UserId;
+   asmName: text;
+   mrs: vec MrGroupEntry;
+ };
+type AsmKpis = 
+ record {
+   mrsNotCheckedInToday: nat;
+   mrsPendingMtpApproval: nat;
+   pendingLeaveCount: nat;
+   pendingTadaCount: nat;
+   teamChemistVisits: nat;
+   teamDcrExpected: nat;
+   teamDcrOnTimeCount: nat;
+   teamDoctorCallsCount: nat;
+   teamDoctorCallsTarget: nat;
+   totalMrs: nat;
+ };
+type AreaRecord = 
+ record {
+   createdAt: Timestamp;
+   hqId: LocationId;
+   id: LocationId;
+   isActive: bool;
+   name: text;
+ };
+type ApproveIncentiveInput = 
+ record {
+   adjustedAmount: opt float64;
+   calculationId: nat;
+   notes: opt text;
+ };
+type ApplyLeaveInput = 
+ record {
+   attachmentUrl: opt text;
+   fromDate: text;
+   gpsLocation: opt GpsCoord;
+   leaveType: LeaveType;
+   notes: opt text;
+   numDays: nat;
+   reason: text;
+   toDate: text;
+ };
+type AdvanceStatus = 
+ variant {
+   Active;
+   Cancelled;
+   FullyRecovered;
+ };
+type AdminMessageInfo = 
+ record {
+   attachmentUrls: vec text;
+   content: text;
+   createdAt: int;
+   createdBy: text;
+   id: text;
+   isActive: bool;
+   scheduledDate: opt text;
+   title: text;
+ };
+type AdminKpis = 
+ record {
+   attendanceRateToday: float64;
+   autoInactivatedPending: nat;
+   chemistVisitsThisMonth: nat;
+   chemistVisitsToday: nat;
+   doctorCallsThisMonth: nat;
+   doctorCallsToday: nat;
+   systemAlertCount: nat;
+   totalActiveUsers: nat;
+   totalPendingApprovals: nat;
+   usersByRole: vec record {
+                      text;
+                      nat;
+                    };
+ };
+type AdditionalHqAssignment = 
+ record {
+   areaIds: vec nat;
+   hqId: nat;
+ };
+type AdditionalChargeFilter = 
+ record {
+   activeOnly: bool;
+   area: opt text;
+   areaId: opt nat;
+   chargeType: opt ChargeType;
+   employeeId: opt UserId;
+   fromDate: opt Timestamp;
+   hqId: opt nat;
+   role: opt Role;
+   toDate: opt Timestamp;
+ };
+type AdditionalCharge = 
+ record {
+   additionalArea: opt text;
+   additionalAreaId: opt nat;
+   additionalHqAssignments: vec AdditionalHqAssignment;
+   additionalHqId: opt nat;
+   additionalRole: opt Role;
+   assignedAt: Timestamp;
+   assignedBy: UserId;
+   chargeType: ChargeType;
+   effectiveFrom: Timestamp;
+   effectiveTo: Timestamp;
+   employeeId: UserId;
+   id: text;
+   remarks: opt text;
+   updatedAt: Timestamp;
+ };
+type AdditionalAreaInfo = 
+ record {
+   areaId: nat;
+   hqId: nat;
+ };
+type AddSuggestionReplyInput = 
+ record {
+   reply: text;
+   suggestionId: nat;
+ };
+type AddPricelistProductInput = 
+ record {
+   composition: text;
+   mrp: float64;
+   name: text;
+   ptr: float64;
+   pts: float64;
+ };
+type AbsenceResult = 
+ variant {
+   err: text;
+   ok: text;
+ };
+type AbsenceInactivationLogView = 
+ record {
+   absentDates: vec text;
+   employeeCode: text;
+   employeeId: text;
+   employeeName: text;
+   hq: text;
+   id: text;
+   inactivatedAt: int;
+   isReactivated: bool;
+   reactivatedAt: opt int;
+   reactivatedBy: opt text;
+   role: text;
+   source: text;
+ };
+service : {
+  acknowledgeJfw: (token: text, jfwId: nat) ->
+   (variant {
+      err: text;
+      ok: text;
+    });
+  addArea: (token: text, input: CreateAreaInput) -> (MutationResult);
+  addBonusEntry: (sheetId: text, entry: BonusEntry) ->
+   (variant {
+      err: text;
+      ok;
+    });
+  addChemist: (mrId: UserId, input: CreateChemistInput) -> (ChemistId);
+  addCompanyHoliday: (token: text, input: CreateHolidayInput) ->
+   (variant {
+      err: text;
+      ok: nat;
+    });
+  addDoctor: (mrId: UserId, input: CreateDoctorInput) -> (DoctorId);
+  addDocument: (token: text, employeeId: nat, documentType: DocumentType,
+   fileName: text, storageUrl: text) -> (MutationResult);
+  addGpsOverride: (token: text, employeeId: UserId, reason: text,
+   overrideDate: opt text) -> (variant {
+                                 err: text;
+                                 ok: GpsOverrideEntry;
+                               });
+  addHQ: (token: text, input: CreateHQInput) -> (MutationResult);
+  addOfficialLetterEmailLog: (token: text, letterId: nat, logEntry:
+   EmailInitiationLog) -> (MutationResult);
+  addPricelistProduct: (token: text, input: AddPricelistProductInput) ->
+   (MutationResult);
+  addProduct: (input: CreateProductInput) -> (ProductId);
+  addState: (token: text, input: CreateStateInput) -> (MutationResult);
+  addSuggestionReply: (token: text, input: AddSuggestionReplyInput) ->
+   (MutationResult);
+  addTerritory: (token: text, input: CreateTerritoryInput) ->
+   (MutationResult);
+  addZone: (token: text, input: CreateZoneInput) -> (MutationResult);
+  adminSeed: () -> (MutationResult);
+  allocateSamplesToMR: (token: text, input: SampleAllocationInput) ->
+   (variant {
+      err: text;
+      ok: nat;
+    });
+  applyLeaveV2: (token: text, input: ApplyLeaveInput) ->
+   (variant {
+      err: text;
+      ok: LeaveApplication;
+    });
+  approveBookingRequest: (token: text, id: BookingId) -> (MutationResult);
+  approveCrmRequest: (token: text, id: CrmRequestId) -> (MutationResult);
+  approveDcr: (token: text, input: DcrApprovalInput) ->
+   (variant {
+      err: text;
+      ok: text;
+    });
+  approveExpense: (token: text, expenseId: nat, approve: bool) ->
+   (MutationResult);
+  approveIncentiveCalculation: (token: text, input: ApproveIncentiveInput) ->
+   (variant {
+      err: text;
+      ok;
+    });
+  assignAdditionalCharge: (token: text, input:
+   AssignAdditionalChargeInput) ->
+   (variant {
+      err: text;
+      ok: AdditionalCharge;
+    });
+  assignProductsToDoctor: (mrId: UserId, input: AssignProductsInput) -> ();
+  bulkAddPricelistProducts: (token: text, inputs:
+   vec AddPricelistProductInput) -> (BulkAddResult);
+  bulkAssignEmployeeIds: (token: text) -> (variant {
+                                             err: text;
+                                             ok: nat;
+                                           });
+  bulkImportChemists: (token: text, mrId: UserId, items:
+   vec BulkImportChemistInput, areaName: text) -> (BulkImportResult);
+  bulkImportDoctors: (token: text, mrId: UserId, items:
+   vec BulkImportDoctorInput) -> (BulkImportDoctorResult);
+  bulkImportGiftArticles: (token: text, rows: vec CreateGiftArticleInput) ->
+   (BulkGiftArticleImportResult);
+  bulkImportStations: (token: text, rows: vec BulkStationImportInput) ->
+   (BulkStationImportResult);
+  bulkMigrateUids: (token: text) -> (variant {
+                                       err: text;
+                                       ok: nat;
+                                     });
+  bulkSetMonthlyTargets: (token: text, input: BulkSetMonthlyTargetsInput) ->
+   (variant {
+      err: text;
+      ok: nat;
+    });
+  bulkUploadStockists: (token: text, items: vec BulkStockistInput) ->
+   (variant {
+      err: text;
+      ok: BulkUploadResult;
+    });
+  calculateBottomUpIncentiveTargets: (token: text, year: nat, month: 
+   nat) -> (variant {
+              err: text;
+              ok: nat;
+            });
+  cancelAdvance: (id: text, remark: text) -> (variant {
+                                                err: text;
+                                                ok;
+                                              });
+  captureGpsBackground: (token: text, lat: float64, lng: float64, accuracy:
+   opt float64) -> (MutationResult);
+  checkDcrPending: (token: text, mrId: nat, date: text) -> (bool) query;
+  checkExpenseFieldActivity: (token: text, expenseDate: text) -> (bool) query;
+  checkGpsOverride: (token: text, date: text) -> (bool) query;
+  checkInAttendance: (token: text, coord: GpsCoord, date: text) ->
+   (variant {
+      alreadyCheckedIn: AttendanceCheckIn;
+      err: text;
+      ok: AttendanceCheckIn;
+    });
+  checkOutAttendance: (token: text, coord: opt GpsCoord, date: text) ->
+   (variant {
+      alreadyCheckedOut;
+      err: text;
+      notCheckedIn;
+      ok: AttendanceCheckIn;
+    });
+  cleanTrialData: (token: text, confirmationPhrase: text, reason: text) ->
+   (variant {
+      err: text;
+      ok: DataCleanupLog;
+    });
+  clearMyNotifications: (token: text) -> (MutationResult);
+  clearPrimaryHq: (token: text, userId: UserId) -> (MutationResult);
+  correctAttendance: (token: text, input: AttendanceCorrectionInput) ->
+   (variant {
+      err: text;
+      ok;
+    });
+  createAdminMessage: (token: text, input: CreateAdminMessageInput) ->
+   (variant {
+      err: text;
+      ok: AdminMessageInfo;
+    });
+  createAdvance: (input: CreateAdvanceInput) ->
+   (variant {
+      err: text;
+      ok: text;
+    });
+  createBookingRequest: (token: text, itemName: text, qty: nat, intendedUse:
+   IntendedUse, targetDate: text, notes: opt text) -> (MutationResult);
+  createBusinessReport: (token: text, input: CreateBusinessReportInput) ->
+   (variant {
+      err: text;
+      ok: BusinessReportId;
+    });
+  createCallReport: (mrId: UserId, input: CreateReportInput) -> (ReportId);
+  createCrmDoctorSale: (token: text, req: CreateCrmDoctorSaleRequest) ->
+   (variant {
+      err: text;
+      ok: CrmDoctorSaleRecord;
+    });
+  createCrmRequest: (token: text, input: CreateCrmRequestInput) ->
+   (variant {
+      err: text;
+      ok: CrmRequestId;
+    });
+  createDcrReminder: (token: text, mrId: nat) -> (variant {
+                                                    err: text;
+                                                    ok;
+                                                  });
+  createGiftArticle: (token: text, input: CreateGiftArticleInput) ->
+   (variant {
+      err: text;
+      ok: GiftArticleInfo;
+    });
+  createGiftArticleMaster: (token: text, input: CreateGiftArticleInput) ->
+   (variant {
+      err: text;
+      ok: GiftArticleInfo;
+    });
+  createIncentivePlan: (token: text, input: CreateIncentivePlanInput) ->
+   (variant {
+      err: text;
+      ok: IncentivePlan;
+    });
+  createMtpReminder: (token: text, mrId: nat) -> (variant {
+                                                    err: text;
+                                                    ok;
+                                                  });
+  createOfficialLetter: (token: text, input: CreateLetterInput) ->
+   (MutationResult);
+  createSalesTarget: (token: text, input: CreateSalesTargetInput) ->
+   (variant {
+      err: text;
+      ok: SalesTargetId;
+    });
+  createSecondarySale: (token: text, req: CreateSecondarySaleRequest) ->
+   (variant {
+      err: text;
+      ok: SecondarySaleRecord;
+    });
+  createStation: (token: text, input: CreateStationInput) -> (MutationResult);
+  createStockist: (token: text, req: CreateStockistRequest) ->
+   (variant {
+      err: text;
+      ok: StockistRecord;
+    });
+  createTravelPlan: (token: text, input: CreateTravelPlanInput) ->
+   (variant {
+      err: text;
+      ok: TravelPlanId;
+    });
+  createUser: (token: text, input: CreateUserInput) -> (MutationResult);
+  deactivateAdminMessage: (token: text, messageId: text) -> (MutationResult);
+  deactivateArea: (token: text, id: LocationId) -> (MutationResult);
+  deactivateCompanyHoliday: (token: text, id: nat) ->
+   (variant {
+      err: text;
+      ok;
+    });
+  deactivateHQ: (token: text, id: LocationId) -> (MutationResult);
+  deactivateIncentivePlan: (token: text, planId: nat) ->
+   (variant {
+      err: text;
+      ok;
+    });
+  deactivateProduct: (productId: ProductId) -> (MutationResult);
+  deactivateState: (token: text, id: LocationId) -> (MutationResult);
+  deactivateStockist: (token: text, stockistId: StockistId) ->
+   (variant {
+      err: text;
+      ok;
+    });
+  deactivateTerritory: (token: text, id: LocationId) -> (MutationResult);
+  deactivateUser: (token: text, userId: UserId) -> (MutationResult);
+  deactivateZone: (token: text, id: LocationId) -> (MutationResult);
+  deleteAdminMessage: (token: text, messageId: text) -> (MutationResult);
+  deleteCompanyHoliday: (token: text, id: nat) -> (variant {
+                                                     err: text;
+                                                     ok;
+                                                   });
+  deleteDoctor: (token: text, doctorId: nat) -> (bool);
+  deleteDoctors: (token: text, doctorIds: vec nat) -> (BulkDeleteResult);
+  deleteDocument: (token: text, documentId: nat) -> (MutationResult);
+  deleteGiftArticle: (token: text, id: GiftArticleId) ->
+   (variant {
+      err: text;
+      ok;
+    });
+  deleteGiftArticleMaster: (token: text, id: GiftArticleId) ->
+   (variant {
+      err: text;
+      ok;
+    });
+  deleteOfficialLetter: (token: text, id: nat) -> (MutationResult);
+  deletePricelistProduct: (token: text, id: PricelistProductId) ->
+   (MutationResult);
+  deleteStation: (token: text, stationId: LocationId) -> (bool);
+  deleteTaDaGrade: (token: text, gradeName: text) ->
+   (variant {
+      err: text;
+      ok;
+    });
+  dismissMissedVisitAlert: (token: text, mrId: nat, doctorId: nat) ->
+   (variant {
+      err: text;
+      ok;
+    });
+  doRunAbsenceCheck: () -> ();
+  executeAbsenceCheckNow: (token: text) -> (AbsenceResult);
+  exportCallReports: (token: text, filter: ExportFilter) ->
+   (vec CallReportExportRow) query;
+  exportCrmDoctorSales: (token: text, filter: CrmDoctorSaleFilter) ->
+   (vec CrmDoctorSaleRecord);
+  exportCrmSalesReport: (token: text, filter: ExportFilter) ->
+   (vec CrmExportRow) query;
+  exportDaReport: (token: text, filter: ExportFilter) ->
+   (vec DaReportRow) query;
+  exportDoctorVisitReports: (token: text, filter: ExportFilter) ->
+   (vec DoctorVisitExportRow) query;
+  exportIncentiveReport: (token: text, filter: IncentiveFilter) ->
+   (vec IncentiveCalculation);
+  exportMonthlyTargets: (token: text, filter: MonthlyTargetFilter) ->
+   (vec MonthlyTarget);
+  exportSecondarySales: (token: text, filter: SecondarySaleFilter) ->
+   (vec SecondarySaleRecord);
+  exportTargetAdjustmentLogs: (token: text, filter:
+   TargetAdjustmentFilter) -> (vec TargetAdjustmentLog);
+  exportTravelPlans: (token: text, filter: ExportFilter) ->
+   (vec TravelPlanExportRow) query;
+  finalizeOfficialLetter: (token: text, id: nat) -> (MutationResult);
+  generateExpenseSheet: (employeeId: text, month: nat, year: nat, lineItems:
+   vec ExpenseLineItem) -> (variant {
+                              err: text;
+                              ok: text;
+                            });
+  generateIncentiveBonusSheet: (employeeId: text, quarter: nat, year: 
+   nat, monthlyEntries: vec IncentiveMonthEntry, bonusEntries:
+   vec BonusEntry) -> (variant {
+                         err: text;
+                         ok: text;
+                       });
+  generateLetterRefNumber: (token: text) -> (opt text) query;
+  getAbsenceInactivationLog: (token: text) ->
+   (vec AbsenceInactivationLogView) query;
+  getAbsenceSettings: (token: text) ->
+   (record {
+      absenceCheckEnabled: bool;
+      consecutiveAbsenceThreshold: nat;
+      excludeLongTermLeave: bool;
+      warningNotificationsEnabled: bool;
+    });
+  getActiveAdditionalAreas: (token: text, employeeId: UserId) ->
+   (vec AdditionalAreaInfo);
+  getActiveAdminMessage: (token: text, today: text) ->
+   (opt AdminMessageInfo) query;
+  getActiveChargeAreaForEmployee: (token: text, employeeId: UserId) ->
+   (opt record {
+          nat;
+          nat;
+        });
+  getActiveChargesForEmployee: (token: text, employeeId: UserId) ->
+   (vec AdditionalCharge);
+  getActiveHolidays: (token: text) -> (vec CompanyHoliday) query;
+  getAdminEmail: (token: text) -> (opt text) query;
+  getAdvancesByEmployee: (employeeId: text) -> (vec EmployeeAdvance) query;
+  getAllActiveHQs: (token: text) -> (vec HQRecord) query;
+  getAllActiveStates: (token: text) -> (vec StateRecord) query;
+  getAllActiveTerritories: (token: text) -> (vec TerritoryRecord) query;
+  getAllActiveZones: (token: text) -> (vec ZoneRecord) query;
+  getAllAdvances: () -> (vec EmployeeAdvance) query;
+  getAllAllocations: (token: text, month: nat, year: nat) ->
+   (variant {
+      err: text;
+      ok: vec SampleAllocationInfo;
+    }) query;
+  getAllChargesForEmployee: (token: text, employeeId: UserId) ->
+   (vec AdditionalCharge);
+  getAllExpenseSheets: (filter: ExpenseSheetFilter) ->
+   (vec ExpenseSheet) query;
+  getAllHQs: (token: text) -> (vec HQRecord) query;
+  getAllIncentiveBonusSheets: (filter: IncentiveBonusSheetFilter) ->
+   (vec IncentiveBonusSheet) query;
+  getAllIncentiveCalculations: (token: text, filter: IncentiveFilter) ->
+   (vec IncentiveCalculation);
+  getAllJfws: (token: text, fromDate: text, toDate: text) ->
+   (vec JfwInfo) query;
+  getAllLeaves: (token: text, filter: LeaveFilter) ->
+   (variant {
+      err: text;
+      ok: vec LeaveApplication;
+    }) query;
+  getAllLocations: (token: text) -> (vec LocationRecord) query;
+  getAllStates: (token: text) -> (vec StateRecord) query;
+  getAllSubmissions: (token: text, filter: opt SuggestionFilter) ->
+   (vec SuggestionSubmission) query;
+  getAllTerritories: (token: text) -> (vec TerritoryRecord) query;
+  getAllTrailsForUser: (token: text, userId: UserId) ->
+   (vec GpsTrailRecord) query;
+  getAllWorkingStyleRecords: (from: int, to: int) ->
+   (vec WorkingStyleRecord) query;
+  getAllZones: (token: text) -> (vec ZoneRecord) query;
+  getAllocationsForMR: (token: text, mrId: nat, month: nat, year: nat) ->
+   (variant {
+      err: text;
+      ok: vec SampleAllocationInfo;
+    }) query;
+  getApprovedTaDaForMonth: (token: text, employeeId: nat, month: nat, year:
+   nat) -> (TaDaTotals) query;
+  getAttendanceSummaryForEmployee: (token: text, employeeId: nat, month: 
+   nat, year: nat) ->
+   (record {
+      absent: nat;
+      holidays: nat;
+      leaves: nat;
+      present: nat;
+      weeklyOffs: nat;
+    }) query;
+  getAuthorityChainEmails: (token: text) -> (vec text) query;
+  getBirthdayCalendar: (month: nat, year: nat, token: text) ->
+   (vec
+     record {
+       dayOfMonth: nat;
+       hq: text;
+       month: nat;
+       name: text;
+       role: text;
+       userId: text;
+     }) query;
+  getBirthdaysForHierarchy: (token: text) ->
+   (vec
+     record {
+       employeeId: text;
+       hq: text;
+       name: text;
+       role: text;
+       userId: text;
+     }) query;
+  getBirthdaysToday: (token: text) ->
+   (vec
+     record {
+       employeeId: text;
+       hq: text;
+       name: text;
+       role: text;
+       userId: text;
+     }) query;
+  getBulkUploadHistory: (token: text, uploadType: text) ->
+   (vec BulkUploadRecord) query;
+  getCallReport: (reportId: ReportId) -> (opt CallReportInfo) query;
+  getCheckInsByDate: (token: text, date: text) ->
+   (vec AttendanceCheckIn) query;
+  getChemist: (chemistId: ChemistId) -> (opt ChemistInfo) query;
+  getChemistCall: (token: text, callId: nat) -> (opt ChemistCallInfo) query;
+  getChemistOrder: (orderId: OrderId) -> (opt ChemistOrderInfo) query;
+  getChemistStockistCoverage: (token: text, mrIds: vec nat, fromDate: 
+   text, toDate: text) ->
+   (record {
+      chemistCoverage: vec CoverageRow;
+      stockistCoverage: vec CoverageRow;
+    }) query;
+  getCompanyHolidays: (token: text) -> (vec CompanyHoliday) query;
+  getCompanyProfile: (token: text) -> (opt CompanyProfile) query;
+  getConsolidatedVisitTrend: (token: text, managerId: nat, months: nat) ->
+   (variant {
+      err: text;
+      ok: vec ConsolidatedMonthData;
+    }) query;
+  getCrmDoctorSalesByEmployee: (token: text, employeeId: UserId) ->
+   (vec CrmDoctorSaleRecord);
+  getCrmRequest: (token: text, id: CrmRequestId) ->
+   (opt CrmRequestInfo) query;
+  getDaConfigs: () -> (vec DaConfig) query;
+  getDailyCallCounts: (token: text, mrId: nat, date: text) ->
+   (record {
+      chemistCount: nat;
+      stockistCount: nat;
+    }) query;
+  getDashboardAggregates: (token: text, fromDate: text, toDate: text) ->
+   (opt DashboardAggregates) query;
+  getDataCleanupHistory: (token: text) ->
+   (variant {
+      err: text;
+      ok: vec DataCleanupLog;
+    });
+  getDcrById: (token: text, dcrId: nat) -> (opt DcrInfo) query;
+  getDcrReminderStatus: (token: text, date: text) ->
+   (DcrReminderStatus) query;
+  getDcrSettings: (token: text) -> (DcrSettingsInfo) query;
+  getDcrSummary: (token: text, mrIds: vec nat, fromDate: text, toDate:
+   text) -> (vec DcrSummaryRow) query;
+  getDcrUnsubmittedMRs: (token: text, date: text) ->
+   (variant {
+      err: text;
+      ok: vec nat;
+    }) query;
+  getDoctor: (doctorId: DoctorId) -> (opt DoctorInfo) query;
+  getDoctorAssignment: (mrId: UserId, doctorId: DoctorId) ->
+   (opt DoctorProductAssignment) query;
+  getDoctorBirthdaysToday: (token: text) ->
+   (vec
+     record {
+       area: text;
+       doctorId: text;
+       name: text;
+       specialization: text;
+       station: text;
+     }) query;
+  getDoctorCallGpsLocation: (session: text, reportId: UserId) ->
+   (variant {
+      err: text;
+      ok:
+       record {
+         lat: float64;
+         lng: float64;
+         mrName: text;
+         submittedAt: int;
+         timestamp: int;
+       };
+    }) query;
+  getDoctorVisitHistory: (doctorId: DoctorId, limit: nat) ->
+   (vec CallReportInfo) query;
+  getDoctorVisitTrend: (token: text, managerId: nat, months: nat) ->
+   (variant {
+      err: text;
+      ok: vec MonthlyVisitData;
+    }) query;
+  getDoctorsByMRHQAndArea: (token: text, mrUserId: nat) ->
+   (variant {
+      err: text;
+      ok: vec DoctorInfo;
+    }) query;
+  getDoctorsForStation: (token: text, mrUserId: nat, stationName: text) ->
+   (variant {
+      err: text;
+      ok: vec DoctorInfo;
+    }) query;
+  getEarnedLeaveBalance: (token: text, empId: opt nat, year: nat) ->
+   (variant {
+      err: text;
+      ok: record {
+            accrued: nat;
+            balance: int;
+            used: nat;
+          };
+    });
+  getEffectiveRoles: (token: text, employeeId: UserId) -> (vec Role);
+  getEmployeeDaHistory: (token: text, employeeId: UserId, month: nat, year:
+   nat) -> (vec DaHistoryRow) query;
+  getEmployeeDcrDaForMonth: (token: text, employeeId: nat, month: nat, year:
+   nat) -> (nat) query;
+  getEmployeeDocuments: (token: text, employeeId: nat) ->
+   (vec EmployeeDocument) query;
+  getEmployeeInactivationHistory: (token: text, employeeId: text) ->
+   (vec AbsenceInactivationLogView) query;
+  getEmployeeMonthlyAttendance: (token: text, employeeId: nat, month: 
+   nat, year: nat) -> (vec AttendanceRecord) query;
+  getEmployeePerformance: (token: text, employeeId: nat, month: nat, year:
+   nat) -> (opt PerformanceRecord) query;
+  getEmployeeReportingChain: (token: text, userId: UserId) ->
+   (vec ReportingChainEntry) query;
+  getEmployeeTargetVsActual: (token: text, userId: UserId, month: nat, year:
+   nat) -> (TargetVsActual);
+  getEmployeesByHq: (token: text, hqId: LocationId) ->
+   (vec UserWithPrimaryHq) query;
+  getEmployeesForTrailSelector: (session: text) ->
+   (variant {
+      err: text;
+      ok: vec record {
+                name: text;
+                role: text;
+                userId: UserId;
+              };
+    }) query;
+  getEnrichedLiveLocations: (token: text) ->
+   (variant {
+      err: text;
+      ok:
+       vec
+        record {
+          lastReportedAt: int;
+          lat: float64;
+          lng: float64;
+          name: text;
+          role: text;
+          userId: UserId;
+        };
+    }) query;
+  getExpenseClaimSummary: (token: text, fromDate: text, toDate: text) ->
+   (vec ExpenseClaimSummaryRow) query;
+  getExpenseSheet: (employeeId: text, month: nat, year: nat) ->
+   (opt ExpenseSheet) query;
+  getExpiringCharges: (token: text, daysAhead: nat) -> (vec AdditionalCharge);
+  getGiftArticleMonthlyUsage: (token: text, month: nat, year: nat) ->
+   (vec record {
+          GiftArticleId;
+          nat;
+        }) query;
+  getGpsAccuracyCategory: (accuracy: opt float64) ->
+   (GpsAccuracyCategory) query;
+  getGpsActivityLog: (token: text, filter: GpsActivityFilter) ->
+   (vec GpsActivityEntry) query;
+  getGpsActivityLogGrouped: (token: text, filterUserId: opt UserId, date:
+   text) -> (vec record {
+                   text;
+                   vec GpsActivityEntry;
+                 }) query;
+  getGpsEnforcementEnabled: () -> (bool) query;
+  getGpsTrail: (token: text, userId: UserId, date: text) ->
+   (vec GpsCoord) query;
+  getHealthCheckHistory: (token: text, limit: nat) ->
+   (vec HealthCheckReport) query;
+  getHigherAuthoritiesForMe: (token: text) ->
+   (vec record {
+          role: Role;
+          userId: nat;
+          userName: text;
+        }) query;
+  getHolidaysForExport: (token: text) -> (vec HolidayExportRow) query;
+  getHqDaRate: () -> (nat) query;
+  getInactiveUsers: (token: text) -> (vec UserInfo) query;
+  getIncentiveBonusSheet: (employeeId: text, quarter: nat, year: nat) ->
+   (opt IncentiveBonusSheet) query;
+  getInvalidHqEmployees: (token: text) -> (vec InvalidHqEmployee) query;
+  getInvalidRoleEmployees: (token: text) ->
+   (vec record {
+          employeeId: text;
+          id: UserId;
+          name: text;
+          rawRole: text;
+        }) query;
+  getJfw: (token: text, jfwId: nat) -> (opt JfwInfo) query;
+  getJfwSummary: (token: text, fromDate: text, toDate: text) ->
+   (vec JfwSummaryRow) query;
+  getLatestHealthCheck: (token: text) -> (opt HealthCheckReport) query;
+  getLeaveBalance: (token: text) ->
+   (variant {
+      err: text;
+      ok:
+       record {
+         casual: int;
+         co: int;
+         lwp: int;
+         ml: int;
+         pl: int;
+         sick: int;
+         unpaid: int;
+       };
+    }) query;
+  getLeaveExportRows: (token: text, filter: LeaveFilter) ->
+   (variant {
+      err: text;
+      ok: vec LeaveExportRow;
+    }) query;
+  getLocation: (token: text, userId: UserId) -> (opt LocationRecord) query;
+  getLocationHierarchy: (token: text, locationId: LocationId) ->
+   (opt LocationHierarchyPath) query;
+  getLocationTrailForEmployee: (requestorSession: text, targetUserId: 
+   UserId, date: text) -> (variant {
+                             err: text;
+                             ok: GpsTrailRecord;
+                           }) query;
+  getLocationsByLevel: (token: text, level: LocationLevel) ->
+   (vec PrimaryHqInfo) query;
+  getLocationsForRole: (token: text, role: Role) -> (vec PrimaryHqInfo) query;
+  getMRCallDetails: (token: text, mrUserId: UserId, fromDate: int, toDate:
+   int) -> (variant {
+              err: text;
+              ok: vec DayCallSummary;
+            }) query;
+  getMRCallSummary: (token: text, mrUserId: UserId, fromDate: int, toDate:
+   int) -> (variant {
+              err: text;
+              ok: MRCallSummary;
+            }) query;
+  getMRKpiSummary: (token: text, mrId: UserId, month: nat, year: nat) ->
+   (record {
+      chemistPct: float64;
+      chemistVisits: nat;
+      doctorCallPct: float64;
+      doctorCalls: nat;
+      newDoctors: nat;
+      newDoctorsPct: float64;
+      stockistPct: float64;
+      stockistVisits: nat;
+      target: opt MonthlyTarget;
+    });
+  getMRMissedVisitSummary: (token: text, month: nat, year: nat) ->
+   (variant {
+      err: text;
+      ok: vec MRMissedSummary;
+    }) query;
+  getMRPortalEntries: (token: text, fromDate: int, toDate: int) ->
+   (variant {
+      err: text;
+      ok: vec TaggedCallEntry;
+    }) query;
+  getMissedDoctorsForMR: (token: text, mrUserId: UserId, month: nat, year:
+   nat) -> (variant {
+              err: text;
+              ok: vec MissedDoctorInfo;
+            }) query;
+  getMissedVisitAlerts: (token: text, managerId: nat) ->
+   (variant {
+      err: text;
+      ok: vec MissedVisitAlert;
+    }) query;
+  getMissedVisitAlertsAll: (token: text) ->
+   (variant {
+      err: text;
+      ok: vec MissedVisitAlert;
+    }) query;
+  getMonthlyAttendance: (token: text, employeeId: nat, month: nat, year:
+   nat) -> (vec AttendanceRecord) query;
+  getMonthlySummary: (token: text, employeeId: nat, month: nat, year: 
+   nat) -> (MonthlySummary) query;
+  getMonthlyTarget: (token: text, userId: UserId, month: nat, year: nat) ->
+   (opt MonthlyTarget);
+  getMrMonthlySummary: (mrId: UserId, month: text) ->
+   (MrMonthlySummary) query;
+  getMrsGroupedByAsmForManager: (token: text) ->
+   (variant {
+      err: text;
+      ok: vec AsmMrGroup;
+    }) query;
+  getMtpUnsubmittedMRs: (token: text, month: nat, year: nat) ->
+   (variant {
+      err: text;
+      ok: vec nat;
+    }) query;
+  getMtpVsActualData: (token: text, mrId: nat, month: nat, year: nat) ->
+   (vec record {
+          text;
+          text;
+          text;
+        }) query;
+  getMyAdvances: () -> (vec EmployeeAdvance) query;
+  getMyBalance: (token: text, month: nat, year: nat) ->
+   (vec SampleBalanceView) query;
+  getMyCheckIns: (token: text) -> (vec AttendanceCheckIn) query;
+  getMyDaHistory: (token: text, month: nat, year: nat) ->
+   (vec DaHistoryRow) query;
+  getMyDcr: (token: text, date: text) -> (opt DcrInfo) query;
+  getMyExpenseSheet: (month: nat, year: nat) -> (opt ExpenseSheet) query;
+  getMyExpenses: (token: text) -> (vec TaDaExpense) query;
+  getMyIncentiveBonusSheet: (quarter: nat, year: nat) ->
+   (opt IncentiveBonusSheet) query;
+  getMyIncentives: (token: text, filter: IncentiveFilter) ->
+   (vec IncentiveCalculation);
+  getMyLeaves: (token: text) ->
+   (variant {
+      err: text;
+      ok: vec LeaveApplication;
+    }) query;
+  getMyMonthlyAttendance: (token: text, month: nat, year: nat) ->
+   (vec AttendanceRecord) query;
+  getMyMonthlyTarget: (token: text, month: nat, year: nat) ->
+   (opt MonthlyTarget);
+  getMyNotifications: (token: text) -> (vec NotificationRecord) query;
+  getMyOfficialLetters: (token: text) -> (vec OfficialLetterView) query;
+  getMyPayrollHistory: (token: text) -> (vec PayrollRecord) query;
+  getMyPayrollRecord: (token: text, month: nat, year: nat) ->
+   (opt PayrollRecord) query;
+  getMyProjectedIncentive: (token: text, period: TargetPeriod, year: 
+   nat, month: opt nat) -> (opt IncentiveCalculation);
+  getMySalesDashboard: (token: text, month: nat, year: nat, currentDay:
+   int) -> (SalesDashboardSummary) query;
+  getMyStationForDate: (token: text, date: text) -> (opt text) query;
+  getMySubmissions: (token: text) -> (vec SuggestionSubmission) query;
+  getMyTarget: (token: text, period: TargetPeriod, year: nat) ->
+   (opt BottomUpTarget);
+  getMyTargetVsActual: (token: text, month: nat, year: nat) ->
+   (TargetVsActual);
+  getNewDoctorsThisMonth: (token: text, mrId: UserId, month: nat, year:
+   nat) -> (nat);
+  getNotificationSettings: (token: text) -> (NotificationSettings);
+  getOfficialLetter: (token: text, id: nat) -> (opt OfficialLetterView) query;
+  getOfficialLettersByEmployee: (token: text, employeeId: nat) ->
+   (vec OfficialLetterView) query;
+  getOfficialLettersByType: (token: text, letterType: LetterType) ->
+   (vec OfficialLetterView) query;
+  getOnLeaveEmployeesForUser: (token: text) -> (vec OnLeaveEmployee) query;
+  getOutStationDaRate: (token: text, userId: UserId) -> (opt nat) query;
+  getPayrollRecord: (token: text, employeeId: nat, month: nat, year: 
+   nat) -> (opt PayrollRecord) query;
+  getPendingApprovalCounts: (token: text) -> (PendingApprovalCounts) query;
+  getPendingExpenses: (token: text) -> (vec TaDaExpense) query;
+  getPendingLeavesForManager: (token: text) ->
+   (variant {
+      err: text;
+      ok: vec LeaveApplication;
+    }) query;
+  getProduct: (productId: ProductId) -> (opt ProductInfo) query;
+  getReactivationLog: (token: text) -> (vec ReactivationLogEntry) query;
+  getRepairHistory: (token: text, limit: nat) -> (vec RepairLog) query;
+  getReporteeLocations: (token: text) -> (vec LocationRecord) query;
+  getRoleHierarchyConfig: (token: text) -> (RoleHierarchyConfig) query;
+  getRoleLeaveQuota: (token: text, role: Role, year: nat) ->
+   (variant {
+      err: text;
+      ok: RoleLeaveQuota;
+    }) query;
+  getRsmDirectMrs: (token: text) -> (vec UserInfo) query;
+  getSalesDashboardForUser: (token: text, userId: nat, month: nat, year: 
+   nat, currentDay: int) -> (SalesDashboardSummary) query;
+  getSecondarySalesByEmployee: (token: text, employeeId: UserId) ->
+   (vec SecondarySaleRecord);
+  getSfaReminderSettings: (token: text) ->
+   (variant {
+      err: text;
+      ok: SfaReminderSettings;
+    }) query;
+  getStationsByMR: (token: text, mrUserId: nat) ->
+   (variant {
+      err: text;
+      ok: vec text;
+    }) query;
+  getStationsByMRHqAssignments: (token: text, mrUserId: nat) ->
+   (variant {
+      err: text;
+      ok: vec StationRecord;
+    }) query;
+  getStockist: (token: text, stockistId: StockistId) -> (opt StockistRecord);
+  getStockistCall: (token: text, callId: nat) -> (opt StockistCallInfo) query;
+  getSubordinatesInHierarchy: (token: text, managerId: UserId) ->
+   (vec UserId) query;
+  getSummaryReport: (token: text, filterTerritory: opt text, filterArea:
+   opt text, filterRole: opt Role) -> (vec BottomUpTargetSummaryRow);
+  getSystemAlerts: (token: text) -> (vec SystemAlert) query;
+  getTaDaGradeByName: (token: text, gradeName: text) ->
+   (variant {
+      err: text;
+      ok: TaDaGrade;
+    }) query;
+  getTaDaGrades: (token: text) ->
+   (variant {
+      err: text;
+      ok: vec TaDaGrade;
+    }) query;
+  getTargetAdjustmentLogs: (token: text, filter: TargetAdjustmentFilter) ->
+   (vec TargetAdjustmentLog);
+  getTargetAdjustmentLogsForUser: (token: text, userId: UserId) ->
+   (vec TargetAdjustmentLog);
+  getTargetHierarchy: (token: text) -> (vec TargetHierarchyNode);
+  getTargetRevisionHistory: (token: text, userId: UserId, month: nat, year:
+   nat) -> (vec TargetRevision);
+  getTargetVsActualPerformance: (token: text, filter: PerformanceFilter) ->
+   (vec PerformanceRow);
+  getTeamDailyActivity: (token: text, date: text) ->
+   (vec MrDailyActivityRow) query;
+  getTeamIncentives: (token: text, filter: IncentiveFilter) ->
+   (vec IncentiveCalculation);
+  getTeamSampleBalances: (token: text, mrIds: vec nat, month: nat, year:
+   nat) ->
+   (variant {
+      err: text;
+      ok: vec record {
+                nat;
+                vec SampleBalanceView;
+              };
+    }) query;
+  getTeamTargetVsActual: (token: text, month: nat, year: nat) ->
+   (vec TargetVsActual);
+  getTeamWorkingStyleHistory: (managerId: text, from: int, to: int) ->
+   (vec WorkingStyleRecord) query;
+  getTerritoryCoverage: (territory: text, month: text) ->
+   (TerritoryCoverage) query;
+  getTodayWorkingStyle: (employeeId: text) -> (opt WorkingStyleRecord) query;
+  getTrailWithDoctorCalls: (session: text, targetUserId: UserId, date:
+   text) -> (variant {
+               err: text;
+               ok: vec EnrichedTrailEvent;
+             }) query;
+  getTravelPlan: (token: text, id: TravelPlanId) ->
+   (opt TravelPlanInfo) query;
+  getUidCompanyPrefix: (token: text) -> (text);
+  getUnreadNotificationCount: (token: text) -> (nat) query;
+  getUnreadReplyCount: (token: text) -> (nat) query;
+  getUnreadSuggestionCount: (token: text) -> (nat) query;
+  getUpcomingBirthdays: (daysAhead: nat, token: text) ->
+   (vec
+     record {
+       birthdayDate: text;
+       daysUntilBirthday: nat;
+       hq: text;
+       name: text;
+       role: text;
+       userId: text;
+     }) query;
+  getUser: (token: text, userId: UserId) -> (opt UserInfo) query;
+  getUserByEmployeeId: (token: text, employeeId: text) -> (opt UserInfo);
+  getUserByUID: (token: text, uid: text) -> (opt UserInfo);
+  getUserLocationAllotment: (token: text, userId: UserId) ->
+   (opt UserLocationAllotment) query;
+  getWeeklyTaDaSummaryByRole: (from: int, to: int) -> (vec TaDaExpense) query;
+  getWorkingStyleHistory: (employeeId: text, from: int, to: int) ->
+   (vec WorkingStyleRecord) query;
+  hasUserSeenMessageToday: (token: text, messageId: text, today: text) ->
+   (bool) query;
+  isHoliday: (token: text, date: int) -> (bool) query;
+  listActiveAreasByHQ: (token: text, hqId: LocationId) ->
+   (vec AreaRecord) query;
+  listActiveHQsByTerritory: (token: text, territoryId: LocationId) ->
+   (vec HQRecord) query;
+  listActiveStatesByZone: (token: text, zoneId: LocationId) ->
+   (vec StateRecord) query;
+  listActiveTerritories: (token: text, stateId: LocationId) ->
+   (vec TerritoryRecord) query;
+  listActiveZones: (token: text) -> (vec ZoneRecord) query;
+  listAdminMessages: (token: text) ->
+   (variant {
+      err: text;
+      ok: vec AdminMessageInfo;
+    }) query;
+  listAllActiveAreas: (token: text) -> (vec AreaRecord) query;
+  listAllAdditionalCharges: (token: text, filter: AdditionalChargeFilter) ->
+   (vec AdditionalCharge);
+  listAllAreas: (token: text) -> (vec AreaRecord) query;
+  listAllBookingRequests: (token: text) -> (vec BookingRequestInfo) query;
+  listAllBottomUpTargets: (token: text) -> (vec BottomUpTarget);
+  listAllBusinessReports: (token: text, userId: opt nat, month: opt nat,
+   year: opt nat) -> (vec BusinessReportInfo) query;
+  listAllCrmRequests: (token: text, status: opt CrmStatus) ->
+   (vec CrmRequestInfo) query;
+  listAllGiftArticles: (token: text) -> (vec GiftArticleInfo) query;
+  listAllGiftArticlesMaster: (token: text) -> (vec GiftArticleInfo) query;
+  listAllMrSummaries: (month: text) -> (vec MrMonthlySummary) query;
+  listAllOfficialLetters: (token: text) -> (vec OfficialLetterView) query;
+  listAllStations: (token: text) -> (vec StationRecord) query;
+  listAllTravelPlans: (token: text, userId: opt nat, month: opt text) ->
+   (vec TravelPlanInfo) query;
+  listAllUsers: (token: text) -> (vec UserInfo) query;
+  listAreasByHQ: (token: text, hqId: LocationId) -> (vec AreaRecord) query;
+  listCallReportsByMr: (token: text, mrId: UserId, fromDate: int, toDate:
+   int) -> (variant {
+              err: text;
+              ok: vec CallReportDetail;
+            }) query;
+  listCallReportsMrIds: (token: text) ->
+   (variant {
+      err: text;
+      ok: vec UserId;
+    }) query;
+  listChemists: () -> (vec ChemistInfo) query;
+  listChemistsByTerritory: (territory: text) -> (vec ChemistInfo) query;
+  listCrmDoctorSales: (token: text, filter: CrmDoctorSaleFilter) ->
+   (vec CrmDoctorSaleRecord);
+  listDoctors: () -> (vec DoctorInfo) query;
+  listDoctorsByTerritory: (territory: text) -> (vec DoctorInfo) query;
+  listEmpIdConfigs: (token: text) -> (vec EmpIdConfig);
+  listEmployeesForHqHierarchy: (token: text) ->
+   (vec HqHierarchyEmployee) query;
+  listGiftArticles: (token: text) -> (vec GiftArticleInfo) query;
+  listGiftArticlesMaster: (token: text) -> (vec GiftArticleInfo) query;
+  listGpsOverrides: (token: text) ->
+   (variant {
+      err: text;
+      ok: vec GpsOverrideEntry;
+    }) query;
+  listHQsByTerritory: (token: text, territoryId: LocationId) ->
+   (vec HQRecord) query;
+  listIncentivePlans: (token: text, role: opt Role, period:
+   opt TargetPeriod) -> (vec IncentivePlan);
+  listJfwsAboutMe: (token: text) -> (vec JfwInfo) query;
+  listJfwsForMR: (token: text, mrId: nat) -> (vec JfwInfo) query;
+  listMonthlyTargets: (token: text, filter: MonthlyTargetFilter) ->
+   (vec MonthlyTarget);
+  listMyAllocations: (token: text, month: nat, year: nat) ->
+   (vec SampleAllocationInfo) query;
+  listMyBookingRequests: (token: text) -> (vec BookingRequestInfo) query;
+  listMyBusinessReports: (token: text, month: opt nat, year: opt nat) ->
+   (vec BusinessReportInfo) query;
+  listMyCallReports: (mrId: UserId) -> (vec CallReportInfo) query;
+  listMyCallReportsByMonth: (mrId: UserId, month: text) ->
+   (vec CallReportInfo) query;
+  listMyChemistCalls: (token: text, fromDate: text, toDate: text) ->
+   (vec ChemistCallInfo) query;
+  listMyChemists: (mrId: UserId) -> (vec ChemistInfo) query;
+  listMyCrmRequests: (token: text) -> (vec CrmRequestInfo) query;
+  listMyDcrs: (token: text, fromDate: text, toDate: text) ->
+   (vec DcrInfo) query;
+  listMyDoctorAssignments: (mrId: UserId) ->
+   (vec DoctorProductAssignment) query;
+  listMyDoctors: (mrId: UserId) -> (vec DoctorInfo) query;
+  listMyJfws: (token: text, fromDate: text, toDate: text) ->
+   (vec JfwInfo) query;
+  listMyOrders: (mrId: UserId) -> (vec ChemistOrderInfo) query;
+  listMySalesTargets: (token: text) -> (vec SalesTarget) query;
+  listMyStockistCalls: (token: text, fromDate: text, toDate: text) ->
+   (vec StockistCallInfo) query;
+  listMyTravelPlans: (token: text, month: opt text) ->
+   (vec TravelPlanInfo) query;
+  listOrdersByChemist: (chemistId: ChemistId) -> (vec ChemistOrderInfo) query;
+  listPricelistProducts: (token: text) -> (vec PricelistProductInfo) query;
+  listProducts: () -> (vec ProductInfo) query;
+  listReportees: (token: text, managerId: UserId) -> (vec UserInfo) query;
+  listSecondarySales: (token: text, filter: SecondarySaleFilter) ->
+   (vec SecondarySaleRecord);
+  listStatesByZone: (token: text, zoneId: LocationId) ->
+   (vec StateRecord) query;
+  listStationBulkUploadHistory: (token: text) ->
+   (vec BulkStationImportResult) query;
+  listStationsByHQ: (token: text, hqId: LocationId) ->
+   (vec StationRecord) query;
+  listStockists: (token: text, filter: StockistFilter) ->
+   (vec StockistRecord);
+  listStockistsByArea: (token: text, areaId: nat) -> (vec StockistRecord);
+  listSubmittedReports: () -> (vec CallReportInfo) query;
+  listTeamChemistCalls: (token: text, mrIds: vec nat, fromDate: text, toDate:
+   text) -> (vec ChemistCallInfo) query;
+  listTeamDcrs: (token: text, mrIds: vec nat, fromDate: text, toDate:
+   text) -> (vec DcrInfo) query;
+  listTeamStockistCalls: (token: text, mrIds: vec nat, fromDate: text,
+   toDate: text) -> (vec StockistCallInfo) query;
+  listTerritoriesByState: (token: text, stateId: LocationId) ->
+   (vec TerritoryRecord) query;
+  listUsersByRole: (token: text, role: Role) -> (vec UserInfo) query;
+  listUsersByTerritory: (token: text, territory: text) ->
+   (vec UserInfo) query;
+  listUsersWithAllotments: (token: text) -> (vec UserLocationAllotment) query;
+  listZones: (token: text) -> (vec ZoneRecord) query;
+  login: (username: text, password: text) -> (LoginResult);
+  logout: (token: text) -> ();
+  markAllNotificationsRead: (token: text) -> (MutationResult);
+  markExpenseSheetPaid: (sheetId: text, paymentDate: int) ->
+   (variant {
+      err: text;
+      ok;
+    });
+  markInactivationReactivated: (token: text, logId: text, reactivatedBy:
+   text) -> (AbsenceResult);
+  markIncentiveBonusSheetPaid: (sheetId: text, paymentDate: int) ->
+   (variant {
+      err: text;
+      ok;
+    });
+  markIncentivePaidOnSlip: (token: text, userId: UserId, period:
+   TargetPeriod, year: nat, month: opt nat) -> (variant {
+                                                  err: text;
+                                                  ok;
+                                                });
+  markNotificationsRead: (notificationIds: vec text, token: text) ->
+   (MutationResult);
+  markSuggestionsAsRead: (token: text, ids: vec nat) -> (MutationResult);
+  overrideTarget: (token: text, input: OverrideBottomUpTargetInput) ->
+   (MutationResult);
+  pauseAdvance: (id: text, pause: bool, remark: text) ->
+   (variant {
+      err: text;
+      ok;
+    });
+  processMonthlyAdvanceDeductions: (month: nat, year: nat) ->
+   (variant {
+      err: text;
+      ok;
+    });
+  processPayroll: (token: text, employeeId: nat, month: nat, year: nat) ->
+   (MutationResult);
+  processPayrollFull: (token: text, employeeId: nat, month: nat, year: 
+   nat, basicPay: nat, hra: nat, taAllowance: nat, daAllowance: nat) ->
+   (MutationResult);
+  reactivateUser: (token: text, userId: UserId) -> (MutationResult);
+  recordAttendance: (token: text, employeeId: nat, date: text, status:
+   AttendanceStatus) -> (MutationResult);
+  recordGpsTrail: (token: text, date: text, coord: GpsCoord) ->
+   (MutationResult);
+  recordMessageDismissal: (token: text, messageId: text, today: text) ->
+   (MutationResult);
+  recordSamplesUsed: (token: text, callReportId: nat, usages:
+   vec SampleUsageInput) -> (variant {
+                               err: text;
+                               ok: vec nat;
+                             });
+  refreshExpenseSheetStatus: () -> ();
+  refreshIncentiveBonusSheetStatus: () -> ();
+  rejectBookingRequest: (token: text, id: BookingId, reason: text) ->
+   (MutationResult);
+  rejectCrmRequest: (token: text, id: CrmRequestId, reason: text) ->
+   (MutationResult);
+  removeAdditionalCharge: (token: text, chargeId: text) -> (MutationResult);
+  resetUserPassword: (token: text, userId: UserId) -> (PasswordResetResult);
+  resubmitBookingRequest: (token: text, id: BookingId) -> (MutationResult);
+  reviewCallReport: (reviewerId: UserId, reportId: ReportId, approved: 
+   bool, note: text) -> (MutationResult);
+  revokeGpsOverride: (token: text, employeeId: UserId, overrideId: nat) ->
+   (variant {
+      err: text;
+      ok;
+    });
+  runAutoRepair: (token: text, repairTypes: vec text) -> (RepairResult);
+  runHealthCheckNow: (token: text) -> (HealthCheckReport);
+  saveEmpIdConfig: (token: text, config: EmpIdConfig) ->
+   (variant {
+      err: text;
+      ok;
+    });
+  seedAdminPassword: (token: text) -> (MutationResult);
+  setCompanyProfile: (token: text, input: UpdateCompanyProfileInput) ->
+   (MutationResult);
+  setDaConfigs: (token: text, configs: vec DaConfig) -> (MutationResult);
+  setDoctorClassification: (token: text, doctorId: nat, isCoreDoctor: 
+   bool, visitFrequencyTarget: nat) -> (MutationResult);
+  setGpsEnforcementEnabled: (token: text, enabled: bool) ->
+   (variant {
+      err: text;
+      ok;
+    });
+  setMonthlyTarget: (token: text, input: SetMonthlyTargetInput) ->
+   (variant {
+      err: text;
+      ok: MonthlyTarget;
+    });
+  setMrTarget: (token: text, input: CreateBottomUpTargetInput) ->
+   (variant {
+      err: text;
+      ok: nat;
+    });
+  setPrimaryHq: (token: text, userId: UserId, hqId: LocationId) ->
+   (MutationResult);
+  setRoleHierarchyConfig: (token: text, roleOrder: vec Role) ->
+   (MutationResult);
+  setRoleLeaveQuota: (token: text, quota: RoleLeaveQuota) ->
+   (variant {
+      err: text;
+      ok: RoleLeaveQuota;
+    });
+  setSfaReminderSettings: (token: text, settings: SfaReminderSettings) ->
+   (variant {
+      err: text;
+      ok;
+    });
+  setTaDaGrade: (token: text, grade: TaDaGrade) ->
+   (variant {
+      err: text;
+      ok: TaDaGrade;
+    });
+  setUidCompanyPrefix: (token: text, prefix: text) ->
+   (variant {
+      err: text;
+      ok;
+    });
+  submitCallReport: (token: text, reportId: ReportId) -> (MutationResult);
+  submitChemistCall: (token: text, input: ChemistCallInput) ->
+   (variant {
+      err: text;
+      ok: nat;
+    });
+  submitChemistOrder: (mrId: UserId, input: CreateOrderInput) -> (OrderId);
+  submitDcr: (token: text, input: DcrInput) -> (variant {
+                                                  err: text;
+                                                  ok: nat;
+                                                });
+  submitJfw: (token: text, input: JfwInput) -> (variant {
+                                                  err: text;
+                                                  ok: nat;
+                                                });
+  submitLocation: (token: text, lat: float64, lng: float64) ->
+   (MutationResult);
+  submitStockistCall: (token: text, input: StockistCallInput) ->
+   (variant {
+      err: text;
+      ok: nat;
+    });
+  submitSuggestion: (token: text, input: SubmitSuggestionInput) ->
+   (MutationResult);
+  submitTaDaExpense: (token: text, date: text, stationType: StationType,
+   fromLocation: opt text, toLocation: opt text, distanceKm: nat, daRate:
+   DaRate, purpose: text, gpsLocation: opt GpsCoord) -> (MutationResult);
+  submitTaDaExpenseV2: (token: text, date: text, stationType: StationType,
+   fromLocation: opt text, toLocation: opt text, distanceKm: nat, daRate:
+   DaRate, purpose: text, gpsLocation: opt GpsCoord, modeOfTransport:
+   opt text, lodgingExpense: opt nat, miscExpense: opt nat, miscNarration:
+   opt text, gradeName: opt text) -> (variant {
+                                        err: text;
+                                        ok: TaDaExpense;
+                                      });
+  submitTravelPlan: (token: text, id: TravelPlanId) -> (MutationResult);
+  submitWorkingStyle: (input: SubmitWorkingStyleInput) ->
+   (variant {
+      err: text;
+      ok: text;
+    });
+  triggerAbsenceCheckNow: (token: text) -> (variant {
+                                              err: text;
+                                              ok: text;
+                                            });
+  triggerDoctorCallNotification: (callReportId: text, token: text) ->
+   (MutationResult);
+  triggerIncentiveCalculation: (token: text, period: TargetPeriod, year: 
+   nat, month: opt nat) -> (variant {
+                              err: text;
+                              ok: nat;
+                            });
+  undoOverride: (token: text, targetId: nat) -> (MutationResult);
+  updateAbsenceSettings: (input:
+   record {
+     absenceCheckEnabled: bool;
+     consecutiveAbsenceThreshold: nat;
+     excludeLongTermLeave: bool;
+     warningNotificationsEnabled: bool;
+   }, token: text) -> (variant {
+                         err: text;
+                         ok: text;
+                       });
+  updateAdditionalCharge: (token: text, input:
+   UpdateAdditionalChargeInput) -> (MutationResult);
+  updateAdminMessage: (token: text, input: UpdateAdminMessageInput) ->
+   (variant {
+      err: text;
+      ok: AdminMessageInfo;
+    });
+  updateAdvance: (id: text, input: UpdateAdvanceInput) ->
+   (variant {
+      err: text;
+      ok;
+    });
+  updateArea: (token: text, id: LocationId, input: UpdateAreaInput) ->
+   (MutationResult);
+  updateCompanyHoliday: (token: text, input: UpdateHolidayInput) ->
+   (variant {
+      err: text;
+      ok;
+    });
+  updateDcrSettings: (token: text, deadlineHour: nat, deadlineMinute: 
+   nat, isEnabled: bool) -> (variant {
+                               err: text;
+                               ok: text;
+                             });
+  updateDoctor: (doctorId: DoctorId, mrId: UserId, name: opt text, station:
+   opt text, area: opt text, territory: opt text, specialization: opt text,
+   contactPhone: opt text) -> (MutationResult);
+  updateDoctorAdmin: (token: text, doctorId: nat, name: opt text,
+   qualification: opt DoctorQualification, station: opt text, area: opt text,
+   territory: opt text, specialization: opt text, contactPhone: opt text,
+   category: opt text, email: opt text, clinicName: opt text, address:
+   opt text, isActive: opt bool, dateOfBirth: opt text) -> (MutationResult);
+  updateEarnedLeaveAccrual: (token: text, employeeId: nat, year: nat, month:
+   nat, annualLimit: nat) -> (variant {
+                                err: text;
+                                ok;
+                              });
+  updateGiftArticle: (token: text, id: GiftArticleId, input:
+   UpdateGiftArticleInput) -> (variant {
+                                 err: text;
+                                 ok: GiftArticleInfo;
+                               });
+  updateGiftArticleMaster: (token: text, id: GiftArticleId, input:
+   UpdateGiftArticleInput) -> (variant {
+                                 err: text;
+                                 ok: GiftArticleInfo;
+                               });
+  updateHQ: (token: text, id: LocationId, input: UpdateHQInput) ->
+   (MutationResult);
+  updateIncentivePlan: (token: text, input: UpdateIncentivePlanInput) ->
+   (variant {
+      err: text;
+      ok;
+    });
+  updateLeaveStatus: (token: text, input: UpdateLeaveStatusInput) ->
+   (variant {
+      err: text;
+      ok: LeaveApplication;
+    });
+  updateNotificationSettings: (input:
+   record {
+     batchMinCount: nat;
+     batchWindowSeconds: nat;
+     batchingEnabled: bool;
+     cascadeLevel: text;
+     doctorCallNotificationsEnabled: bool;
+     quietHoursEnabled: bool;
+     quietHoursEnd: text;
+     quietHoursStart: text;
+   }, token: text) -> (variant {
+                         err: text;
+                         ok: text;
+                       });
+  updateOfficialLetter: (token: text, id: nat, input: UpdateLetterInput) ->
+   (MutationResult);
+  updateOrderStatus: (orderId: OrderId, status: OrderStatus) ->
+   (MutationResult);
+  updatePricelistProduct: (token: text, id: PricelistProductId, input:
+   UpdatePricelistProductInput) -> (MutationResult);
+  updateProduct: (productId: ProductId, name: opt text, category:
+   opt ProductCategory, description: opt text, productCode: opt text,
+   division: opt text, mrpPaise: opt nat, packSize: opt text) ->
+   (MutationResult);
+  updateState: (token: text, id: LocationId, input: UpdateStateInput) ->
+   (MutationResult);
+  updateStation: (token: text, stationId: LocationId, input:
+   UpdateStationInput) -> (MutationResult);
+  updateStockist: (token: text, req: UpdateStockistRequest) ->
+   (variant {
+      err: text;
+      ok: StockistRecord;
+    });
+  updateSuggestionStatus: (token: text, input:
+   UpdateSuggestionStatusInput) -> (MutationResult);
+  updateTerritory: (token: text, id: LocationId, input:
+   UpdateTerritoryInput) -> (MutationResult);
+  updateTravelPlan: (token: text, id: TravelPlanId, input:
+   CreateTravelPlanInput) -> (MutationResult);
+  updateUser: (token: text, userId: UserId, input: UpdateUserInput) ->
+   (MutationResult);
+  updateZone: (token: text, id: LocationId, input: UpdateZoneInput) ->
+   (MutationResult);
+  upsertPerformance: (token: text, employeeId: nat, month: nat, year: 
+   nat, callsMade: nat, doctorsVisited: nat, chemistOrders: nat, totalSales:
+   nat, remarks: text) -> (MutationResult);
+  validateHqForRole: (token: text, role: Role, hqId: LocationId) ->
+   (variant {
+      err: text;
+      ok;
+    }) query;
+  whoami: (token: text) -> (opt Session) query;
+}

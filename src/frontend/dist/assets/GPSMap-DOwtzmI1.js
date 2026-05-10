@@ -1,0 +1,35 @@
+const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/leaflet-src-VV4p2gEg.js","assets/charts-BJVbloRH.js"])))=>i.map(i=>d[i]);
+import{j as k,_ as I}from"./index-CkWIaxDT.js";import{r as l}from"./charts-BJVbloRH.js";const L="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";function N(){if(!document.querySelector(`link[href="${L}"]`)){const n=document.createElement("link");n.rel="stylesheet",n.href=L,document.head.appendChild(n)}}function M(n){return Date.now()-Number(n/1000000n)}function T(n){if(n===null)return"#9ca3af";const i=M(n)/6e4;return i<10?"#22c55e":i<30?"#f59e0b":"#ef4444"}function C(n){if(n===null)return"No data today";const i=M(n),g=Math.floor(i/6e4);if(g<1)return"just now";if(g<60)return`${g} min ago`;const d=Math.floor(g/60);return d<24?`${d} hr ago`:`${Math.floor(d/24)}d ago`}function F(n,i,g,d){const h=d.length>14?`${d.slice(0,13)}…`:d,x=Math.max(56,h.length*6.2+12),s=Math.max(56,x),e=s/2;return`<svg xmlns="http://www.w3.org/2000/svg" width="${s}" height="54" viewBox="0 0 ${s} 54">
+    <!-- pin circle -->
+    <circle cx="${e}" cy="15" r="13" fill="${n}" stroke="white" stroke-width="2.5" opacity="0.96"/>
+    <text x="${e}" y="20" text-anchor="middle" fill="white" font-size="9" font-weight="700" font-family="monospace">${i.slice(0,2)}</text>
+    <!-- pin tail -->
+    <path d="M${e} 28 L${e-5} 22 Q${e} 34 ${e+5} 22 Z" fill="${n}" opacity="0.9"/>
+    <!-- badge background -->
+    <rect x="${(s-x)/2}" y="36" width="${x}" height="15" rx="7" fill="${g}" opacity="0.93"/>
+    <text x="${e}" y="47" text-anchor="middle" fill="white" font-size="8.5" font-weight="600" font-family="monospace">${h}</text>
+  </svg>`}function Z(n,i){return`<svg xmlns="http://www.w3.org/2000/svg" width="32" height="40" viewBox="0 0 32 40">
+    <circle cx="16" cy="16" r="14" fill="${n}" stroke="white" stroke-width="2.5" opacity="0.95"/>
+    <text x="16" y="21" text-anchor="middle" fill="white" font-size="9" font-weight="700" font-family="monospace">${i.slice(0,2)}</text>
+    <path d="M16 30 L10 22 Q16 36 22 22 Z" fill="${n}" opacity="0.9"/>
+  </svg>`}const D={MR:"#4e9eff",ASM:"#6be08a",RSM:"#f5a623",ZSM:"#c97cf0",HRManager:"#5ce0d5",Admin:"#e05c5c"};function E(n){return D[n]??"#4e9eff"}function P({markers:n=[],enrichedMarkers:i,height:g="400px",className:d="",visibilityKey:h=0,badgeTick:x=0}){const s=l.useRef(null),e=l.useRef(null),R=l.useRef(h);l.useEffect(()=>{N();let a=!0,o=null;async function u(){if(!s.current||e.current)return;const c=await I(()=>import("./leaflet-src-VV4p2gEg.js").then(t=>t.l),__vite__mapDeps([0,1]));if(!(!a||!s.current)){if(s.current.clientWidth===0||s.current.clientHeight===0){o=new ResizeObserver(t=>{for(const r of t){const{width:f,height:m}=r.contentRect;f>0&&m>0&&(o==null||o.disconnect(),o=null,a&&!e.current&&p(c))}}),o.observe(s.current);return}p(c)}}function p(c){if(!s.current||e.current||!a)return;c.Icon.Default.prototype._getIconUrl=void 0,c.Icon.Default.mergeOptions({iconRetinaUrl:"https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",iconUrl:"https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",shadowUrl:"https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png"});const t=[20.5937,78.9629],f=c.map(s.current,{center:t,zoom:5});c.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{attribution:"© OpenStreetMap contributors",maxZoom:18}).addTo(f),e.current={map:f,L:c},requestAnimationFrame(()=>{a&&e.current&&e.current.map.invalidateSize(),setTimeout(()=>{a&&e.current&&e.current.map.invalidateSize()},100)})}return u(),()=>{a=!1,o&&(o.disconnect(),o=null)}},[]),l.useEffect(()=>{R.current!==h&&(R.current=h,e.current&&requestAnimationFrame(()=>{requestAnimationFrame(()=>{e.current&&e.current.map.invalidateSize(),setTimeout(()=>{e.current&&e.current.map.invalidateSize()},150)})}))},[h]);const v=l.useRef(i);v.current=i;const $=l.useRef((a,o)=>{const{map:u,L:p}=a;if(u.invalidateSize(),u.eachLayer(t=>{t!=null&&t.options&&(t!=null&&t._latlng)&&u.removeLayer(t)}),o.length===0)return;const c=[];for(const t of o){if(t.lat===0&&t.lng===0)continue;const r=E(t.role),f=T(t.lastReportedAt),m=C(t.lastReportedAt),w=F(r,t.role,f,m),b=p.divIcon({html:w,className:"",iconSize:[64,54],iconAnchor:[32,54],popupAnchor:[0,-54]}),S=t.lastReportedAt>0n?new Date(Number(t.lastReportedAt/1000000n)).toLocaleString("en-IN",{dateStyle:"short",timeStyle:"medium"}):"No data today",y=`
+          <div style="font-family:sans-serif;min-width:190px;max-width:240px">
+            <div style="font-weight:700;font-size:13px;margin-bottom:3px">${t.name}</div>
+            <div style="font-size:11px;color:#666;margin-bottom:6px">${t.role}</div>
+            <hr style="margin:4px 0;border:none;border-top:1px solid #eee"/>
+            <div style="font-size:11px;color:#444;margin-bottom:2px">
+              <strong>Last reported:</strong> ${S}
+            </div>
+            <div style="font-size:11px;color:#444;margin-bottom:2px">
+              <strong>Coords:</strong> ${t.lat.toFixed(5)}, ${t.lng.toFixed(5)}
+            </div>
+            <div style="margin-top:6px;display:inline-block;padding:2px 8px;border-radius:999px;font-size:10px;font-weight:600;background:${f};color:white">
+              ${m}
+            </div>
+          </div>`;p.marker([t.lat,t.lng],{icon:b}).bindPopup(y).addTo(u),c.push([t.lat,t.lng])}c.length>0&&u.fitBounds(c,{padding:[30,30],maxZoom:12})});return l.useEffect(()=>{if(i){if(!e.current){const a=setTimeout(()=>{e.current&&v.current&&$.current(e.current,v.current)},800);return()=>clearTimeout(a)}$.current(e.current,i)}},[i]),l.useEffect(()=>{x!==0&&(!e.current||!v.current||$.current(e.current,v.current))},[x]),l.useEffect(()=>{if(i!==void 0)return;if(!e.current){const o=setTimeout(()=>{e.current&&a()},800);return()=>clearTimeout(o)}a();function a(){var c,t;if(!e.current)return;const{map:o,L:u}=e.current;if(o.invalidateSize(),o.eachLayer(r=>{r!=null&&r.options&&(r!=null&&r._latlng)&&o.removeLayer(r)}),n.length===0)return;const p=[];for(const r of n){const{lat:f,lng:m}=r.location;if(f===0&&m===0)continue;const w=((c=r.user)==null?void 0:c.role)??"MR",b=((t=r.user)==null?void 0:t.name)??`Employee ${r.location.employeeId}`,S=new Date(Number(r.location.timestamp)/1e6).toLocaleString("en-IN"),y=E(w),A=Z(y,w),_=u.divIcon({html:A,className:"",iconSize:[32,40],iconAnchor:[16,40],popupAnchor:[0,-40]}),z=u.marker([f,m],{icon:_});z.bindPopup(`<div style="font-family:sans-serif;min-width:160px">
+            <strong style="font-size:13px">${b}</strong><br/>
+            <span style="color:#888;font-size:11px">${w}</span><br/>
+            <hr style="margin:4px 0;border-color:#eee"/>
+            <span style="font-size:11px">Last seen: ${S}</span><br/>
+            <span style="font-size:11px">📍 ${f.toFixed(4)}, ${m.toFixed(4)}</span>
+          </div>`),z.addTo(o),p.push([f,m])}p.length>0&&o.fitBounds(p,{padding:[30,30],maxZoom:12})}},[n,i]),k.jsx("div",{ref:s,style:{height:g},className:`rounded-lg overflow-hidden border border-border ${d}`,"data-ocid":"gps-map"})}export{P as G,T as b,C as f};

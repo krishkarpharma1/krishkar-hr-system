@@ -1,0 +1,1 @@
+import{r as o}from"./charts-BJVbloRH.js";import{u as f,b as l}from"./index-CkWIaxDT.js";function s(){const{session:t}=f(),[a,r]=o.useState(null),[n,e]=o.useState(!0);return o.useEffect(()=>{if(!(t!=null&&t.token)){e(!1);return}l.getCompanyProfile(t.token).then(u=>{r(u??null),e(!1)}).catch(()=>e(!1))},[t==null?void 0:t.token]),{companyProfile:a,loading:n}}export{s as u};

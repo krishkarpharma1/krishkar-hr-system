@@ -1,0 +1,449 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --font-display: "Space Grotesk";
+    --font-body: "DM Sans";
+    --font-mono: "JetBrains Mono";
+    --radius: 0.5rem;
+
+    /* Light mode — clean white/slate, blue-purple accent */
+    --background: 0.99 0.002 240;
+    --foreground: 0.12 0.02 240;
+    --card: 1 0 0;
+    --card-foreground: 0.12 0.02 240;
+    --popover: 1 0 0;
+    --popover-foreground: 0.12 0.02 240;
+
+    --primary: 0.36 0.16 252;
+    --primary-foreground: 0.99 0.003 252;
+
+    --secondary: 0.95 0.008 240;
+    --secondary-foreground: 0.28 0.02 240;
+    --muted: 0.96 0.006 240;
+    --muted-foreground: 0.48 0.014 240;
+
+    --accent: 0.42 0.14 145;
+    --accent-foreground: 0.99 0.003 145;
+
+    --destructive: 0.52 0.22 28;
+    --destructive-foreground: 0.99 0.003 28;
+
+    --border: 0.9 0.008 240;
+    --input: 0.9 0.008 240;
+    --ring: 0.36 0.16 252;
+
+    --chart-1: 0.36 0.16 252;
+    --chart-2: 0.55 0.16 38;
+    --chart-3: 0.42 0.14 145;
+    --chart-4: 0.5 0.12 200;
+    --chart-5: 0.52 0.2 28;
+
+    /* Chart trend colors for Doctor Visit % component */
+    --trend-improving: 0.62 0.18 145;
+    --trend-declining: 0.52 0.22 28;
+    --trend-neutral: 0.62 0.08 240;
+
+    /* Alert severity colors for Missed Visit alerts */
+    --alert-critical: 0.52 0.22 28;
+    --alert-warning: 0.58 0.2 52;
+    --alert-critical-bg: 0.98 0.008 28;
+    --alert-warning-bg: 0.97 0.012 52;
+
+    /* Doctor Call button — vibrant teal accent, distinct from primary purple */
+    --button-action: 0.42 0.14 145;
+    --button-action-foreground: 0.99 0.003 145;
+
+    /* ASM/RSM Dashboard action buttons — 6 distinct colors */
+    --btn-attendance: 0.36 0.16 252; /* Blue — primary hue */
+    --btn-attendance-fg: 0.99 0.003 252; /* White text */
+    --btn-locations: 0.42 0.14 145; /* Green — trending improve */
+    --btn-locations-fg: 0.99 0.003 145; /* White text */
+    --btn-callreports: 0.58 0.2 52; /* Orange — trending warn */
+    --btn-callreports-fg: 0.99 0.003 52; /* White text */
+    --btn-calldetails: 0.36 0.16 252; /* Purple — primary */
+    --btn-calldetails-fg: 0.99 0.003 252; /* White text */
+    --btn-missed: 0.52 0.22 28; /* Red — destructive */
+    --btn-missed-fg: 0.99 0.003 28; /* White text */
+    --btn-leave: 0.42 0.14 145; /* Teal — action cyan */
+    --btn-leave-fg: 0.99 0.003 145; /* White text */
+
+    /* Sidebar — slightly off-white with blue-tinted border */
+    --sidebar: 0.97 0.006 240;
+    --sidebar-foreground: 0.12 0.02 240;
+    --sidebar-primary: 0.36 0.16 252;
+    --sidebar-primary-foreground: 0.99 0.003 252;
+    --sidebar-accent: 0.93 0.01 240;
+    --sidebar-accent-foreground: 0.2 0.02 240;
+    --sidebar-border: 0.88 0.01 240;
+    --sidebar-ring: 0.36 0.16 252;
+  }
+
+  * {
+    @apply border-border;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    color-scheme: light;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground font-body antialiased;
+    overscroll-behavior: none;
+    min-height: 100dvh;
+  }
+
+  /* Prevent iOS zoom on input focus — 16px minimum */
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+
+  /* Override on md+ to allow smaller font sizes */
+  @media (min-width: 768px) {
+    input,
+    select,
+    textarea {
+      font-size: inherit;
+    }
+  }
+
+  /* Focus visible ring */
+  :focus-visible {
+    outline: 2px solid oklch(var(--ring));
+    outline-offset: 2px;
+  }
+
+  /* Remove focus ring for mouse/touch users */
+  :focus:not(:focus-visible) {
+    outline: none;
+  }
+}
+
+@layer utilities {
+  /* ---- Layout helpers ---- */
+
+  /* Mobile-first modal: full-width on xs/sm, constrained on md+ */
+  .modal-responsive {
+    @apply w-full max-w-full sm:max-w-lg mx-auto;
+  }
+
+  /* Touch-friendly minimum tap target */
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px];
+  }
+
+  /* Full-width form field */
+  .form-field {
+    @apply w-full;
+  }
+
+  /* ---- Transitions ---- */
+  .transition-smooth {
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .transition-colors-fast {
+    transition: color 0.15s ease, background-color 0.15s ease, border-color
+      0.15s ease;
+  }
+
+  /* ---- Typography ---- */
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* ---- Scrollbars ---- */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: oklch(var(--muted-foreground) / 0.25) transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: oklch(var(--muted-foreground) / 0.25);
+    border-radius: 999px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background-color: oklch(var(--muted-foreground) / 0.45);
+  }
+
+  /* ---- Form layout ---- */
+
+  /* Label-above-input pattern: consistent vertical form groups */
+  .form-group {
+    @apply flex flex-col gap-1.5;
+  }
+
+  .form-label {
+    @apply text-sm font-medium text-foreground font-body;
+  }
+
+  .form-label-required::after {
+    content: " *";
+    @apply text-destructive;
+  }
+
+  /* Section card */
+  .section-card {
+    @apply bg-card border border-border rounded-lg shadow-sm overflow-hidden;
+  }
+
+  /* Data table wrapper — horizontal scroll on all sizes */
+  .table-scroll-container {
+    @apply overflow-x-auto overflow-y-auto scrollbar-thin w-full;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* ---- Elevation / shadows ---- */
+  .shadow-subtle {
+    box-shadow: 0 1px 3px 0 oklch(var(--foreground) / 0.06), 0 1px 2px -1px
+      oklch(var(--foreground) / 0.04);
+  }
+
+  .shadow-card {
+    box-shadow: 0 1px 4px 0 oklch(var(--foreground) / 0.08), 0 2px 6px -2px
+      oklch(var(--foreground) / 0.04);
+  }
+
+  .shadow-elevated {
+    box-shadow: 0 4px 12px 0 oklch(var(--foreground) / 0.1), 0 2px 4px -1px
+      oklch(var(--foreground) / 0.06);
+  }
+
+  /* ---- Chart and alert components ---- */
+
+  /* Trend chart colors and responsive grid */
+  .trend-chart-container {
+    @apply p-4 bg-card border border-border rounded-lg shadow-subtle;
+  }
+
+  .trend-line-improving {
+    stroke: oklch(var(--trend-improving));
+  }
+
+  .trend-line-declining {
+    stroke: oklch(var(--trend-declining));
+  }
+
+  .trend-line-neutral {
+    stroke: oklch(var(--trend-neutral));
+  }
+
+  /* Chart grid and tooltip */
+  .chart-grid {
+    stroke: oklch(var(--border));
+    stroke-opacity: 0.5;
+  }
+
+  .chart-tooltip {
+    @apply bg-card border border-border rounded-md shadow-elevated text-sm p-2;
+  }
+
+  /* Missed Visit alert cards */
+  .alert-card {
+    @apply p-3 rounded-lg border transition-smooth;
+  }
+
+  .alert-critical {
+    @apply bg-alert-critical-bg border-alert-critical;
+  }
+
+  .alert-warning {
+    @apply bg-alert-warning-bg border-alert-warning;
+  }
+
+  .alert-text-critical {
+    @apply text-alert-critical font-semibold;
+  }
+
+  .alert-text-warning {
+    @apply text-alert-warning font-semibold;
+  }
+
+  .alert-dismiss-btn {
+    @apply text-muted-foreground hover:text-foreground transition-colors-fast opacity-70 hover:opacity-100;
+  }
+
+  /* Doctor Call prominent button in header */
+  .btn-doctor-call {
+    @apply bg-action text-action-foreground px-4 py-2 rounded-lg font-medium text-sm transition-smooth hover:opacity-85 active:opacity-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-action;
+  }
+
+  /* ASM/RSM Dashboard action buttons — large touch targets */
+  .dashboard-btn {
+    @apply flex flex-col items-center justify-center gap-3 rounded-xl p-6 font-semibold text-sm transition-smooth focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 active:scale-95 touch-target;
+  }
+
+  .dashboard-btn-attendance {
+    @apply bg-dashboard-attendance text-dashboard-attendance-fg hover:opacity-90;
+  }
+
+  .dashboard-btn-locations {
+    @apply bg-dashboard-locations text-dashboard-locations-fg hover:opacity-90;
+  }
+
+  .dashboard-btn-callreports {
+    @apply bg-dashboard-callreports text-dashboard-callreports-fg hover:opacity-90;
+  }
+
+  .dashboard-btn-calldetails {
+    @apply bg-dashboard-calldetails text-dashboard-calldetails-fg hover:opacity-90;
+  }
+
+  .dashboard-btn-missed {
+    @apply bg-dashboard-missed text-dashboard-missed-fg hover:opacity-90;
+  }
+
+  .dashboard-btn-leave {
+    @apply bg-dashboard-leave text-dashboard-leave-fg hover:opacity-90;
+  }
+
+  /* Dashboard button badge — red for pending counts */
+  .dashboard-badge {
+    @apply absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold;
+  }
+
+  /* Doctor Call entry — collapsible sections and scrollable lists */
+  .doctor-card {
+    @apply bg-card border border-border rounded-lg p-4 cursor-pointer transition-smooth hover:shadow-card active:scale-95 touch-target;
+  }
+
+  .doctor-card-header {
+    @apply font-semibold text-foreground text-sm;
+  }
+
+  .doctor-card-detail {
+    @apply text-xs text-muted-foreground mt-1;
+  }
+
+  .search-input {
+    @apply w-full px-3 py-2 border border-input bg-card rounded-lg text-sm placeholder-muted-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring;
+  }
+
+  .product-list-item {
+    @apply flex items-start gap-3 p-3 border border-border rounded-lg hover:bg-muted/30 transition-smooth;
+  }
+
+  .product-list-item input[type="checkbox"] {
+    @apply mt-1;
+  }
+
+  .product-details-input {
+    @apply w-full px-3 py-2 border border-input bg-card rounded-lg text-sm mt-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring;
+  }
+
+  .sample-row {
+    @apply flex gap-2 p-3 border border-border rounded-lg bg-muted/10 items-end;
+  }
+
+  .sample-row select,
+  .sample-row input {
+    @apply flex-1 px-3 py-2 border border-input bg-card rounded-lg text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring;
+  }
+
+  .sample-remove-btn {
+    @apply px-2 py-2 text-destructive hover:bg-destructive/10 rounded-lg transition-colors-fast;
+  }
+
+  /* Collapsible section header */
+  .collapsible-header {
+    @apply flex items-center justify-between p-3 bg-muted/20 border-b border-border cursor-pointer hover:bg-muted/30 transition-smooth;
+  }
+
+  /* Running ticker for missed doctor names */
+  .ticker-wrapper {
+    @apply overflow-hidden bg-alert-critical text-white py-2 px-3 rounded-sm;
+  }
+
+  .ticker-content {
+    @apply inline-block whitespace-nowrap animate-ticker-scroll text-sm font-semibold;
+    animation-duration: 20s;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+  }
+
+  .ticker-item {
+    @apply inline-block px-4 py-1;
+  }
+}
+
+/* ---- Print / PDF styles ---- */
+@media print {
+  @page {
+    size: A4;
+    margin: 0.5cm 2cm 0cm 2cm;
+  }
+
+  body {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  /* Branded full-width footer — appears on every printed page */
+  .branded-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #00bcd4 !important;
+    color: #ffffff !important;
+    font-weight: bold !important;
+    text-align: center !important;
+    padding: 9px 16px !important;
+    font-size: 12px !important;
+    print-color-adjust: exact !important;
+    -webkit-print-color-adjust: exact !important;
+  }
+}
+
+/* Branded footer utility (used in print windows) */
+.branded-footer {
+  background: #00bcd4;
+  color: #ffffff;
+  font-weight: bold;
+  text-align: center;
+  padding: 9px 16px;
+  font-size: 12px;
+  width: 100%;
+}
+
+/* ---- Google Fonts via @font-face (local fallback) ---- */
+@font-face {
+  font-family: "Space Grotesk";
+  src: url("/assets/fonts/SpaceGrotesk.woff2") format("woff2");
+  font-display: swap;
+  font-weight: 100 900;
+}
+
+@font-face {
+  font-family: "DM Sans";
+  src: url("/assets/fonts/DMSans.woff2") format("woff2");
+  font-display: swap;
+  font-weight: 100 900;
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("/assets/fonts/JetBrainsMono.woff2") format("woff2");
+  font-display: swap;
+  font-weight: 100 900;
+}

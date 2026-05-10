@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
+  <rect width="192" height="192" rx="32" fill="#4c1d95"/>
+  <rect x="16" y="16" width="160" height="160" rx="24" fill="#5b21b6"/>
+  <circle cx="96" cy="96" r="52" fill="#7c3aed" opacity="0.25"/>
+  <text x="96" y="72" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#ddd6fe" text-anchor="middle" letter-spacing="1">KRISHKAR</text>
+  <text x="96" y="92" font-family="Arial, sans-serif" font-size="10" fill="#c4b5fd" text-anchor="middle">PHARMACEUTICALS</text>
+  <rect x="60" y="104" width="72" height="3" rx="1.5" fill="#7c3aed"/>
+  <text x="96" y="126" font-family="Arial, sans-serif" font-size="12" font-weight="600" fill="#ede9fe" text-anchor="middle">HR SYSTEM</text>
+  <circle cx="96" cy="148" r="8" fill="#7c3aed"/>
+  <rect x="89" y="145" width="14" height="2" rx="1" fill="white"/>
+  <rect x="95" y="139" width="2" height="14" rx="1" fill="white"/>
+</svg>

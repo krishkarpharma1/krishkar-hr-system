@@ -1,0 +1,2676 @@
+// Version: 3.0.0
+type AbsenceInactivationLogEntry__285922819 =
+  {
+    absentDates : [Text];
+    employeeCode : Text;
+    employeeId : Text;
+    employeeName : Text;
+    hq : Text;
+    id : Text;
+    inactivatedAt : Int;
+    var isReactivated : Bool;
+    var reactivatedAt : ?Int;
+    var reactivatedBy : ?Text;
+    role : Text;
+    source : Text
+  };
+type AdditionalCharge__669254527 =
+  {
+    additionalArea : ?Text;
+    additionalAreaId : ?Nat;
+    additionalHqAssignments : [AdditionalHqAssignment__977341913];
+    additionalHqId : ?Nat;
+    additionalRole : ?Role__736998402;
+    assignedAt : Timestamp__78351491;
+    assignedBy : UserId__262187919;
+    chargeType : ChargeType__256495420;
+    effectiveFrom : Timestamp__78351491;
+    effectiveTo : Timestamp__78351491;
+    employeeId : UserId__262187919;
+    id : Text;
+    remarks : ?Text;
+    updatedAt : Timestamp__78351491
+  };
+type AdditionalHqAssignment__977341913 = {areaIds : [Nat]; hqId : Nat};
+type AdminMessage__113011440 =
+  {
+    attachmentUrls : [Text];
+    content : Text;
+    createdAt : Int;
+    createdBy : Text;
+    dismissedBy : [DismissalRecord__179909958];
+    id : Text;
+    isActive : Bool;
+    scheduledDate : ?Text;
+    title : Text
+  };
+type AdvanceStatus__761357962 = {#Active; #Cancelled; #FullyRecovered};
+type AllotmentAuditLog__430592628 =
+  {
+    actionType : AuditActionType__101200562;
+    changes : Text;
+    doctorDetails : ?Text;
+    doctorId : ?Nat;
+    logId : Nat;
+    mrId : ?Nat;
+    performedAt : Int;
+    performedBy : Nat
+  };
+type AreaRecord__22456108 =
+  {
+    createdAt : Timestamp__607067924;
+    hqId : LocationId__701924065;
+    id : LocationId__701924065;
+    isActive : Bool;
+    name : Text
+  };
+type AttendanceCheckIn__429603986 =
+  {
+    checkOutGps : ?GpsCoord__640851957;
+    checkOutTime : ?Timestamp__898936712;
+    date : Text;
+    distance : Float;
+    gpsCoord : GpsCoord__640851957;
+    matchedLocation : ?Text;
+    recordedAt : Timestamp__898936712;
+    status : CheckInStatus__444047386;
+    userId : UserId__788696446
+  };
+type AttendanceRecordOld__751934947 =
+  {
+    checkInGps : ?GpsCoord__485714666;
+    checkInTime : ?Text;
+    correctedBy : ?Text;
+    correctionAt : ?Int;
+    correctionRemark : ?Text;
+    date : Text;
+    employeeId : Nat;
+    holidayId : ?Nat;
+    id : Nat;
+    leaveApplicationId : ?Nat;
+    recordedAt : Int;
+    status : AttendanceStatusOld__533329928
+  };
+type AttendanceRecord__721429049 =
+  {
+    checkInGps : ?GpsCoord__649034804;
+    checkInTime : ?Text;
+    correctedBy : ?Text;
+    correctionAt : ?Timestamp__480477944;
+    correctionRemark : ?Text;
+    date : Text;
+    employeeId : EmployeeId__1003343970;
+    holidayId : ?Nat;
+    id : Nat;
+    leaveApplicationId : ?Nat;
+    recordedAt : Timestamp__480477944;
+    status : AttendanceStatus__341330334
+  };
+type AttendanceStatusOld__533329928 =
+  {
+    #absent;
+    #companyHoliday;
+    #halfDay;
+    #onLeave;
+    #onLeaveCL;
+    #onLeaveCO;
+    #onLeaveLWP;
+    #onLeaveML;
+    #onLeavePL;
+    #onLeaveSL;
+    #onLeaveUPL;
+    #present;
+    #weeklyOff
+  };
+type AttendanceStatus__341330334 =
+  {
+    #absent;
+    #companyHoliday;
+    #halfDay;
+    #onLeave;
+    #onLeaveCL;
+    #onLeaveCO;
+    #onLeaveLWP;
+    #onLeaveML;
+    #onLeavePL;
+    #onLeaveSL;
+    #onLeaveUPL;
+    #present;
+    #weeklyOff
+  };
+type AuditActionType__101200562 = {#Delete; #Edit};
+type BonusEntry__889077558 =
+  {amount : Float; bonusType : Text; remarks : ?Text};
+type BookingId__892708521 = Nat;
+type BookingIntendedUse__72266139 = {#Gift; #Sample};
+type BookingRequest__174832403 =
+  {
+    createdAt : Timestamp__1016684092;
+    id : BookingId__892708521;
+    var intendedUse : BookingIntendedUse__72266139;
+    var itemName : Text;
+    var notes : ?Text;
+    var quantity : Nat;
+    var rejectionReason : ?Text;
+    var reviewedAt : ?Timestamp__1016684092;
+    var reviewedBy : ?UserId__877050399;
+    var status : BookingStatus__10176221;
+    var targetDate : Text;
+    var updatedAt : Timestamp__1016684092;
+    userId : UserId__877050399;
+    var userName : Text;
+    var userRole : Text
+  };
+type BookingStatus__10176221 = {#Approved; #Pending; #Rejected};
+type BottomUpTarget__953802953 =
+  {
+    calculationStatus : CalculationStatus__638172859;
+    createdAt : Timestamp__33240318;
+    createdBy : UserId__102012271;
+    id : Nat;
+    isOverridden : Bool;
+    lastModifiedAt : Timestamp__33240318;
+    lastModifiedBy : UserId__102012271;
+    overrideReason : ?Text;
+    period : TargetPeriod__903885874;
+    role : Role__475062088;
+    targetAmount : Nat;
+    userId : UserId__102012271;
+    year : Nat
+  };
+type BulkStationImportResult__1048935386 =
+  {
+    rowResults : [BulkStationImportRowResult__332946271];
+    saved : Nat;
+    skipped : Nat;
+    totalRows : Nat;
+    uploadedAt : Int;
+    uploadedBy : Text
+  };
+type BulkStationImportRowResult__332946271 =
+  {
+    errorReason : ?Text;
+    hqName : Text;
+    rowIndex : Nat;
+    stationName : Text;
+    status : {#error; #ok}
+  };
+type BulkUploadRecord__46095948 =
+  {
+    errors : [Text];
+    id : Nat;
+    savedRows : Nat;
+    skippedRows : Nat;
+    totalRows : Nat;
+    uploadType : Text;
+    uploadedAt : Int;
+    uploadedBy : Nat
+  };
+type BusinessReportId__264793067 = Nat;
+type BusinessReport__656130219 =
+  {
+    actualSales : Float;
+    createdAt : Timestamp__1040901096;
+    doctorId : DoctorId__701800888;
+    doctorName : Text;
+    id : BusinessReportId__264793067;
+    linkedCrmRequestId : ?CrmRequestId__24518222;
+    month : Nat;
+    prescriptionCount : Nat;
+    reportNotes : ?Text;
+    userId : UserId__470218301;
+    year : Nat
+  };
+type CalculationStatus__638172859 = {#AutoCalculated; #ManuallyOverridden};
+type CallReport__1039858818 =
+  {
+    createdAt : Timestamp__890831554;
+    var daAmount : Nat;
+    date : Text;
+    var doctorsVisited : [DoctorVisitEntry__821590999];
+    var endLocation : GpsCoord__267282575;
+    gps : GpsCoord__267282575;
+    id : ReportId__387931195;
+    mrId : UserId__227653290;
+    var remarks : Text;
+    var reviewNote : Text;
+    var reviewedAt : ?Timestamp__890831554;
+    var reviewedBy : ?UserId__227653290;
+    var samplesDistributed : [SampleDistributed__1032756463];
+    var startLocation : GpsCoord__267282575;
+    var stationType : Text;
+    var status : ReportStatus__322088768;
+    var updatedAt : Timestamp__890831554;
+    var workType : WorkType__54317830;
+    var workingMode : ?WorkingMode__351968606;
+    var workingStation : ?Text;
+    var workingStationSource : ?WorkingStationSource__163981300;
+    var workingWithUserId : ?UserId__227653290;
+    var workingWithUserName : ?Text
+  };
+type ChargeType__256495420 = {#Area; #Role};
+type CheckInStatus__444047386 = {#matched; #unmatched};
+type ChemistCallRecord__797249546 =
+  {
+    var area : Text;
+    chemistId : Nat;
+    var chemistName : Text;
+    createdAt : Timestamp__30503291;
+    date : Text;
+    gpsLocation : GpsCoord__39368886;
+    id : Nat;
+    mrId : UserId__587054235;
+    var orderNoted : Text;
+    var productsEnquired : [ProductEnquired__728089282];
+    var remarks : Text;
+    var station : Text
+  };
+type ChemistId__576493451 = Nat;
+type ChemistOrder__1028451256 =
+  {
+    chemistId : ChemistId__576493451;
+    createdAt : Timestamp__890831554;
+    date : Text;
+    gpsLocation : ?GpsCoord__267282575;
+    id : OrderId__1008148907;
+    var items : [OrderItem__283142984];
+    mrId : UserId__227653290;
+    var remarks : Text;
+    var status : OrderStatus__881175384;
+    var totalValue : Nat
+  };
+type Chemist__164921896 =
+  {
+    var address : Text;
+    var area : Text;
+    var contactPhone : Text;
+    createdAt : Timestamp__890831554;
+    createdBy : UserId__227653290;
+    id : ChemistId__576493451;
+    var isActive : Bool;
+    var name : Text;
+    var shopName : Text;
+    var territory : Text
+  };
+type CompanyHoliday__551249286 =
+  {
+    applicableTo : HolidayApplicableTo__905511345;
+    createdAt : Int;
+    createdBy : Text;
+    date : Int;
+    holidayType : HolidayType__55387979;
+    id : Nat;
+    isActive : Bool;
+    name : Text;
+    remarks : ?Text
+  };
+type CompanyProfile__627866546 = CompanyProfile__980871976;
+type CompanyProfile__980871976 =
+  {
+    address : Text;
+    companyName : Text;
+    contactNumber : Text;
+    emailId : ?Text;
+    logoUrl : ?Text;
+    updatedAt : Int;
+    website : ?Text
+  };
+type CrmDoctorSaleId__391901770 = Nat;
+type CrmDoctorSaleRecord__133480660 =
+  {
+    areaId : Nat;
+    createdAt : Timestamp__54013713;
+    doctorId : Nat;
+    id : CrmDoctorSaleId__391901770;
+    products : [DoctorSaleProductEntry__324541540];
+    saleDate : Timestamp__54013713;
+    submittedBy : UserId__565511373;
+    totalSaleValue : Float
+  };
+type CrmRequestId__24518222 = Nat;
+type CrmRequest__295291426 =
+  {
+    var approvedAt : ?Timestamp__1040901096;
+    var approvedBy : ?UserId__470218301;
+    createdAt : Timestamp__1040901096;
+    crmAmount : Float;
+    doctorId : DoctorId__701800888;
+    doctorName : Text;
+    id : CrmRequestId__24518222;
+    productCommitments : [ProductCommitment__754843733];
+    var rejectionReason : ?Text;
+    requestNotes : ?Text;
+    salesTargetId : ?SalesTargetId__56841774;
+    var status : CrmStatus__240464721;
+    var updatedAt : Timestamp__1040901096;
+    userId : UserId__470218301
+  };
+type CrmStatus__240464721 = {#Approved; #Pending; #Rejected};
+type DaConfig__551087116 =
+  {exStationRate : Nat; hqRate : Nat; outStationRate : Nat; role : Text};
+type DataCleanupLog__453992004 =
+  {
+    adminUsername : Text;
+    id : Nat;
+    reason : Text;
+    recordsDeleted : [(Text, Nat)];
+    status : Text;
+    timestamp : Int
+  };
+type Data__791452850<K, V> =
+  {var count : Nat__490723111; kvs : [var ?(K, V)]};
+type DcrRecord__198496666 =
+  {
+    var approvedAt : ?Timestamp__923635748;
+    var approvedBy : ?UserId__601604464;
+    var approverRemark : Text;
+    var areaCovered : Text;
+    createdAt : Timestamp__923635748;
+    date : Text;
+    var gpsLocation : ?GpsCoord__89833574;
+    id : Nat;
+    isLate : Bool;
+    mrId : UserId__601604464;
+    var remarks : Text;
+    var stationCovered : Text;
+    var status : DcrStatus__545146503;
+    var submittedAt : ?Timestamp__923635748;
+    var totalChemistsVisited : Nat;
+    var totalDoctorsVisited : Nat;
+    var totalStockistsVisited : Nat;
+    var workingType : DcrWorkingType__975476164
+  };
+type DcrStatus__545146503 = {#Approved; #Draft; #Late; #Rejected; #Submitted};
+type DcrWorkingType__975476164 =
+  {#FieldWork; #Holiday; #Leave; #OfficeWork; #SickLeave; #Training};
+type DismissalRecord__179909958 = {date : Text; userId : Text};
+type DismissedAlert__223848916 =
+  {dismissedBy : Nat; dismissedDate : Int; doctorId : Nat; mrId : Nat};
+type DoctorId__604096630 = Nat;
+type DoctorId__701800888 = DoctorId__604096630;
+type DoctorProductAssignment__11348547 =
+  {
+    doctorId : DoctorId__604096630;
+    mrId : UserId__227653290;
+    productIds : [ProductId__462821726];
+    sampleIds : [ProductId__462821726];
+    updatedAt : Timestamp__890831554
+  };
+type DoctorQualification__722125878 =
+  {
+    #BAMS;
+    #BDS;
+    #BHMS;
+    #DM;
+    #DNB;
+    #MBBS;
+    #MBBSdgo;
+    #MBBSdnb;
+    #MBBSent;
+    #MBBSmd;
+    #MBBSms;
+    #MBBSortho;
+    #MCh;
+    #MD;
+    #MDS;
+    #MS;
+    #Other : Text
+  };
+type DoctorSaleProductEntry__324541540 =
+  {
+    productId : Nat;
+    productName : Text;
+    quantity : Nat;
+    remarks : ?Text;
+    saleValue : Float
+  };
+type DoctorVisitEntry__821590999 =
+  {
+    detailsPerProduct : [(ProductId__462821726, Text)];
+    doctorId : DoctorId__604096630;
+    giftArticles : [GiftArticleDistributedV2__183128246];
+    gps : ?GpsCoord__267282575;
+    notes : Text;
+    productIds : [ProductId__462821726];
+    samplesDistributed : [SampleDistributed__1032756463];
+    submittedByRole : ?Text;
+    submittedViaMRCharge : ?Bool
+  };
+type DoctorVisited__139658297 =
+  {doctorId : Nat; doctorName : Text; station : Text};
+type Doctor__650821147 =
+  {
+    var address : Text;
+    var area : Text;
+    var category : Text;
+    var clinicName : Text;
+    var contactPhone : Text;
+    createdAt : Timestamp__890831554;
+    createdBy : UserId__227653290;
+    var email : Text;
+    id : DoctorId__604096630;
+    var isActive : Bool;
+    var isCoreDoctor : Bool;
+    var name : Text;
+    var qualification : DoctorQualification__722125878;
+    var specialization : Text;
+    var station : Text;
+    var territory : Text;
+    var visitFrequencyTarget : Nat
+  };
+type DocumentType__1068126400 = {#agreement; #idProof; #offerLetter; #other};
+type EarnedLeaveAccrual__460869018 =
+  {
+    employeeId : EmployeeId__1003343970;
+    month : Nat;
+    totalAccrued : Nat;
+    year : Nat
+  };
+type EmailInitiationLog__434081877 =
+  {
+    action : Text;
+    initiatedAt : Int;
+    initiatedBy : Text;
+    initiatedByRole : Text;
+    letterRef : Text
+  };
+type EmpIdConfig__93481688 =
+  {padWidth : Nat; prefix : Text; roleKey : Text; startingNumber : Nat};
+type EmpIdCounter__156751083 = {var nextSequence : Nat; var prefix : Text};
+type EmployeeAdvance__692933521 =
+  {
+    advanceAmount : Float;
+    advanceDate : Int;
+    amountRecovered : Float;
+    cancelRemark : ?Text;
+    createdAt : Int;
+    createdBy : Text;
+    employeeId : Text;
+    firstDeductionMonth : Nat;
+    firstDeductionYear : Nat;
+    id : Text;
+    installmentAmount : Float;
+    installmentStartMonth : Nat;
+    installmentStartYear : Nat;
+    installmentsCompleted : Nat;
+    isPaused : Bool;
+    reason : Text;
+    remarks : ?Text;
+    status : AdvanceStatus__761357962;
+    totalInstallments : Nat
+  };
+type EmployeeDocument__523450541 =
+  {
+    documentType : DocumentType__1068126400;
+    employeeId : EmployeeId__1003343970;
+    fileName : Text;
+    id : Nat;
+    storageUrl : Text;
+    uploadedAt : Timestamp__480477944;
+    uploadedBy : EmployeeId__1003343970
+  };
+type EmployeeId__1003343970 = Nat;
+type ExpenseLineItem__213619161 =
+  {
+    amount : Float;
+    date : Int;
+    description : ?Text;
+    expenseType : Text;
+    sourceCallReportId : ?Text
+  };
+type ExpenseSheet__179458749 =
+  {
+    employeeId : Text;
+    generatedAt : Int;
+    id : Text;
+    lineItems : [ExpenseLineItem__213619161];
+    markedPaidBy : ?Text;
+    month : Nat;
+    paymentDate : ?Int;
+    paymentStatus : PaymentStatus__645797172;
+    totalAmount : Float;
+    year : Nat
+  };
+type ExpenseStatus__399331064 = {#approved; #pending; #rejected};
+type GiftArticleDistributedV2__183128246 =
+  GiftArticleDistributedV2__344621109;
+type GiftArticleDistributedV2__344621109 =
+  {
+    giftArticleId : GiftArticleId__931268889;
+    giftArticleName : Text;
+    quantity : Nat
+  };
+type GiftArticleId__931268889 = Nat;
+type GiftArticle__580513799 =
+  {
+    var category : Text;
+    createdAt : Timestamp__610102648;
+    createdBy : UserId__114984628;
+    var description : Text;
+    id : GiftArticleId__931268889;
+    var isActive : Bool;
+    var name : Text
+  };
+type GpsActivityEntry__212885663 =
+  {
+    accuracy : ?Float;
+    capturedAt : Timestamp__898936712;
+    id : Nat;
+    lat : Float;
+    lng : Float;
+    source : Text;
+    userId : UserId__788696446
+  };
+type GpsCoord__267282575 = GpsCoord__485714666;
+type GpsCoord__39368886 = GpsCoord__485714666;
+type GpsCoord__485714666 = {lat : Float; lng : Float; timestamp : Int};
+type GpsCoord__640851957 = GpsCoord__485714666;
+type GpsCoord__649034804 = GpsCoord__485714666;
+type GpsCoord__89833574 = GpsCoord__485714666;
+type GpsOverrideEntry__254149107 =
+  {
+    active : Bool;
+    employeeId : UserId__788696446;
+    grantedBy : UserId__788696446;
+    id : Nat;
+    overrideDate : ?Text;
+    reason : Text;
+    timestamp : Int
+  };
+type GpsTrailRecord__356424240 =
+  {coords : [GpsCoord__640851957]; date : Text; userId : UserId__788696446};
+type HQRecord__174575961 =
+  {
+    createdAt : Timestamp__607067924;
+    id : LocationId__701924065;
+    isActive : Bool;
+    name : Text;
+    territoryId : LocationId__701924065
+  };
+type HealthAnomaly__218041471 =
+  {affectedIds : [Text]; anomalyType : Text; description : Text};
+type HealthCheckReport__202200181 =
+  {
+    anomalies : [HealthAnomaly__218041471];
+    anomalyCount : Nat;
+    passed : Bool;
+    timestamp : Int
+  };
+type HolidayApplicableTo__905511345 =
+  {
+    #AllEmployees;
+    #SpecificRoles : [Role__300349085];
+    #SpecificTerritories : [Text]
+  };
+type HolidayType__55387979 =
+  {#FestivalHoliday; #NationalHoliday; #OptionalHoliday; #RegionalHoliday};
+type HqAssignment__305689379 =
+  {
+    areaIds : [LocationId__228982824];
+    exStationIds : [LocationId__228982824];
+    hqId : LocationId__228982824;
+    stationIds : [LocationId__228982824]
+  };
+type IncentiveBonusSheet__640274033 =
+  {
+    bonusEntries : [BonusEntry__889077558];
+    employeeId : Text;
+    generatedAt : Int;
+    id : Text;
+    markedPaidBy : ?Text;
+    monthlyBreakdown : [IncentiveMonthEntry__761219339];
+    paymentDate : ?Int;
+    paymentStatus : PaymentStatus__645797172;
+    quarter : Nat;
+    totalAmount : Float;
+    totalBonusAmount : Float;
+    totalIncentiveAmount : Float;
+    year : Nat
+  };
+type IncentiveCalculationStatus__704126623 =
+  {#Calculated; #HRApproved; #PaidOnSlip};
+type IncentiveCalculation__462851002 =
+  {
+    achievementPct : Float;
+    actualAmount : Float;
+    adjustedAmount : ?Float;
+    aggregatedTarget : Float;
+    approvedBy : ?UserId__849167716;
+    calculatedAt : Timestamp__931319502;
+    id : Nat;
+    incentiveAmount : Float;
+    month : ?Nat;
+    notes : ?Text;
+    period : TargetPeriod__130389717;
+    role : Role__948787946;
+    slabApplied : Text;
+    status : IncentiveCalculationStatus__704126623;
+    targetAmount : Float;
+    userId : UserId__849167716;
+    year : Nat
+  };
+type IncentiveMonthEntry__761219339 =
+  {
+    achievementPct : Float;
+    incentiveAmount : Float;
+    month : Nat;
+    slabApplied : Text;
+    year : Nat
+  };
+type IncentivePlan__913920250 =
+  {
+    createdAt : Timestamp__931319502;
+    createdBy : UserId__849167716;
+    id : Nat;
+    isActive : Bool;
+    month : Nat;
+    period : TargetPeriod__130389717;
+    role : Role__948787946;
+    slabs : [IncentiveSlab__47484125];
+    updatedAt : Timestamp__931319502;
+    year : Nat
+  };
+type IncentiveSlab__47484125 =
+  {
+    incentiveType : IncentiveType__654359610;
+    maxAchievementPct : Float;
+    minAchievementPct : Float;
+    value : Float
+  };
+type IncentiveType__654359610 = {#Fixed; #PercentOfSalary; #PercentOfTarget};
+type Internal__8484328<K, V> =
+  {children : [var ?Node__46230540<K, V>]; data : Data__791452850<K, V>};
+type JfwRating__37868580 = {#Average; #Excellent; #Good; #Poor};
+type JfwRecord__1038401745 =
+  {
+    var areaVisited : Text;
+    createdAt : Timestamp__773220054;
+    date : Text;
+    var doctorsJointlyVisited : [DoctorVisited__139658297];
+    id : Nat;
+    managerId : UserId__258708908;
+    var mrAcknowledged : Bool;
+    var mrAcknowledgedAt : ?Timestamp__773220054;
+    mrId : UserId__258708908;
+    var mrName : Text;
+    var observations : Text;
+    var rating : JfwRating__37868580;
+    var stationVisited : Text
+  };
+type Leaf__809889148<K, V> = {data : Data__791452850<K, V>};
+type LeaveApplicationOld__428338098 =
+  {
+    appliedAt : Int;
+    approvedBy : ?Nat;
+    approverId : ?Nat;
+    approverRemark : ?Text;
+    attachmentUrl : ?Text;
+    employeeId : Nat;
+    fromDate : Text;
+    gpsLocation : ?GpsCoord__485714666;
+    id : Nat;
+    leaveType : LeaveTypeOld__185855839;
+    notes : ?Text;
+    numDays : Nat;
+    reason : Text;
+    status : LeaveStatus__215970448;
+    toDate : Text;
+    updatedAt : Int
+  };
+type LeaveApplication__980461763 =
+  {
+    appliedAt : Timestamp__480477944;
+    approvedBy : ?EmployeeId__1003343970;
+    approverId : ?EmployeeId__1003343970;
+    approverRemark : ?Text;
+    attachmentUrl : ?Text;
+    employeeId : EmployeeId__1003343970;
+    fromDate : Text;
+    gpsLocation : ?GpsCoord__649034804;
+    id : Nat;
+    leaveType : LeaveType__814530700;
+    notes : ?Text;
+    numDays : Nat;
+    reason : Text;
+    status : LeaveStatus__215970448;
+    toDate : Text;
+    updatedAt : Timestamp__480477944
+  };
+type LeaveQuotaOld__647482307 =
+  {
+    casualTotal : Nat;
+    casualUsed : Nat;
+    coTotal : Nat;
+    coUsed : Nat;
+    employeeId : Nat;
+    lwpTotal : Nat;
+    lwpUsed : Nat;
+    mlTotal : Nat;
+    mlUsed : Nat;
+    plTotal : Nat;
+    plUsed : Nat;
+    sickTotal : Nat;
+    sickUsed : Nat;
+    unpaidTotal : Nat;
+    unpaidUsed : Nat;
+    year : Nat
+  };
+type LeaveQuota__69528493 =
+  {
+    casualTotal : Nat;
+    casualUsed : Nat;
+    coTotal : Nat;
+    coUsed : Nat;
+    employeeId : EmployeeId__1003343970;
+    lwpTotal : Nat;
+    lwpUsed : Nat;
+    mlTotal : Nat;
+    mlUsed : Nat;
+    plTotal : Nat;
+    plUsed : Nat;
+    sickTotal : Nat;
+    sickUsed : Nat;
+    unpaidTotal : Nat;
+    unpaidUsed : Nat;
+    year : Nat
+  };
+type LeaveStatus__215970448 = {#approved; #pending; #rejected};
+type LeaveTypeOld__185855839 = {#casual; #co; #lwp; #ml; #pl; #sick; #unpaid};
+type LeaveType__814530700 = {#casual; #co; #lwp; #ml; #pl; #sick; #unpaid};
+type LetterDetails__449717063 =
+  {
+    confirmationDate : ?Text;
+    currentDesignation : ?Text;
+    currentPosting : ?Text;
+    currentSalary : ?Nat;
+    disciplinaryAction : ?Text;
+    finalSettlementRef : ?Text;
+    incrementAmount : ?Nat;
+    incrementEffectiveDate : ?Text;
+    lastWorkingDay : ?Text;
+    newDesignation : ?Text;
+    newGrade : ?Text;
+    newHQ : ?Text;
+    newPosting : ?Text;
+    newSalary : ?Nat;
+    probationEndDate : ?Text;
+    promotedSalary : ?Nat;
+    promotionEffectiveDate : ?Text;
+    resignationDate : ?Text;
+    revisedDesignation : ?Text;
+    revisedSalary : ?Nat;
+    transferEffectiveDate : ?Text;
+    warningReason : ?Text
+  };
+type LetterStatus__422083757 = {#draft; #final};
+type LetterType__832661458 =
+  {
+    #appointmentLetter;
+    #confirmationLetter;
+    #experienceLetter;
+    #incrementLetter;
+    #promotionLetter;
+    #showCauseNotice;
+    #terminationLetter;
+    #transferLetter;
+    #warningLetter
+  };
+type List__415060402<T> = List__790383201<T>;
+type List__790383201<T> =
+  {
+    var blockIndex : Nat__490723111;
+    var blocks : [var [var ?T]];
+    var elementIndex : Nat__490723111
+  };
+type LocationId__228982824 = Nat;
+type LocationId__701924065 = Nat;
+type LocationRecord__435550199 =
+  {
+    employeeId : Text;
+    lat : Float;
+    lng : Float;
+    timestamp : Timestamp__143717858;
+    userId : UserId__547233916
+  };
+type Map__158565046<K, V> = Map__297112838<K, V>;
+type Map__297112838<K, V> =
+  {var root : Node__46230540<K, V>; var size : Nat__490723111};
+type Map__605269027<K, V> = Map__158565046<K, V>;
+type MonthlyTarget__328899517 =
+  {
+    chemistTarget : Nat;
+    createdAt : Timestamp__452371364;
+    createdBy : UserId__764774217;
+    doctorCallTarget : Nat;
+    id : Text;
+    month : Nat;
+    newDoctorsTarget : Nat;
+    productTargets : [ProductTarget__358096746];
+    remarks : ?Text;
+    revisionHistory : [TargetRevision__21671929];
+    role : Role__317243121;
+    stockistTarget : Nat;
+    targetAmount : Float;
+    updatedAt : Timestamp__452371364;
+    updatedBy : UserId__764774217;
+    userId : UserId__764774217;
+    year : Nat
+  };
+type Nat__490723111 = Nat__920180692;
+type Nat__920180692 = Nat;
+type Node__46230540<K, V> =
+  {#internal : Internal__8484328<K, V>; #leaf : Leaf__809889148<K, V>};
+type NotificationRecord__666145773 =
+  {
+    body : Text;
+    createdAt : Int;
+    id : Text;
+    isRead : Bool;
+    notificationType : NotificationType__908192046;
+    recipientId : Text;
+    relatedEntityId : ?Text;
+    relatedEntityType : ?Text;
+    senderId : Text;
+    title : Text
+  };
+type NotificationSettings__653206574 =
+  {
+    batchMinCount : Nat;
+    batchWindowSeconds : Nat;
+    batchingEnabled : Bool;
+    cascadeLevel : Text;
+    doctorCallNotificationsEnabled : Bool;
+    quietHoursEnabled : Bool;
+    quietHoursEnd : Text;
+    quietHoursStart : Text
+  };
+type NotificationType__908192046 =
+  {
+    #absenceWarningDay1;
+    #absenceWarningDay2;
+    #autoInactivated;
+    #birthday;
+    #dcrReminder;
+    #doctorCallBatch;
+    #doctorCallSubmitted;
+    #mrModeAssigned;
+    #mrModeDcrSubmitted;
+    #mtpReminder;
+    #reactivated
+  };
+type OfficialLetter__691255155 =
+  {
+    body : Text;
+    createdAt : Int;
+    createdBy : Nat;
+    date : Text;
+    details : LetterDetails__449717063;
+    employeeId : ?Nat;
+    employeeName : ?Text;
+    id : Nat;
+    issuedAt : Int;
+    issuedBy : Nat;
+    letterType : LetterType__832661458;
+    recipientName : Text;
+    status : LetterStatus__422083757;
+    subject : Text;
+    updatedAt : Int
+  };
+type OldAttendanceCorrectionRequest__698795813 =
+  {
+    autoCheckoutDate : Text;
+    claimedCheckoutTime : Text;
+    date : Text;
+    employeeId : Nat;
+    reason : Text;
+    requestId : Nat;
+    reviewNote : ?Text;
+    reviewedAt : ?Int;
+    reviewedBy : ?Nat;
+    status : OldCorrectionStatus__1046854451;
+    submittedAt : Int;
+    supportingEvidence : ?Text
+  };
+type OldAutoCheckoutScope__645925660 =
+  {
+    #allFieldEmployees;
+    #selectedRoles : [Text];
+    #selectedTeams : [Nat];
+    #selectedTerritories : [Nat]
+  };
+type OldAutoSubmissionScope__705721714 =
+  {#allMrs; #selectedTeams : [Nat]; #selectedTerritories : [Nat]};
+type OldBulkMtpAuditEntry__948332043 =
+  {
+    id : Nat;
+    lateSubmission : Bool;
+    month : Nat;
+    rowsSaved : Nat;
+    rowsSkipped : Nat;
+    targetUserId : Nat;
+    targetUserName : Text;
+    timestamp : Int;
+    uploaderName : Text;
+    uploaderUserId : Nat;
+    year : Nat
+  };
+type OldCorrectionStatus__1046854451 = {#approved; #pending; #rejected};
+type OldDcrAuditEntry__1026829006 =
+  {
+    actorId : ?Nat;
+    autoFillTimestamp : ?Int;
+    dataSourcesUsed : [Text];
+    dcrId : ?Nat;
+    entryId : Nat;
+    eventType : Text;
+    mrId : Nat;
+    mrReviewedBeforeSubmit : Bool;
+    notes : Text;
+    submissionTimestamp : ?Int;
+    triggerEvent : Text
+  };
+type OldDcrEditRequest__263644020 =
+  {
+    dcrId : Nat;
+    mrId : Nat;
+    reason : Text;
+    requestId : Nat;
+    requestedAt : Int;
+    reviewNote : ?Text;
+    reviewedAt : ?Int;
+    reviewedBy : ?Nat;
+    status : {#approved; #pending; #rejected}
+  };
+type OldDcrRecord__1020318144 =
+  {
+    var approvedAt : ?Int;
+    var approvedBy : ?Nat;
+    var approverRemark : Text;
+    var areaCovered : Text;
+    createdAt : Int;
+    date : Text;
+    var gpsLocation : ?GpsCoord__89833574;
+    id : Nat;
+    isLate : Bool;
+    mrId : Nat;
+    var remarks : Text;
+    var stationCovered : Text;
+    var status : OldDcrStatus__345361265;
+    var submittedAt : ?Int;
+    var totalChemistsVisited : Nat;
+    var totalDoctorsVisited : Nat;
+    var totalStockistsVisited : Nat;
+    var workingType : DcrWorkingType__975476164
+  };
+type OldDcrSettings__25371666 =
+  {
+    var allowMrEditAutoSubmitted : Bool;
+    var autoCheckoutHour : Nat;
+    var autoCheckoutMinute : Nat;
+    var autoCheckoutScope : OldAutoCheckoutScope__645925660;
+    var autoSubmissionScope : OldAutoSubmissionScope__705721714;
+    var dailyDeadlineHour : Nat;
+    var dailyDeadlineMinute : Nat;
+    var enableAutoCheckout : Bool;
+    var enableAutoFillOnCheckout : Bool;
+    var enableAutoSubmissionAfterDeadline : Bool;
+    var enableOtherStationInDcrEntry : Bool;
+    var isEnabled : Bool;
+    var notifyAsmOnAutoSubmit : Bool;
+    var notifyHrOnAutoCheckout : Bool;
+    var notifyManagerOnAutoCheckout : Bool;
+    var submissionCutoffHour : Nat;
+    var submissionCutoffMinute : Nat
+  };
+type OldDcrStatus__345361265 =
+  {
+    #Approved;
+    #Draft;
+    #Late;
+    #Rejected;
+    #Submitted;
+    #autoCheckoutSubmitted;
+    #autoSubmitted;
+    #noActivity;
+    #resubmitted;
+    #unlockedForEdit
+  };
+type OldDistributorStatus__971419834 = {#active; #inactive};
+type OldDistributor__837150724 =
+  {
+    var address : Text;
+    var areaCode : Text;
+    var contactPerson : Text;
+    createdAt : Int;
+    var creditLimit : Nat;
+    var email : Text;
+    id : Text;
+    var name : Text;
+    var paymentTerms : Text;
+    var phone : Text;
+    var status : OldDistributorStatus__971419834;
+    var territory : Text;
+    var updatedAt : Int
+  };
+type OldDoctorTierAssignment__577598469 =
+  {
+    doctorId : Nat;
+    tier : OldDoctorTier__603232939;
+    updatedAt : Int;
+    updatedBy : Nat
+  };
+type OldDoctorTier__603232939 = {#a; #b; #c};
+type OldDownloadRecord__749770194 =
+  {downloadedAt : Int; mrId : Nat; productId : Text; recordId : Nat};
+type OldEDetailingProduct__319600847 =
+  {
+    var category : Text;
+    var composition : Text;
+    var contentVersion : Nat;
+    var description : Text;
+    var isCurrentVersion : Bool;
+    var mrp : Nat;
+    var name : Text;
+    var packSize : Text;
+    productId : Text;
+    var publishedAt : Int
+  };
+type OldMtpSettingsState__822777418 =
+  {
+    var allowMultipleAdditionalStations : Bool;
+    var enableAdditionalStationInMtp : Bool;
+    var enableOtherStationInDcrEntry : Bool;
+    var enableStationSelectionInMtp : Bool;
+    var requireApprovalForResubmission : Bool;
+    var stationSelectionMandatory : Bool
+  };
+type OldReturnStatus__107602003 = {#approved; #pending; #rejected};
+type OldSampleReturn__152792067 =
+  {
+    var approvedAt : Int;
+    var approvedBy : Text;
+    batchNumber : Text;
+    doctorId : Text;
+    gpsLat : Float;
+    gpsLng : Float;
+    issueId : Text;
+    notes : Text;
+    productId : Text;
+    quantityReturned : Nat;
+    reason : Text;
+    returnDate : Int;
+    returnId : Text;
+    var status : OldReturnStatus__107602003
+  };
+type OldTravelPlanRecord__918289148 =
+  {
+    var additionalStations : [Text];
+    createdAt : Int;
+    var date : Text;
+    id : Nat;
+    var notes : Text;
+    var plannedStation : Text;
+    var primaryStation : Text;
+    var status : TravelPlanStatus__592935075;
+    var updatedAt : Int;
+    userId : Nat
+  };
+type OldVisitFrequencyConfig__1043133137 =
+  {tierA : Nat; tierB : Nat; tierC : Nat};
+type OldWorkingStyleRecord__9282997 =
+  {
+    additionalArea : ?Text;
+    additionalStationsList : [Text];
+    date : Int;
+    employeeId : Text;
+    id : Text;
+    isResubmission : Bool;
+    otherStationName : ?Text;
+    resubmissionAuditEntries : [Text];
+    resubmissionTimestamp : ?Int;
+    selectedStation : Text;
+    stationSource : WorkingStationSource__292447492;
+    submittedAt : Int;
+    workingMode : WorkingStyleMode__339295075;
+    workingType : ?Text;
+    workingWithName : ?Text;
+    workingWithUserId : ?Text
+  };
+type OrderId__1008148907 = Nat;
+type OrderItem__283142984 =
+  {
+    productId : ProductId__462821726;
+    productName : Text;
+    quantity : Nat;
+    scheme : Text;
+    unitPrice : Nat
+  };
+type OrderStatus__881175384 =
+  {#Cancelled; #Confirmed; #Delivered; #Dispatched; #Pending};
+type PaymentStatus__645797172 = {#DueForPayment; #Paid; #Pending};
+type PayrollRecord__357861897 =
+  {
+    advanceRecovery : Nat;
+    basicPay : Nat;
+    daAllowance : Nat;
+    employeeId : EmployeeId__1003343970;
+    esiDeduction : Nat;
+    grossPay : Nat;
+    hra : Nat;
+    id : Nat;
+    isApproved : Bool;
+    month : Nat;
+    netPay : Nat;
+    payableDays : Nat;
+    pfDeduction : Nat;
+    processedAt : Timestamp__480477944;
+    processedBy : EmployeeId__1003343970;
+    taAllowance : Nat;
+    year : Nat
+  };
+type PendingBatch__889677712 =
+  {
+    callIds : [Text];
+    firstCallAt : Int;
+    lastCallAt : Int;
+    mrId : Text;
+    mrName : Text
+  };
+type PerformanceRecord__811470543 =
+  {
+    callsMade : Nat;
+    chemistOrders : Nat;
+    doctorsVisited : Nat;
+    employeeId : EmployeeId__1003343970;
+    id : Nat;
+    month : Nat;
+    recordedAt : Timestamp__480477944;
+    recordedBy : EmployeeId__1003343970;
+    remarks : Text;
+    totalSales : Nat;
+    year : Nat
+  };
+type PricelistProductId__732376749 = Nat;
+type PricelistProduct__238081883 =
+  {
+    composition : Text;
+    createdAt : Timestamp__179934605;
+    id : PricelistProductId__732376749;
+    mrp : Float;
+    name : Text;
+    ptr : Float;
+    pts : Float;
+    srNo : Nat;
+    updatedAt : Timestamp__179934605
+  };
+type PricelistProduct__923223 = PricelistProduct__238081883;
+type ProductCategory__693893465 =
+  {#Capsule; #Injection; #Ointment; #Other; #Syrup; #Tablet};
+type ProductCommitment__754843733 =
+  {
+    expectedQuantity : Nat;
+    productId : ProductId__492739677;
+    productName : Text
+  };
+type ProductEnquired__728089282 =
+  {enquiryType : Text; productId : Nat; productName : Text};
+type ProductId__462821726 = Nat;
+type ProductId__492739677 = ProductId__462821726;
+type ProductTarget__358096746 =
+  {productId : Text; productName : Text; targetQty : Float};
+type Product__747448037 =
+  {
+    var category : ProductCategory__693893465;
+    createdAt : Timestamp__890831554;
+    var description : Text;
+    var division : Text;
+    id : ProductId__462821726;
+    var isActive : Bool;
+    var mrpPaise : Nat;
+    var name : Text;
+    var packSize : Text;
+    var productCode : Text
+  };
+type ReactivationLogEntry__549665875 =
+  {
+    employeeCode : Text;
+    employeeId : UserId__547233916;
+    employeeName : Text;
+    needsReview : Bool;
+    reactivatedAt : Timestamp__143717858;
+    reactivatedBy : UserId__547233916;
+    reactivatedByName : Text
+  };
+type RepairLog__951880493 =
+  {
+    details : Text;
+    fixedCount : Nat;
+    repairType : Text;
+    timestamp : Int;
+    triggeredBy : Text
+  };
+type ReportId__387931195 = Nat;
+type ReportStatus__322088768 = {#Approved; #Draft; #Rejected; #Submitted};
+type RoleHierarchyConfig__146190898 = {roleOrder : [Role__480686259]};
+type RoleLeaveQuotaOld__235004745 =
+  {
+    casualTotal : Nat;
+    coTotal : Nat;
+    lwpTotal : Nat;
+    mlTotal : Nat;
+    plTotal : Nat;
+    role : Role__300349085;
+    sickTotal : Nat;
+    unpaidTotal : Nat;
+    year : Nat
+  };
+type RoleLeaveQuota__927514936 =
+  {
+    casualTotal : Nat;
+    coTotal : Nat;
+    lwpTotal : Nat;
+    mlTotal : Nat;
+    plTotal : Nat;
+    role : Role__300349085;
+    sickTotal : Nat;
+    unpaidTotal : Nat;
+    year : Nat
+  };
+type Role__1068200260 = Role__300349085;
+type Role__239150052 = Role__300349085;
+type Role__300349085 = {#ASM; #Admin; #HRManager; #MR; #RSM; #ZSM};
+type Role__317243121 = Role__300349085;
+type Role__475062088 = Role__300349085;
+type Role__480686259 = Role__300349085;
+type Role__736998402 = Role__300349085;
+type Role__948787946 = Role__300349085;
+type SalaryComponents__954791421 =
+  {basic : Nat; esiPercent : Nat; hra : Nat; pfPercent : Nat; ta : Float};
+type SaleProductEntry__392737742 =
+  {
+    mrp : Float;
+    netSaleValue : Float;
+    productId : Nat;
+    productName : Text;
+    ptr : Float;
+    pts : Float;
+    quantitySold : Nat
+  };
+type SalesTargetId__56841774 = Nat;
+type SalesTarget__261179794 =
+  {
+    createdAt : Timestamp__1040901096;
+    description : Text;
+    id : SalesTargetId__56841774;
+    month : Nat;
+    targetAmount : Float;
+    userId : UserId__470218301;
+    year : Nat
+  };
+type SampleAllocationRecord__149006950 =
+  {
+    allocatedAt : Timestamp__10739762;
+    allocatedBy : UserId__528524059;
+    var allocatedQty : Int;
+    id : Nat;
+    month : Nat;
+    mrId : UserId__528524059;
+    productId : Nat;
+    var productName : Text;
+    var remarks : Text;
+    var usedQty : Int;
+    year : Nat
+  };
+type SampleDistributed__1032756463 =
+  {productId : ProductId__462821726; quantity : Nat};
+type SampleUsageRecord__743506025 =
+  {
+    callReportId : Nat;
+    doctorId : Nat;
+    doctorName : Text;
+    id : Nat;
+    mrId : UserId__528524059;
+    productId : Nat;
+    productName : Text;
+    qtyUsed : Int;
+    usedAt : Timestamp__10739762
+  };
+type SecondarySaleId__714497765 = Nat;
+type SecondarySaleRecord__211320689 =
+  {
+    areaId : Nat;
+    createdAt : Timestamp__818187100;
+    hqId : Nat;
+    id : SecondarySaleId__714497765;
+    products : [SaleProductEntry__392737742];
+    saleDate : Timestamp__818187100;
+    stockistId : Nat;
+    submittedBy : UserId__37496737;
+    totalNetSaleValue : Float
+  };
+type Session__464506136 =
+  {
+    employeeId : Text;
+    expiresAt : Timestamp__143717858;
+    name : Text;
+    role : Role__239150052;
+    token : Text;
+    userId : UserId__547233916
+  };
+type SfaReminderSettings__818542104 =
+  {
+    dcrReminderEnabled : Bool;
+    dcrReminderHour : Nat;
+    mtpDeadlineDay : Nat;
+    mtpReminderDaysBeforeDeadline : Nat;
+    mtpReminderEnabled : Bool
+  };
+type StateRecord__516337473 =
+  {
+    createdAt : Timestamp__607067924;
+    id : LocationId__701924065;
+    isActive : Bool;
+    name : Text;
+    zoneId : LocationId__701924065
+  };
+type StationRecord__692637174 =
+  {
+    createdAt : Timestamp__607067924;
+    hqId : LocationId__701924065;
+    isActive : Bool;
+    stationId : LocationId__701924065;
+    stationName : Text;
+    updatedAt : Timestamp__607067924
+  };
+type StationType__322525601 = {#ExHQ; #HQ; #Local; #Outstation};
+type StockistCallRecord__1025578648 =
+  {
+    var area : Text;
+    createdAt : Timestamp__30503291;
+    date : Text;
+    gpsLocation : GpsCoord__39368886;
+    id : Nat;
+    mrId : UserId__587054235;
+    var orderQty : Text;
+    var productsDiscussed : [ProductEnquired__728089282];
+    var remarks : Text;
+    var station : Text;
+    stockistId : Nat;
+    var stockistName : Text
+  };
+type StockistId__995490133 = Nat;
+type StockistRecord__730582512 =
+  {
+    address : Text;
+    areaId : Nat;
+    createdAt : Timestamp__343855843;
+    createdBy : UserId__805802831;
+    drugLicenseNumber : ?Text;
+    emailId : ?Text;
+    gstNumber : ?Text;
+    hqId : Nat;
+    id : StockistId__995490133;
+    isActive : Bool;
+    mobileNumber : Text;
+    name : Text;
+    proprietorName : Text;
+    remarks : ?Text
+  };
+type SuggestionSubmission__577768473 =
+  {
+    attachmentUrl : ?Text;
+    closingRemark : ?Text;
+    description : Text;
+    hrReply : ?Text;
+    hrReplyAt : ?Int;
+    hrReplyByName : ?Text;
+    id : Nat;
+    isReadByEmployee : Bool;
+    isReadByHR : Bool;
+    priority : Text;
+    status : Text;
+    statusUpdatedAt : ?Int;
+    subject : Text;
+    submissionType : Text;
+    submittedAt : Int;
+    submittedByEmployeeId : Text;
+    submittedByName : Text;
+    submittedByRole : Text;
+    submittedByUserId : Text
+  };
+type TaDaExpense__966026666 =
+  {
+    approvedBy : ?EmployeeId__1003343970;
+    dailyAllowance : Nat;
+    date : Text;
+    distanceKm : Nat;
+    employeeId : EmployeeId__1003343970;
+    fromLocation : ?Text;
+    gpsLocation : ?GpsCoord__649034804;
+    gradeName : ?Text;
+    id : Nat;
+    lodgingExpense : ?Nat;
+    miscExpense : ?Nat;
+    miscNarration : ?Text;
+    modeOfTransport : ?Text;
+    purpose : Text;
+    stationType : StationType__322525601;
+    status : ExpenseStatus__399331064;
+    submittedAt : Timestamp__480477944;
+    submittedByRole : Text;
+    toLocation : ?Text;
+    totalAmount : Nat;
+    totalClaimAmount : ?Nat;
+    travelAmount : Nat;
+    updatedAt : Timestamp__480477944
+  };
+type TaDaGrade__642450955 =
+  {
+    daExStationRate : Nat;
+    daHqRate : Nat;
+    daOutStationRate : Nat;
+    gradeName : Text;
+    lodgingEntitlement : Nat;
+    mealAllowance : Nat;
+    taPerKmRate : Nat
+  };
+type TargetAdjustmentLog__714694071 =
+  {
+    changedAt : Timestamp__676468280;
+    changedBy : UserId__366025714;
+    id : Nat;
+    month : ?Nat;
+    newValue : Float;
+    period : TargetPeriod__698688334;
+    previousValue : Float;
+    reason : ?Text;
+    role : Role__1068200260;
+    userId : UserId__366025714;
+    year : Nat
+  };
+type TargetPeriod__130389717 = {#HalfYearly; #Monthly; #Quarterly; #Yearly};
+type TargetPeriod__698688334 = {#HalfYearly; #Monthly; #Quarterly; #Yearly};
+type TargetPeriod__903885874 = {#HalfYearly; #Monthly; #Quarterly; #Yearly};
+type TargetRevision__21671929 =
+  {
+    newAmount : Float;
+    previousAmount : Float;
+    remarks : ?Text;
+    revisedAt : Timestamp__452371364;
+    revisedBy : UserId__764774217
+  };
+type TerritoryRecord__187399207 =
+  {
+    createdAt : Timestamp__607067924;
+    id : LocationId__701924065;
+    isActive : Bool;
+    name : Text;
+    stateId : LocationId__701924065
+  };
+type Timestamp__1016684092 = Timestamp__301639476;
+type Timestamp__1040901096 = Timestamp__301639476;
+type Timestamp__10739762 = Timestamp__301639476;
+type Timestamp__143717858 = Timestamp__301639476;
+type Timestamp__179934605 = Timestamp__301639476;
+type Timestamp__301639476 = Int;
+type Timestamp__30503291 = Timestamp__301639476;
+type Timestamp__33240318 = Timestamp__301639476;
+type Timestamp__343855843 = Timestamp__301639476;
+type Timestamp__452371364 = Timestamp__301639476;
+type Timestamp__480477944 = Int;
+type Timestamp__520107062 = Timestamp__301639476;
+type Timestamp__54013713 = Timestamp__301639476;
+type Timestamp__607067924 = Timestamp__301639476;
+type Timestamp__610102648 = Timestamp__301639476;
+type Timestamp__676468280 = Timestamp__301639476;
+type Timestamp__773220054 = Timestamp__301639476;
+type Timestamp__78351491 = Timestamp__301639476;
+type Timestamp__818187100 = Timestamp__301639476;
+type Timestamp__890831554 = Timestamp__301639476;
+type Timestamp__898936712 = Timestamp__301639476;
+type Timestamp__923635748 = Timestamp__301639476;
+type Timestamp__931319502 = Timestamp__301639476;
+type TravelPlanId__217236789 = Nat;
+type TravelPlanRecord__77575455 =
+  {
+    createdAt : Timestamp__520107062;
+    var date : Text;
+    id : TravelPlanId__217236789;
+    var notes : Text;
+    var plannedStation : Text;
+    var status : TravelPlanStatus__592935075;
+    var updatedAt : Timestamp__520107062;
+    userId : UserId__856869446
+  };
+type TravelPlanStatus__592935075 = {#Draft; #Submitted};
+type UidYearCounters__613579125 = Map__605269027<Nat, Nat>;
+type UserId__102012271 = UserId__158757552;
+type UserId__114984628 = UserId__158757552;
+type UserId__158757552 = Nat;
+type UserId__227653290 = UserId__158757552;
+type UserId__258708908 = UserId__158757552;
+type UserId__262187919 = UserId__158757552;
+type UserId__366025714 = UserId__158757552;
+type UserId__37496737 = UserId__158757552;
+type UserId__470218301 = UserId__158757552;
+type UserId__528524059 = UserId__158757552;
+type UserId__547233916 = UserId__158757552;
+type UserId__565511373 = UserId__158757552;
+type UserId__587054235 = UserId__158757552;
+type UserId__601604464 = UserId__158757552;
+type UserId__764774217 = UserId__158757552;
+type UserId__788696446 = UserId__158757552;
+type UserId__805802831 = UserId__158757552;
+type UserId__849167716 = UserId__158757552;
+type UserId__856869446 = UserId__158757552;
+type UserId__877050399 = UserId__158757552;
+type UserRecord__1042359148 =
+  {
+    var areaIds : [Nat];
+    createdAt : Timestamp__143717858;
+    var department : Text;
+    var designation : Text;
+    var email : Text;
+    var employeeId : Text;
+    var hqAssignments : [HqAssignment__305689379];
+    var hqIds : [Nat];
+    id : UserId__547233916;
+    var joinDate : Text;
+    var migrationDone : Bool;
+    var name : Text;
+    var passwordHash : Text;
+    var phone : Text;
+    var primaryHqId : ?LocationId__228982824;
+    var reportsTo : ?UserId__547233916;
+    var role : Role__239150052;
+    var salary : SalaryComponents__954791421;
+    var stateIds : [Nat];
+    var status : UserStatus__1016692621;
+    var territory : Text;
+    var territoryIds : [Nat];
+    var username : Text;
+    var zoneIds : [Nat]
+  };
+type UserStatus__1016692621 = UserStatus__418351110;
+type UserStatus__418351110 = {#Active; #Inactive};
+type WorkType__54317830 = {#Field; #Holiday; #Leave; #Office};
+type WorkingMode__260305040 = {#WorkingAlone; #WorkingWith};
+type WorkingMode__351968606 = WorkingMode__260305040;
+type WorkingStationSource__163981300 = WorkingStationSource__944146629;
+type WorkingStationSource__292447492 = {#AsPerPlan; #OtherStation};
+type WorkingStationSource__944146629 = {#AsPerTP; #OtherStation};
+type WorkingStyleMode__339295075 = {#WorkingAlone; #WorkingWith};
+type WorkingStyleRecord__710154904 =
+  {
+    additionalArea : ?Text;
+    date : Int;
+    employeeId : Text;
+    id : Text;
+    otherStationName : ?Text;
+    stationSource : WorkingStationSource__292447492;
+    submittedAt : Int;
+    workingMode : WorkingStyleMode__339295075;
+    workingType : ?Text;
+    workingWithName : ?Text;
+    workingWithUserId : ?Text
+  };
+type ZoneRecord__424911764 =
+  {
+    code : Text;
+    createdAt : Timestamp__607067924;
+    id : LocationId__701924065;
+    isActive : Bool;
+    name : Text
+  };
+actor ({
+  stable _absenceCheckTimer : Nat;
+  stable _dcrReminderTimer : Nat;
+  stable var _migAttendance : [AttendanceRecordOld__751934947];
+  stable var _migLeaveQuotas : [LeaveQuotaOld__647482307];
+  stable var _migLeaves : [LeaveApplicationOld__428338098];
+  stable var _migRoleLeaveQuotas : [RoleLeaveQuotaOld__235004745];
+  stable absenceInactivationLog :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?AbsenceInactivationLogEntry__285922819]];
+      var elementIndex : Nat__490723111
+    };
+  stable absenceSettings :
+    {
+      var absenceCheckEnabled : Bool;
+      var consecutiveAbsenceThreshold : Nat;
+      var excludeLongTermLeave : Bool;
+      var warningNotificationsEnabled : Bool
+    };
+  stable additionalCharges :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?AdditionalCharge__669254527]];
+      var elementIndex : Nat__490723111
+    };
+  stable adminMessages :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?AdminMessage__113011440]];
+      var elementIndex : Nat__490723111
+    };
+  stable advances :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?EmployeeAdvance__692933521]];
+      var elementIndex : Nat__490723111
+    };
+  stable allotmentAuditLogs :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?AllotmentAuditLog__430592628]];
+      var elementIndex : Nat__490723111
+    };
+  stable areas :
+    {
+      var root : Node__46230540<LocationId__701924065, AreaRecord__22456108>;
+      var size : Nat__490723111
+    };
+  stable assignments :
+    {
+      var root :
+        Node__46230540<(UserId__227653290, DoctorId__604096630),
+                        DoctorProductAssignment__11348547>;
+      var size : Nat__490723111
+    };
+  stable attendance :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?AttendanceRecord__721429049]];
+      var elementIndex : Nat__490723111
+    };
+  in attendanceCorrectionRequests :
+    List__415060402<OldAttendanceCorrectionRequest__698795813>;
+  stable bookingRequests :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?BookingRequest__174832403]];
+      var elementIndex : Nat__490723111
+    };
+  stable bottomUpTargets :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?BottomUpTarget__953802953]];
+      var elementIndex : Nat__490723111
+    };
+  stable bulkUploadHistory :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?BulkUploadRecord__46095948]];
+      var elementIndex : Nat__490723111
+    };
+  stable checkIns :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?AttendanceCheckIn__429603986]];
+      var elementIndex : Nat__490723111
+    };
+  stable chemistCalls :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?ChemistCallRecord__797249546]];
+      var elementIndex : Nat__490723111
+    };
+  stable chemists :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?Chemist__164921896]];
+      var elementIndex : Nat__490723111
+    };
+  stable companyHolidays :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?CompanyHoliday__551249286]];
+      var elementIndex : Nat__490723111
+    };
+  stable companyProfile : {var profile : ?CompanyProfile__627866546};
+  stable crmBusinessReports :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?BusinessReport__656130219]];
+      var elementIndex : Nat__490723111
+    };
+  stable crmDoctorSales :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?CrmDoctorSaleRecord__133480660]];
+      var elementIndex : Nat__490723111
+    };
+  stable crmRequests :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?CrmRequest__295291426]];
+      var elementIndex : Nat__490723111
+    };
+  stable daConfigs :
+    {
+      var root : Node__46230540<Text, DaConfig__551087116>;
+      var size : Nat__490723111
+    };
+  stable dataCleanupLogs :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?DataCleanupLog__453992004]];
+      var elementIndex : Nat__490723111
+    };
+  in dcrAuditLog : List__415060402<OldDcrAuditEntry__1026829006>;
+  in dcrEditRequests : List__415060402<OldDcrEditRequest__263644020>;
+  in dcrSettings : OldDcrSettings__25371666;
+  in dcrs : List__415060402<OldDcrRecord__1020318144>;
+  stable dismissedAlerts :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?DismissedAlert__223848916]];
+      var elementIndex : Nat__490723111
+    };
+  in distributors : Map__605269027<Text, OldDistributor__837150724>;
+  stable doctorDobMap :
+    {var root : Node__46230540<Text, Text>; var size : Nat__490723111};
+  in doctorTierMap : Map__605269027<Nat, OldDoctorTierAssignment__577598469>;
+  stable doctors :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?Doctor__650821147]];
+      var elementIndex : Nat__490723111
+    };
+  stable documents :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?EmployeeDocument__523450541]];
+      var elementIndex : Nat__490723111
+    };
+  in edCatalog : List__415060402<OldEDetailingProduct__319600847>;
+  in edDownloads : List__415060402<OldDownloadRecord__749770194>;
+  stable elAccruals :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?EarnedLeaveAccrual__460869018]];
+      var elementIndex : Nat__490723111
+    };
+  stable empIdConfigs :
+    {
+      var root : Node__46230540<Text, EmpIdConfig__93481688>;
+      var size : Nat__490723111
+    };
+  stable empIdCounters :
+    {
+      var root : Node__46230540<Text, EmpIdCounter__156751083>;
+      var size : Nat__490723111
+    };
+  stable expenseSheets :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?ExpenseSheet__179458749]];
+      var elementIndex : Nat__490723111
+    };
+  stable expenses :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?TaDaExpense__966026666]];
+      var elementIndex : Nat__490723111
+    };
+  stable giftArticles :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?GiftArticle__580513799]];
+      var elementIndex : Nat__490723111
+    };
+  stable gpsActivityLog :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?GpsActivityEntry__212885663]];
+      var elementIndex : Nat__490723111
+    };
+  stable gpsEnforcementEnabled : {var value : Bool};
+  stable gpsOverrides :
+    {
+      var root :
+        Node__46230540<UserId__788696446,
+                        List__415060402<GpsOverrideEntry__254149107>>;
+      var size : Nat__490723111
+    };
+  stable healthCheckLogs :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?HealthCheckReport__202200181]];
+      var elementIndex : Nat__490723111
+    };
+  stable hqs :
+    {
+      var root : Node__46230540<LocationId__701924065, HQRecord__174575961>;
+      var size : Nat__490723111
+    };
+  stable incentiveBonusSheets :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?IncentiveBonusSheet__640274033]];
+      var elementIndex : Nat__490723111
+    };
+  stable incentiveCalcs :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?IncentiveCalculation__462851002]];
+      var elementIndex : Nat__490723111
+    };
+  stable incentivePlans :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?IncentivePlan__913920250]];
+      var elementIndex : Nat__490723111
+    };
+  stable jfws :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?JfwRecord__1038401745]];
+      var elementIndex : Nat__490723111
+    };
+  stable leaveQuotas :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?LeaveQuota__69528493]];
+      var elementIndex : Nat__490723111
+    };
+  stable leaves :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?LeaveApplication__980461763]];
+      var elementIndex : Nat__490723111
+    };
+  stable letterEmailLogs :
+    {
+      var root : Node__46230540<Nat, [EmailInitiationLog__434081877]>;
+      var size : Nat__490723111
+    };
+  stable letterRefNumbers :
+    {var root : Node__46230540<Nat, Text>; var size : Nat__490723111};
+  stable letters :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?OfficialLetter__691255155]];
+      var elementIndex : Nat__490723111
+    };
+  stable locStates :
+    {
+      var root : Node__46230540<LocationId__701924065, StateRecord__516337473>;
+      var size : Nat__490723111
+    };
+  stable locations :
+    {
+      var root : Node__46230540<UserId__547233916, LocationRecord__435550199>;
+      var size : Nat__490723111
+    };
+  stable monthlyTargets :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?MonthlyTarget__328899517]];
+      var elementIndex : Nat__490723111
+    };
+  in mtpBulkAuditLog : List__415060402<OldBulkMtpAuditEntry__948332043>;
+  in mtpDeadlineDay : Nat;
+  in mtpSettings : OldMtpSettingsState__822777418;
+  stable nextAbsenceLogId : {var value : Nat};
+  stable nextAdjLogId : {var value : Nat};
+  stable nextAdvanceId : {var value : Nat};
+  stable nextAllotmentLogId : {var val : Nat};
+  stable nextAreaId : {var val : Nat};
+  stable nextAttendId : {var value : Nat};
+  stable nextBookingId : {var val : Nat};
+  stable nextBottomUpTargetId : {var val : Nat};
+  in nextBulkAuditId : {var val : Nat};
+  stable nextBulkHistoryId : {var value : Nat};
+  stable nextCalcId : {var value : Nat};
+  stable nextChargeId : {var value : Nat};
+  stable nextChemistCallId : {var val : Nat};
+  stable nextChemistId : {var val : Nat};
+  stable nextCleanupLogId : {var value : Nat};
+  in nextCorrectionId : {var value : Nat};
+  stable nextCrmId : {var val : Nat};
+  stable nextCrmReportId : {var val : Nat};
+  stable nextCrmSaleId : {var value : Nat};
+  in nextDcrAuditId : {var value : Nat};
+  in nextDcrEditReqId : {var value : Nat};
+  stable nextDcrId : {var value : Nat};
+  stable nextDocId : {var value : Nat};
+  stable nextDoctorId : {var val : Nat};
+  in nextDownloadId : {var val : Nat};
+  stable nextExpId : {var value : Nat};
+  stable nextExpenseSheetId : {var value : Nat};
+  stable nextGiftArticleId : {var val : Nat};
+  stable nextGpsActivityId : {var value : Nat};
+  stable nextGpsOverrideId : {var value : Nat};
+  stable nextHQId : {var val : Nat};
+  stable nextHolidayId : {var value : Nat};
+  stable nextIncentiveBonusId : {var value : Nat};
+  stable nextJfwId : {var value : Nat};
+  stable nextLeaveId : {var value : Nat};
+  stable nextLetterId : {var value : Nat};
+  stable nextLetterRefSeq : {var value : Nat};
+  stable nextMsgId : {var value : Nat};
+  stable nextOrderId : {var val : Nat};
+  stable nextPayId : {var value : Nat};
+  stable nextPerfId : {var value : Nat};
+  stable nextPlanId : {var value : Nat};
+  stable nextPricelistId : {var val : Nat};
+  stable nextPricelistSrNo : {var val : Nat};
+  stable nextProductId : {var val : Nat};
+  stable nextReportId : {var val : Nat};
+  stable nextSaleId : {var value : Nat};
+  stable nextSampleAllocId : {var val : Nat};
+  in nextSampleReturnId : {var val : Nat};
+  stable nextSampleUsageId : {var val : Nat};
+  stable nextStateId : {var val : Nat};
+  stable nextStationId : {var val : Nat};
+  stable nextStockistCallId : {var val : Nat};
+  stable nextStockistId : {var value : Nat};
+  stable nextSuggestionId : {var value : Nat};
+  stable nextTargetId : {var val : Nat};
+  stable nextTerrId : {var val : Nat};
+  stable nextTravelPlanId : {var val : Nat};
+  stable nextUserId : {var value : Nat};
+  stable nextWorkingStyleId : {var value : Nat};
+  stable nextZoneId : {var val : Nat};
+  stable notificationSettings : {var value : NotificationSettings__653206574};
+  stable notifications :
+    {
+      var root : Node__46230540<Text, NotificationRecord__666145773>;
+      var size : Nat__490723111
+    };
+  stable orders :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?ChemistOrder__1028451256]];
+      var elementIndex : Nat__490723111
+    };
+  stable payroll :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?PayrollRecord__357861897]];
+      var elementIndex : Nat__490723111
+    };
+  stable pendingBatches :
+    {
+      var root : Node__46230540<Text, PendingBatch__889677712>;
+      var size : Nat__490723111
+    };
+  stable performance :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?PerformanceRecord__811470543]];
+      var elementIndex : Nat__490723111
+    };
+  stable pricelistProducts :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?PricelistProduct__923223]];
+      var elementIndex : Nat__490723111
+    };
+  stable products :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?Product__747448037]];
+      var elementIndex : Nat__490723111
+    };
+  stable reactivationLog :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?ReactivationLogEntry__549665875]];
+      var elementIndex : Nat__490723111
+    };
+  stable repairLogs :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?RepairLog__951880493]];
+      var elementIndex : Nat__490723111
+    };
+  stable reports :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?CallReport__1039858818]];
+      var elementIndex : Nat__490723111
+    };
+  stable roleHierarchyConf : {var value : RoleHierarchyConfig__146190898};
+  stable roleLeaveQuotas :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?RoleLeaveQuota__927514936]];
+      var elementIndex : Nat__490723111
+    };
+  stable rsmMrNotifIdRef : {var value : Nat};
+  stable salesTargets :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?SalesTarget__261179794]];
+      var elementIndex : Nat__490723111
+    };
+  stable sampleAllocations :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?SampleAllocationRecord__149006950]];
+      var elementIndex : Nat__490723111
+    };
+  in sampleReturns : List__415060402<OldSampleReturn__152792067>;
+  stable sampleUsages :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?SampleUsageRecord__743506025]];
+      var elementIndex : Nat__490723111
+    };
+  stable secondarySales :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?SecondarySaleRecord__211320689]];
+      var elementIndex : Nat__490723111
+    };
+  stable sessions :
+    {
+      var root : Node__46230540<Text, Session__464506136>;
+      var size : Nat__490723111
+    };
+  stable sfaReminderSettings : {var value : SfaReminderSettings__818542104};
+  stable stationBulkHistory :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?BulkStationImportResult__1048935386]];
+      var elementIndex : Nat__490723111
+    };
+  stable stations :
+    {
+      var root :
+        Node__46230540<LocationId__701924065, StationRecord__692637174>;
+      var size : Nat__490723111
+    };
+  stable stockistCalls :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?StockistCallRecord__1025578648]];
+      var elementIndex : Nat__490723111
+    };
+  stable stockists :
+    {
+      var root :
+        Node__46230540<StockistId__995490133, StockistRecord__730582512>;
+      var size : Nat__490723111
+    };
+  stable suggestions :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?SuggestionSubmission__577768473]];
+      var elementIndex : Nat__490723111
+    };
+  stable taDaGradeConfig :
+    {
+      var root : Node__46230540<Text, TaDaGrade__642450955>;
+      var size : Nat__490723111
+    };
+  stable targetAdjLogs :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?TargetAdjustmentLog__714694071]];
+      var elementIndex : Nat__490723111
+    };
+  stable territories :
+    {
+      var root :
+        Node__46230540<LocationId__701924065, TerritoryRecord__187399207>;
+      var size : Nat__490723111
+    };
+  stable trails :
+    {
+      var root :
+        Node__46230540<(UserId__788696446, Text), GpsTrailRecord__356424240>;
+      var size : Nat__490723111
+    };
+  in travelPlans : List__415060402<OldTravelPlanRecord__918289148>;
+  stable uidConfig :
+    {var companyPrefix : Text; yearCounters : UidYearCounters__613579125};
+  stable userDobMap :
+    {var root : Node__46230540<Text, Text>; var size : Nat__490723111};
+  stable usernameIndex :
+    {
+      var root : Node__46230540<Text, UserId__547233916>;
+      var size : Nat__490723111
+    };
+  stable users :
+    {
+      var root : Node__46230540<UserId__547233916, UserRecord__1042359148>;
+      var size : Nat__490723111
+    };
+  in vfConfig : {var value : OldVisitFrequencyConfig__1043133137};
+  in workingStyleRecords : List__415060402<OldWorkingStyleRecord__9282997>;
+  stable zones :
+    {
+      var root : Node__46230540<LocationId__701924065, ZoneRecord__424911764>;
+      var size : Nat__490723111
+    }
+}, {
+  stable _absenceCheckTimer : Nat;
+  stable _dcrReminderTimer : Nat;
+  stable var _migAttendance : [AttendanceRecordOld__751934947];
+  stable var _migLeaveQuotas : [LeaveQuotaOld__647482307];
+  stable var _migLeaves : [LeaveApplicationOld__428338098];
+  stable var _migRoleLeaveQuotas : [RoleLeaveQuotaOld__235004745];
+  stable absenceInactivationLog :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?AbsenceInactivationLogEntry__285922819]];
+      var elementIndex : Nat__490723111
+    };
+  stable absenceSettings :
+    {
+      var absenceCheckEnabled : Bool;
+      var consecutiveAbsenceThreshold : Nat;
+      var excludeLongTermLeave : Bool;
+      var warningNotificationsEnabled : Bool
+    };
+  stable additionalCharges :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?AdditionalCharge__669254527]];
+      var elementIndex : Nat__490723111
+    };
+  stable adminMessages :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?AdminMessage__113011440]];
+      var elementIndex : Nat__490723111
+    };
+  stable advances :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?EmployeeAdvance__692933521]];
+      var elementIndex : Nat__490723111
+    };
+  stable allotmentAuditLogs :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?AllotmentAuditLog__430592628]];
+      var elementIndex : Nat__490723111
+    };
+  stable areas :
+    {
+      var root : Node__46230540<LocationId__701924065, AreaRecord__22456108>;
+      var size : Nat__490723111
+    };
+  stable assignments :
+    {
+      var root :
+        Node__46230540<(UserId__227653290, DoctorId__604096630),
+                        DoctorProductAssignment__11348547>;
+      var size : Nat__490723111
+    };
+  stable attendance :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?AttendanceRecord__721429049]];
+      var elementIndex : Nat__490723111
+    };
+  stable bookingRequests :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?BookingRequest__174832403]];
+      var elementIndex : Nat__490723111
+    };
+  stable bottomUpTargets :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?BottomUpTarget__953802953]];
+      var elementIndex : Nat__490723111
+    };
+  stable bulkUploadHistory :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?BulkUploadRecord__46095948]];
+      var elementIndex : Nat__490723111
+    };
+  stable checkIns :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?AttendanceCheckIn__429603986]];
+      var elementIndex : Nat__490723111
+    };
+  stable chemistCalls :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?ChemistCallRecord__797249546]];
+      var elementIndex : Nat__490723111
+    };
+  stable chemists :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?Chemist__164921896]];
+      var elementIndex : Nat__490723111
+    };
+  stable companyHolidays :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?CompanyHoliday__551249286]];
+      var elementIndex : Nat__490723111
+    };
+  stable companyProfile : {var profile : ?CompanyProfile__627866546};
+  stable crmBusinessReports :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?BusinessReport__656130219]];
+      var elementIndex : Nat__490723111
+    };
+  stable crmDoctorSales :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?CrmDoctorSaleRecord__133480660]];
+      var elementIndex : Nat__490723111
+    };
+  stable crmRequests :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?CrmRequest__295291426]];
+      var elementIndex : Nat__490723111
+    };
+  stable daConfigs :
+    {
+      var root : Node__46230540<Text, DaConfig__551087116>;
+      var size : Nat__490723111
+    };
+  stable dataCleanupLogs :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?DataCleanupLog__453992004]];
+      var elementIndex : Nat__490723111
+    };
+  stable dcrSettings :
+    {
+      var dailyDeadlineHour : Nat;
+      var dailyDeadlineMinute : Nat;
+      var isEnabled : Bool
+    };
+  stable dcrs :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?DcrRecord__198496666]];
+      var elementIndex : Nat__490723111
+    };
+  stable dismissedAlerts :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?DismissedAlert__223848916]];
+      var elementIndex : Nat__490723111
+    };
+  stable doctorDobMap :
+    {var root : Node__46230540<Text, Text>; var size : Nat__490723111};
+  stable doctors :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?Doctor__650821147]];
+      var elementIndex : Nat__490723111
+    };
+  stable documents :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?EmployeeDocument__523450541]];
+      var elementIndex : Nat__490723111
+    };
+  stable elAccruals :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?EarnedLeaveAccrual__460869018]];
+      var elementIndex : Nat__490723111
+    };
+  stable empIdConfigs :
+    {
+      var root : Node__46230540<Text, EmpIdConfig__93481688>;
+      var size : Nat__490723111
+    };
+  stable empIdCounters :
+    {
+      var root : Node__46230540<Text, EmpIdCounter__156751083>;
+      var size : Nat__490723111
+    };
+  stable expenseSheets :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?ExpenseSheet__179458749]];
+      var elementIndex : Nat__490723111
+    };
+  stable expenses :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?TaDaExpense__966026666]];
+      var elementIndex : Nat__490723111
+    };
+  stable giftArticles :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?GiftArticle__580513799]];
+      var elementIndex : Nat__490723111
+    };
+  stable gpsActivityLog :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?GpsActivityEntry__212885663]];
+      var elementIndex : Nat__490723111
+    };
+  stable gpsEnforcementEnabled : {var value : Bool};
+  stable gpsOverrides :
+    {
+      var root :
+        Node__46230540<UserId__788696446,
+                        List__415060402<GpsOverrideEntry__254149107>>;
+      var size : Nat__490723111
+    };
+  stable healthCheckLogs :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?HealthCheckReport__202200181]];
+      var elementIndex : Nat__490723111
+    };
+  stable hqs :
+    {
+      var root : Node__46230540<LocationId__701924065, HQRecord__174575961>;
+      var size : Nat__490723111
+    };
+  stable incentiveBonusSheets :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?IncentiveBonusSheet__640274033]];
+      var elementIndex : Nat__490723111
+    };
+  stable incentiveCalcs :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?IncentiveCalculation__462851002]];
+      var elementIndex : Nat__490723111
+    };
+  stable incentivePlans :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?IncentivePlan__913920250]];
+      var elementIndex : Nat__490723111
+    };
+  stable jfws :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?JfwRecord__1038401745]];
+      var elementIndex : Nat__490723111
+    };
+  stable leaveQuotas :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?LeaveQuota__69528493]];
+      var elementIndex : Nat__490723111
+    };
+  stable leaves :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?LeaveApplication__980461763]];
+      var elementIndex : Nat__490723111
+    };
+  stable letterEmailLogs :
+    {
+      var root : Node__46230540<Nat, [EmailInitiationLog__434081877]>;
+      var size : Nat__490723111
+    };
+  stable letterRefNumbers :
+    {var root : Node__46230540<Nat, Text>; var size : Nat__490723111};
+  stable letters :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?OfficialLetter__691255155]];
+      var elementIndex : Nat__490723111
+    };
+  stable locStates :
+    {
+      var root : Node__46230540<LocationId__701924065, StateRecord__516337473>;
+      var size : Nat__490723111
+    };
+  stable locations :
+    {
+      var root : Node__46230540<UserId__547233916, LocationRecord__435550199>;
+      var size : Nat__490723111
+    };
+  stable monthlyTargets :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?MonthlyTarget__328899517]];
+      var elementIndex : Nat__490723111
+    };
+  stable nextAbsenceLogId : {var value : Nat};
+  stable nextAdjLogId : {var value : Nat};
+  stable nextAdvanceId : {var value : Nat};
+  stable nextAllotmentLogId : {var val : Nat};
+  stable nextAreaId : {var val : Nat};
+  stable nextAttendId : {var value : Nat};
+  stable nextBookingId : {var val : Nat};
+  stable nextBottomUpTargetId : {var val : Nat};
+  stable nextBulkHistoryId : {var value : Nat};
+  stable nextCalcId : {var value : Nat};
+  stable nextChargeId : {var value : Nat};
+  stable nextChemistCallId : {var val : Nat};
+  stable nextChemistId : {var val : Nat};
+  stable nextCleanupLogId : {var value : Nat};
+  stable nextCrmId : {var val : Nat};
+  stable nextCrmReportId : {var val : Nat};
+  stable nextCrmSaleId : {var value : Nat};
+  stable nextDcrId : {var value : Nat};
+  stable nextDocId : {var value : Nat};
+  stable nextDoctorId : {var val : Nat};
+  stable nextExpId : {var value : Nat};
+  stable nextExpenseSheetId : {var value : Nat};
+  stable nextGiftArticleId : {var val : Nat};
+  stable nextGpsActivityId : {var value : Nat};
+  stable nextGpsOverrideId : {var value : Nat};
+  stable nextHQId : {var val : Nat};
+  stable nextHolidayId : {var value : Nat};
+  stable nextIncentiveBonusId : {var value : Nat};
+  stable nextJfwId : {var value : Nat};
+  stable nextLeaveId : {var value : Nat};
+  stable nextLetterId : {var value : Nat};
+  stable nextLetterRefSeq : {var value : Nat};
+  stable nextMsgId : {var value : Nat};
+  stable nextOrderId : {var val : Nat};
+  stable nextPayId : {var value : Nat};
+  stable nextPerfId : {var value : Nat};
+  stable nextPlanId : {var value : Nat};
+  stable nextPricelistId : {var val : Nat};
+  stable nextPricelistSrNo : {var val : Nat};
+  stable nextProductId : {var val : Nat};
+  stable nextReportId : {var val : Nat};
+  stable nextSaleId : {var value : Nat};
+  stable nextSampleAllocId : {var val : Nat};
+  stable nextSampleUsageId : {var val : Nat};
+  stable nextStateId : {var val : Nat};
+  stable nextStationId : {var val : Nat};
+  stable nextStockistCallId : {var val : Nat};
+  stable nextStockistId : {var value : Nat};
+  stable nextSuggestionId : {var value : Nat};
+  stable nextTargetId : {var val : Nat};
+  stable nextTerrId : {var val : Nat};
+  stable nextTravelPlanId : {var val : Nat};
+  stable nextUserId : {var value : Nat};
+  stable nextWorkingStyleId : {var value : Nat};
+  stable nextZoneId : {var val : Nat};
+  stable notificationSettings : {var value : NotificationSettings__653206574};
+  stable notifications :
+    {
+      var root : Node__46230540<Text, NotificationRecord__666145773>;
+      var size : Nat__490723111
+    };
+  stable orders :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?ChemistOrder__1028451256]];
+      var elementIndex : Nat__490723111
+    };
+  stable payroll :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?PayrollRecord__357861897]];
+      var elementIndex : Nat__490723111
+    };
+  stable pendingBatches :
+    {
+      var root : Node__46230540<Text, PendingBatch__889677712>;
+      var size : Nat__490723111
+    };
+  stable performance :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?PerformanceRecord__811470543]];
+      var elementIndex : Nat__490723111
+    };
+  stable pricelistProducts :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?PricelistProduct__923223]];
+      var elementIndex : Nat__490723111
+    };
+  stable products :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?Product__747448037]];
+      var elementIndex : Nat__490723111
+    };
+  stable reactivationLog :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?ReactivationLogEntry__549665875]];
+      var elementIndex : Nat__490723111
+    };
+  stable repairLogs :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?RepairLog__951880493]];
+      var elementIndex : Nat__490723111
+    };
+  stable reports :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?CallReport__1039858818]];
+      var elementIndex : Nat__490723111
+    };
+  stable roleHierarchyConf : {var value : RoleHierarchyConfig__146190898};
+  stable roleLeaveQuotas :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?RoleLeaveQuota__927514936]];
+      var elementIndex : Nat__490723111
+    };
+  stable rsmMrNotifIdRef : {var value : Nat};
+  stable salesTargets :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?SalesTarget__261179794]];
+      var elementIndex : Nat__490723111
+    };
+  stable sampleAllocations :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?SampleAllocationRecord__149006950]];
+      var elementIndex : Nat__490723111
+    };
+  stable sampleUsages :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?SampleUsageRecord__743506025]];
+      var elementIndex : Nat__490723111
+    };
+  stable secondarySales :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?SecondarySaleRecord__211320689]];
+      var elementIndex : Nat__490723111
+    };
+  stable sessions :
+    {
+      var root : Node__46230540<Text, Session__464506136>;
+      var size : Nat__490723111
+    };
+  stable sfaReminderSettings : {var value : SfaReminderSettings__818542104};
+  stable stationBulkHistory :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?BulkStationImportResult__1048935386]];
+      var elementIndex : Nat__490723111
+    };
+  stable stations :
+    {
+      var root :
+        Node__46230540<LocationId__701924065, StationRecord__692637174>;
+      var size : Nat__490723111
+    };
+  stable stockistCalls :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?StockistCallRecord__1025578648]];
+      var elementIndex : Nat__490723111
+    };
+  stable stockists :
+    {
+      var root :
+        Node__46230540<StockistId__995490133, StockistRecord__730582512>;
+      var size : Nat__490723111
+    };
+  stable suggestions :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?SuggestionSubmission__577768473]];
+      var elementIndex : Nat__490723111
+    };
+  stable taDaGradeConfig :
+    {
+      var root : Node__46230540<Text, TaDaGrade__642450955>;
+      var size : Nat__490723111
+    };
+  stable targetAdjLogs :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?TargetAdjustmentLog__714694071]];
+      var elementIndex : Nat__490723111
+    };
+  stable territories :
+    {
+      var root :
+        Node__46230540<LocationId__701924065, TerritoryRecord__187399207>;
+      var size : Nat__490723111
+    };
+  stable trails :
+    {
+      var root :
+        Node__46230540<(UserId__788696446, Text), GpsTrailRecord__356424240>;
+      var size : Nat__490723111
+    };
+  stable travelPlans :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?TravelPlanRecord__77575455]];
+      var elementIndex : Nat__490723111
+    };
+  stable uidConfig :
+    {var companyPrefix : Text; yearCounters : UidYearCounters__613579125};
+  stable userDobMap :
+    {var root : Node__46230540<Text, Text>; var size : Nat__490723111};
+  stable usernameIndex :
+    {
+      var root : Node__46230540<Text, UserId__547233916>;
+      var size : Nat__490723111
+    };
+  stable users :
+    {
+      var root : Node__46230540<UserId__547233916, UserRecord__1042359148>;
+      var size : Nat__490723111
+    };
+  stable workingStyleRecords :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?WorkingStyleRecord__710154904]];
+      var elementIndex : Nat__490723111
+    };
+  stable zones :
+    {
+      var root : Node__46230540<LocationId__701924065, ZoneRecord__424911764>;
+      var size : Nat__490723111
+    }
+}) ;
