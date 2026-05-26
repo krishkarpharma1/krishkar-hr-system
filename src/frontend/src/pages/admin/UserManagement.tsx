@@ -27,18 +27,22 @@ import {
   RefreshCw,
   Search,
   ShieldAlert,
+  Trash2,
   UserCheck,
   UserX,
   X,
 } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Role, UserStatus } from "../../backend";
 import type { HqAssignment, ReactivationLogEntry } from "../../backend.d";
+import { ExportButton } from "../../components/ExportButton";
+import LocationAllotment, {
+  type LocationAllotmentData,
+} from "../../components/LocationAllotment";
 import {
   EMPTY_ALLOTMENT,
-  type LocationAllotment,
-  MultiSelectLocationAllotment,
+  type LocationAllotment as LocationAllotmentLegacy,
   allotmentSummary,
 } from "../../components/MultiSelectLocationAllotment";
 import {
@@ -47,10 +51,51 @@ import {
   PageHeader,
   PortalLayout,
 } from "../../components/PortalLayout";
+import type { RoleLocationState } from "../../components/RoleBasedLocationAllotment";
+import { useCompanyProfile } from "../../hooks/useCompanyProfile";
 import { api } from "../../lib/api";
+import { exportToExcel, logExportToAuditTrail } from "../../lib/exportUtils";
 import { useAuthStore } from "../../store/authStore";
 import type { CreateUserInput, UpdateUserInput, UserInfo } from "../../types";
 import { ROLE_LABELS } from "../../types";
+class UserManagementErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { hasError: boolean; errorMsg: string }
+> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false, errorMsg: "" };
+  }
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, errorMsg: error.message };
+  }
+  componentDidCatch(error: Error) {
+    console.error("UserManagement render error:", error);
+  }
+  render() {
+    if (this.state.hasError)
+      return (
+        <div className="flex flex-col items-center justify-center min-h-64 p-8 text-center">
+          <div className="text-red-500 text-4xl mb-4">⚠</div>
+          <h2 className="text-xl font-semibold text-gray-800 mb-2">
+            Page failed to load
+          </h2>
+          <p className="text-gray-500 mb-4 text-sm">
+            {this.state.errorMsg ||
+              "An error occurred while loading this page."}
+          </p>
+          <button
+            type="button"
+            onClick={() => this.setState({ hasError: false, errorMsg: "" })}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
+          >
+            Retry
+          </button>
+        </div>
+      );
+    return this.props.children;
+  }
+}
 
 const ALL_ROLES = Object.values(Role);
 
@@ -410,6 +455,7 @@ function UserFormModal({
   token,
   onClose,
   onSaved,
+  refreshKey = 0,
 }: {
   mode: "create" | "edit";
   user?: UserInfo;
@@ -417,6 +463,7 @@ function UserFormModal({
   token: string;
   onClose: () => void;
   onSaved: () => void;
+  refreshKey?: number;
 }) {
   const [form, setForm] = useState<CreateUserInput>(
     mode === "edit" && user
@@ -440,9 +487,44 @@ function UserFormModal({
   const [saving, setSaving] = useState(false);
   const [showPwd, setShowPwd] = useState(false);
   const [allotmentLoading, setAllotmentLoading] = useState(false);
+  const [mrStationId, setMrStationId] = useState<string>(() => {
+    if (mode === "edit" && user?.role === Role.MR) {
+      const firstAssignment = (
+        user as UserInfo & { hqAssignments?: HqAssignment[] }
+      ).hqAssignments?.[0];
+      return firstAssignment?.stationIds?.[0]?.toString() ?? "";
+    }
+    return "";
+  });
+  const [mrStationHqId, setMrStationHqId] = useState<string>(() => {
+    if (mode === "edit" && user?.role === Role.MR) {
+      const firstAssignment = (
+        user as UserInfo & { hqAssignments?: HqAssignment[] }
+      ).hqAssignments?.[0];
+      return firstAssignment?.hqId?.toString() ?? "";
+    }
+    return "";
+  });
+  const [mrTerritoryIds, setMrTerritoryIds] = useState<string[]>(() => {
+    if (mode === "edit" && user?.role === Role.MR) {
+      const firstAssignment = (
+        user as UserInfo & { hqAssignments?: HqAssignment[] }
+      ).hqAssignments?.[0];
+      return (firstAssignment?.exStationIds ?? []).map((id) => id.toString());
+    }
+    return [];
+  });
+  const [locationState, setLocationState] = useState<RoleLocationState>({
+    territoryIds: [],
+    isValid: false,
+  });
+  const [locationData, setLocationData] = useState<LocationAllotmentData>({
+    isValid: false,
+  });
+  const [managersForRole, setManagersForRole] = useState<UserInfo[]>([]);
 
   // Seed allotment from existing user data when editing an MR
-  const [allotment, setAllotment] = useState<LocationAllotment>(() => {
+  const [allotment, setAllotment] = useState<LocationAllotmentLegacy>(() => {
     if (mode === "edit" && user?.role === Role.MR) {
       const hqAssignments: HqAssignment[] =
         (user as UserInfo & { hqAssignments?: HqAssignment[] }).hqAssignments ??
@@ -513,9 +595,35 @@ function UserFormModal({
   };
 
   // Reset allotment when role changes (only during role change by admin)
+  // Fetch managers filtered to only roles above the selected role (hierarchy-aware)
+  // biome-ignore lint/correctness/useExhaustiveDependencies: intentional
+  useEffect(() => {
+    if (!token || !form.role) return;
+    (
+      api as unknown as Record<
+        string,
+        (t: string, r: string) => Promise<UserInfo[]>
+      >
+    )
+      .listUsersAboveRole(token, form.role)
+      .then((result: UserInfo[]) => setManagersForRole(result))
+      .catch(() =>
+        setManagersForRole(
+          users.filter((u) => u.role !== Role.MR && u.id !== user?.id),
+        ),
+      );
+  }, [token, form.role]);
+
   function handleRoleChange(newRole: string) {
     setField("role", newRole as Role);
     setAllotment(EMPTY_ALLOTMENT);
+    if (newRole !== Role.MR) {
+      setMrStationId("");
+      setMrStationHqId("");
+      setMrTerritoryIds([]);
+    }
+    setLocationState({ territoryIds: [], isValid: false });
+    setLocationData({ isValid: false });
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -529,21 +637,110 @@ function UserFormModal({
         form.role as Role,
       );
 
-      // Build hqAssignments for MR
-      const hqAssignments =
-        isMR && allotment.hqAssignments.length > 0
-          ? allotment.hqAssignments.filter((b) => b.hqId !== BigInt(0))
-          : undefined;
+      // Validate role-based location allotment
+      if (
+        ["ZSM", "RSM", "ASM", "MR"].includes(form.role) &&
+        !locationState.isValid
+      ) {
+        if (form.role === "MR") {
+          if (!locationState.stationId) {
+            toast.error("Please select a Station for this MR.");
+          } else {
+            toast.error("Please select at least one Territory for this MR.");
+          }
+        } else if (form.role === "ZSM") {
+          toast.error("Please select a Zone for this ZSM.");
+        } else if (form.role === "RSM") {
+          toast.error("Please select a Region for this RSM.");
+        } else if (form.role === "ASM") {
+          toast.error("Please select an Area for this ASM.");
+        }
+        setSaving(false);
+        return;
+      }
+
+      // Build hqAssignments for MR using locationState
+      // NOTE: hqId MUST be the AREA ID (parent of the station), not the station ID.
+      // The backend getStationsByMRHqAssignments matches station.hqId (each station's
+      // parent Area ID) against the stored hqAssignments[].hqId.
+      const hqAssignments: HqAssignment[] | undefined =
+        isMR && locationState.stationId
+          ? [
+              {
+                hqId: locationState.areaId ?? BigInt(0), // Area ID = parent of the station
+                stationIds: locationState.stationId
+                  ? [locationState.stationId]
+                  : [],
+                areaIds: locationState.areaId ? [locationState.areaId] : [],
+                exStationIds: locationState.territoryIds ?? [],
+              },
+            ]
+          : isMR && mrStationId
+            ? [
+                {
+                  hqId: BigInt(mrStationHqId), // reads previously stored area ID
+                  stationIds: [BigInt(mrStationId)],
+                  areaIds: mrStationHqId ? [BigInt(mrStationHqId)] : [],
+                  exStationIds: mrTerritoryIds.map((id) => BigInt(id)),
+                },
+              ]
+            : isMR && allotment.hqAssignments.length > 0
+              ? allotment.hqAssignments.filter((b) => b.hqId !== BigInt(0))
+              : undefined;
 
       // Helper: convert string[] IDs from LocationAllotment to bigint[]
       const toBI = (ids: string[]): bigint[] =>
         ids.filter(Boolean).map((id) => BigInt(id));
 
+      // Build role-scoped location IDs from locationState
+      const zoneIdsFromState: bigint[] = locationState.zoneId
+        ? [locationState.zoneId]
+        : [];
+      const regionIdsFromState: bigint[] = locationState.regionId
+        ? [locationState.regionId]
+        : [];
+      const areaIdsFromState: bigint[] = locationState.areaId
+        ? [locationState.areaId]
+        : [];
+
+      const locationStateUsed =
+        ["ZSM", "RSM", "ASM", "MR"].includes(form.role) &&
+        locationState.isValid;
+
       if (mode === "create") {
         const createInput: CreateUserInput = {
           ...form,
           ...(isMR && hqAssignments !== undefined ? { hqAssignments } : {}),
-          ...(isManagerWithAllotment
+          // hqIds for MR = area IDs (HQ is the Area level for MR)
+          ...(locationStateUsed && form.role === "MR" && locationState.areaId
+            ? { hqIds: [locationState.areaId], areaIds: [locationState.areaId] }
+            : {}),
+          ...(locationStateUsed && form.role === "MR"
+            ? {
+                ...(zoneIdsFromState.length > 0
+                  ? { zoneIds: zoneIdsFromState }
+                  : {}),
+                ...(regionIdsFromState.length > 0
+                  ? { stateIds: regionIdsFromState }
+                  : {}),
+                ...(areaIdsFromState.length > 0
+                  ? { areaIds: areaIdsFromState }
+                  : {}),
+                ...(locationState.territoryIds?.length > 0
+                  ? { territoryIds: locationState.territoryIds }
+                  : {}),
+              }
+            : {}),
+          ...(locationStateUsed && form.role === "ZSM"
+            ? { zoneIds: zoneIdsFromState }
+            : {}),
+          ...(locationStateUsed && form.role === "RSM"
+            ? { zoneIds: zoneIdsFromState, stateIds: regionIdsFromState }
+            : {}),
+          ...(locationStateUsed && form.role === "ASM"
+            ? { stateIds: regionIdsFromState, hqIds: areaIdsFromState }
+            : {}),
+          ...(!locationStateUsed && isManagerWithAllotment
             ? {
                 zoneIds:
                   allotment.zoneIds.length > 0
@@ -584,7 +781,36 @@ function UserFormModal({
           ...(form.password ? { newPassword: form.password } : {}),
           // Always include allotment fields on save so a role-only edit does NOT wipe allotment
           ...(isMR && hqAssignments !== undefined ? { hqAssignments } : {}),
-          ...(isManagerWithAllotment
+          // hqIds for MR = area IDs (HQ is the Area level for MR)
+          ...(locationStateUsed && form.role === "MR" && locationState.areaId
+            ? { hqIds: [locationState.areaId], areaIds: [locationState.areaId] }
+            : {}),
+          ...(locationStateUsed && form.role === "MR"
+            ? {
+                ...(zoneIdsFromState.length > 0
+                  ? { zoneIds: zoneIdsFromState }
+                  : {}),
+                ...(regionIdsFromState.length > 0
+                  ? { stateIds: regionIdsFromState }
+                  : {}),
+                ...(areaIdsFromState.length > 0
+                  ? { areaIds: areaIdsFromState }
+                  : {}),
+                ...(locationState.territoryIds?.length > 0
+                  ? { territoryIds: locationState.territoryIds }
+                  : {}),
+              }
+            : {}),
+          ...(locationStateUsed && form.role === "ZSM"
+            ? { zoneIds: zoneIdsFromState }
+            : {}),
+          ...(locationStateUsed && form.role === "RSM"
+            ? { zoneIds: zoneIdsFromState, stateIds: regionIdsFromState }
+            : {}),
+          ...(locationStateUsed && form.role === "ASM"
+            ? { stateIds: regionIdsFromState, hqIds: areaIdsFromState }
+            : {}),
+          ...(!locationStateUsed && isManagerWithAllotment
             ? {
                 zoneIds: toBI(allotment.zoneIds),
                 stateIds: toBI(allotment.stateIds),
@@ -613,7 +839,12 @@ function UserFormModal({
     }
   }
 
-  const managers = users.filter((u) => u.role !== Role.MR && u.id !== user?.id);
+  // managersForRole is populated by the useEffect above (role-aware, higher-rank only).
+  // Falls back to filtering users client-side if the API call hasn't resolved yet.
+  const managers =
+    managersForRole.length > 0
+      ? managersForRole
+      : users.filter((u) => u.role !== Role.MR && u.id !== user?.id);
 
   // Build allotment summary for display
   const summary = allotmentSummary(allotment);
@@ -849,24 +1080,34 @@ function UserFormModal({
                       </div>
                     )}
 
-                  <div className="grid grid-cols-2 gap-3">
-                    <MultiSelectLocationAllotment
-                      token={token}
+                  {form.role !== Role.Admin && form.role !== Role.HRManager && (
+                    <LocationAllotment
                       role={form.role}
-                      value={allotment}
-                      onChange={setAllotment}
+                      reportingManagerId={
+                        form.reportsTo ? String(form.reportsTo) : null
+                      }
+                      token={token}
+                      onChange={(data: LocationAllotmentData) => {
+                        setLocationData(data);
+                        setLocationState({
+                          zoneId: data.zoneIdBI,
+                          zoneName: data.zoneName,
+                          regionId: data.regionIdBI,
+                          regionName: data.regionName,
+                          areaId: data.areaIdBI,
+                          areaName: data.areaName,
+                          stationId: data.stationIdBI,
+                          stationName: data.stationName,
+                          territoryIds: data.territoryIdsBI ?? [],
+                          isValid: data.isValid ?? false,
+                        });
+                      }}
+                      existingData={
+                        mode === "edit" && user ? locationData : undefined
+                      }
+                      mode={mode}
+                      refreshKey={refreshKey}
                     />
-                  </div>
-                  {hasAllotment && (
-                    <p className="text-xs text-muted-foreground bg-primary/5 border border-primary/20 rounded px-3 py-1.5 flex items-center gap-1.5">
-                      <MapPin className="w-3 h-3 text-primary shrink-0" />
-                      <span>
-                        <span className="font-display font-medium text-foreground">
-                          Allotment:{" "}
-                        </span>
-                        {summary}
-                      </span>
-                    </p>
                   )}
                 </>
               )}
@@ -1008,11 +1249,21 @@ function UserFormModal({
 
 // ─── Location summary display ──────────────────────────────────────────────
 
-function LocationSummaryCell({ user }: { user: UserInfo }) {
+function LocationSummaryCell({
+  user,
+  zoneMap,
+  stateMap,
+  areaMap,
+  stationMap,
+}: {
+  user: UserInfo;
+  zoneMap: Record<string, string>;
+  stateMap: Record<string, string>;
+  areaMap: Record<string, string>;
+  stationMap: Record<string, string>;
+}) {
   const role = user.role;
-  if (!user.territory && role !== Role.HRManager && role !== Role.Admin) {
-    return <span className="text-muted-foreground text-xs">—</span>;
-  }
+
   if (role === Role.HRManager || role === Role.Admin) {
     return (
       <span className="inline-flex items-center gap-1 text-xs bg-primary/10 text-primary rounded-full px-2 py-0.5 font-display">
@@ -1020,28 +1271,83 @@ function LocationSummaryCell({ user }: { user: UserInfo }) {
       </span>
     );
   }
+
   if (role === Role.ZSM) {
-    return (
-      <span className="text-xs text-muted-foreground" title={user.territory}>
-        Zone → States
-      </span>
-    );
+    const zoneId = user.zoneIds?.[0]?.toString();
+    const name = zoneId ? zoneMap[zoneId] : undefined;
+    if (name) return <span className="text-xs text-foreground">{name}</span>;
+    return <span className="text-xs text-muted-foreground">—</span>;
   }
+
   if (role === Role.RSM) {
-    return (
-      <span className="text-xs text-muted-foreground" title={user.territory}>
-        Territory → HQs
-      </span>
-    );
+    const stateId = user.stateIds?.[0]?.toString();
+    const zoneId = user.zoneIds?.[0]?.toString();
+    const stateName = stateId ? stateMap[stateId] : undefined;
+    const zoneName = zoneId ? zoneMap[zoneId] : undefined;
+    if (stateName || zoneName) {
+      return (
+        <span className="text-xs text-foreground">
+          {stateName || "—"}
+          {zoneName ? ` > ${zoneName}` : ""}
+        </span>
+      );
+    }
+    return <span className="text-xs text-muted-foreground">—</span>;
   }
-  return (
-    <span
-      className="text-xs text-muted-foreground truncate block max-w-[120px]"
-      title={user.territory}
-    >
-      {user.territory || "—"}
-    </span>
-  );
+
+  if (role === Role.ASM) {
+    const areaId = user.areaIds?.[0]?.toString();
+    const stateId = user.stateIds?.[0]?.toString();
+    const zoneId = user.zoneIds?.[0]?.toString();
+    const areaName = areaId ? areaMap[areaId] : undefined;
+    const stateName = stateId ? stateMap[stateId] : undefined;
+    const zoneName = zoneId ? zoneMap[zoneId] : undefined;
+    if (areaName || stateName || zoneName) {
+      return (
+        <span className="text-xs text-foreground">
+          {areaName || "—"}
+          {stateName ? ` > ${stateName}` : ""}
+          {zoneName ? ` > ${zoneName}` : ""}
+        </span>
+      );
+    }
+    return <span className="text-xs text-muted-foreground">—</span>;
+  }
+
+  if (role === Role.MR) {
+    const territoryId = user.territoryIds?.[0]?.toString();
+    const stationId = user.hqAssignments?.[0]?.stationIds?.[0]?.toString();
+    const areaId = user.areaIds?.[0]?.toString();
+    const stateId = user.stateIds?.[0]?.toString();
+    const zoneId = user.zoneIds?.[0]?.toString();
+
+    const territoryName = territoryId ? `Territory ${territoryId}` : undefined;
+    const stationName = stationId ? stationMap[stationId] : undefined;
+    const areaName = areaId ? areaMap[areaId] : undefined;
+    const stateName = stateId ? stateMap[stateId] : undefined;
+    const zoneName = zoneId ? zoneMap[zoneId] : undefined;
+
+    const parts: string[] = [];
+    if (territoryName) parts.push(territoryName);
+    if (stationName) parts.push(stationName);
+    if (areaName) parts.push(areaName);
+    if (stateName) parts.push(stateName);
+    if (zoneName) parts.push(zoneName);
+
+    if (parts.length > 0) {
+      return (
+        <span
+          className="text-xs text-foreground truncate block max-w-[200px]"
+          title={parts.join(" > ")}
+        >
+          {parts.join(" > ")}
+        </span>
+      );
+    }
+    return <span className="text-xs text-muted-foreground">—</span>;
+  }
+
+  return <span className="text-xs text-muted-foreground">—</span>;
 }
 
 // ─── Table columns ─────────────────────────────────────────────────────────
@@ -1052,7 +1358,7 @@ const USER_COLS = [
   { key: "role", label: "Role" },
   { key: "designation", label: "Designation" },
   { key: "department", label: "Dept" },
-  { key: "location", label: "Location" },
+  { key: "location", label: "Hierarchy" },
   { key: "status", label: "Status" },
   { key: "actions", label: "Actions", className: "text-right" },
 ];
@@ -1360,8 +1666,9 @@ function InactiveUsersTab({
 
 // ─── Main Component ────────────────────────────────────────────────────────
 
-export default function UserManagement() {
+function UserManagement() {
   const { session } = useAuthStore();
+  const { companyProfile } = useCompanyProfile();
   const [users, setUsers] = useState<UserInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -1377,6 +1684,12 @@ export default function UserManagement() {
     password: string;
   } | null>(null);
   const [resettingId, setResettingId] = useState<bigint | null>(null);
+  const [zoneMap, setZoneMap] = useState<Record<string, string>>({});
+  const [stateMap, _setStateMap] = useState<Record<string, string>>({});
+  const [areaMap, setAreaMap] = useState<Record<string, string>>({});
+  const [stationMap, setStationMap] = useState<Record<string, string>>({});
+
+  const [modalOpenKey, setModalOpenKey] = useState(0);
 
   const canResetPasswords =
     session?.role === Role.Admin || session?.role === Role.HRManager;
@@ -1398,6 +1711,31 @@ export default function UserManagement() {
   useEffect(() => {
     loadUsers();
   }, [loadUsers]);
+
+  useEffect(() => {
+    if (!session?.token) return;
+    api.listActiveZones(session.token).then((zones) => {
+      const map: Record<string, string> = {};
+      for (const z of zones) {
+        map[String(z.id)] = z.name;
+      }
+      setZoneMap(map);
+    });
+    api.listAllStations(session.token).then((stations) => {
+      const map: Record<string, string> = {};
+      for (const s of stations) {
+        map[String(s.stationId)] = s.stationName;
+      }
+      setStationMap(map);
+    });
+    api.listAllAreas(session.token).then((areas) => {
+      const map: Record<string, string> = {};
+      for (const a of areas) {
+        map[String(a.id)] = a.name || "";
+      }
+      setAreaMap(map);
+    });
+  }, [session?.token]);
 
   const activeUsers = users.filter((u) => u.status === UserStatus.Active);
 
@@ -1422,6 +1760,27 @@ export default function UserManagement() {
       loadUsers();
     } else {
       toast.error(result.err);
+    }
+  }
+
+  async function handleDelete(u: UserInfo) {
+    if (!session?.token) return;
+    if (
+      !window.confirm(
+        `Are you sure you want to permanently delete ${u.name}? All their records will be archived. This cannot be undone.`,
+      )
+    )
+      return;
+    try {
+      const res = await api.deleteEmployee(session.token, String(u.id));
+      if (res.__kind__ === "ok") {
+        toast.success("Employee deleted and all records archived.");
+        loadUsers();
+      } else {
+        toast.error(res.err?.message ?? "Failed to delete employee.");
+      }
+    } catch {
+      toast.error("An error occurred while deleting the employee.");
     }
   }
 
@@ -1480,6 +1839,66 @@ export default function UserManagement() {
     }
   }
 
+  const handleExportActive = () => {
+    const data = (filtered as UserInfo[]).map((u) => ({
+      employeeCode: u.employeeId || "",
+      fullName: u.name || "",
+      userId: u.username || "",
+      role: String(u.role || ""),
+      department: u.department || "",
+      designation: u.designation || "",
+      reportingManager: "",
+      zone: "",
+      region: "",
+      area: "",
+      station: "",
+      territory: u.territory || "",
+      mobile: u.phone || "",
+      email: u.email || "",
+      joiningDate: u.joinDate || "",
+      status: String(u.status || ""),
+    }));
+    exportToExcel({
+      reportName: "Employee Report",
+      columns: [
+        { key: "employeeCode", label: "Employee Code", type: "text" },
+        { key: "fullName", label: "Full Name", type: "text" },
+        { key: "userId", label: "User ID", type: "text" },
+        { key: "role", label: "Role", type: "text" },
+        { key: "department", label: "Department", type: "text" },
+        { key: "designation", label: "Designation", type: "text" },
+        { key: "reportingManager", label: "Reporting Manager", type: "text" },
+        { key: "zone", label: "Zone", type: "text" },
+        { key: "region", label: "Region", type: "text" },
+        { key: "area", label: "Area", type: "text" },
+        { key: "station", label: "Station", type: "text" },
+        { key: "territory", label: "Territory", type: "text" },
+        { key: "mobile", label: "Mobile", type: "text" },
+        { key: "email", label: "Email", type: "text" },
+        { key: "joiningDate", label: "Joining Date", type: "date" },
+        { key: "status", label: "Status", type: "text" },
+      ],
+      data,
+      activeFilters: search ? `Search: ${search}` : "",
+      companyName:
+        (companyProfile as { companyName?: string; name?: string } | null)
+          ?.companyName ||
+        (companyProfile as { companyName?: string; name?: string } | null)
+          ?.name ||
+        "Krishkar Pharmaceuticals",
+    });
+    logExportToAuditTrail(
+      {
+        userId: String(session?.userId ?? ""),
+        userName: String(session?.name ?? ""),
+        role: String(session?.role ?? ""),
+      },
+      "Employee Report",
+      search ? `Search: ${search}` : "",
+      data.length,
+    );
+  };
+
   const inactiveCount = users.filter(
     (u) => u.status === UserStatus.Inactive,
   ).length;
@@ -1491,13 +1910,28 @@ export default function UserManagement() {
         subtitle={`${activeUsers.length} active · ${inactiveCount} inactive`}
         actions={
           activeTab === "active" ? (
-            <Button
-              size="sm"
-              onClick={() => setModal({ mode: "create" })}
-              data-ocid="btn-create-user"
-            >
-              <Plus className="w-4 h-4 mr-1.5" /> Add Employee
-            </Button>
+            <div className="flex items-center gap-2">
+              <ExportButton
+                onClick={handleExportActive}
+                disabled={filtered.length === 0}
+                tooltip={
+                  filtered.length === 0
+                    ? "No data to export"
+                    : "Exports currently filtered data"
+                }
+                data-ocid="user_management.export_button"
+              />
+              <Button
+                size="sm"
+                onClick={() => {
+                  setModalOpenKey((k) => k + 1);
+                  setModal({ mode: "create" });
+                }}
+                data-ocid="btn-create-user"
+              >
+                <Plus className="w-4 h-4 mr-1.5" /> Add Employee
+              </Button>
+            </div>
           ) : undefined
         }
       />
@@ -1603,7 +2037,13 @@ export default function UserManagement() {
                     {u.department}
                   </td>
                   <td className="px-4 py-3">
-                    <LocationSummaryCell user={u} />
+                    <LocationSummaryCell
+                      user={u}
+                      zoneMap={zoneMap}
+                      stateMap={stateMap}
+                      areaMap={areaMap}
+                      stationMap={stationMap}
+                    />
                   </td>
                   <td className="px-4 py-3">
                     <Badge variant="default" className="text-xs">
@@ -1616,7 +2056,10 @@ export default function UserManagement() {
                         size="sm"
                         variant="ghost"
                         className="h-7 px-2"
-                        onClick={() => setModal({ mode: "edit", user: u })}
+                        onClick={() => {
+                          setModalOpenKey((k) => k + 1);
+                          setModal({ mode: "edit", user: u });
+                        }}
                         data-ocid={`btn-edit-user-${String(u.id)}`}
                         aria-label={`Edit ${u.name}`}
                       >
@@ -1666,6 +2109,17 @@ export default function UserManagement() {
                         aria-label={`Deactivate ${u.name}`}
                       >
                         <UserX className="w-3.5 h-3.5" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-7 px-2 text-red-600 hover:text-red-700 hover:bg-red-50"
+                        onClick={() => handleDelete(u)}
+                        data-ocid={`btn-delete-user-${String(u.id)}`}
+                        aria-label={`Delete ${u.name}`}
+                        title="Delete Employee"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
                       </Button>
                     </div>
                   </td>
@@ -1719,6 +2173,8 @@ export default function UserManagement() {
 
       {modal && (
         <UserFormModal
+          key={modalOpenKey}
+          refreshKey={modalOpenKey}
           mode={modal.mode}
           user={modal.user}
           users={users}
@@ -1742,3 +2198,9 @@ export default function UserManagement() {
     </PortalLayout>
   );
 }
+const WrappedUserManagement = () => (
+  <UserManagementErrorBoundary>
+    <UserManagement />
+  </UserManagementErrorBoundary>
+);
+export default WrappedUserManagement;

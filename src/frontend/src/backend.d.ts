@@ -61,6 +61,13 @@ export interface AbsenceInactivationLogView {
     absentDates: Array<string>;
     employeeId: string;
 }
+export interface EmployeeDeletionAuditEntry {
+    dataArchivedSummary: string;
+    deletedEmployeeName: string;
+    deletedEmployeeId: string;
+    deletedByUserId: string;
+    deletedAt: bigint;
+}
 export interface CreateBottomUpTargetInput {
     period: TargetPeriod;
     userId: UserId;
@@ -1018,6 +1025,7 @@ export interface UpdateAdvanceInput {
 export interface AttendanceCheckIn {
     status: CheckInStatus;
     gpsCoord: GpsCoord;
+    wasAutoCheckedOut: boolean;
     userId: UserId;
     date: string;
     distance: number;
@@ -1073,6 +1081,15 @@ export interface UpdateUserInput {
     zoneIds?: Array<bigint>;
     territoryIds?: Array<bigint>;
 }
+export interface UpdateHolidayInput {
+    id: bigint;
+    holidayType?: HolidayType;
+    date?: bigint;
+    name?: string;
+    isActive?: boolean;
+    applicableTo?: HolidayApplicableTo;
+    remarks?: string;
+}
 export interface CrmDoctorSaleRecord {
     id: CrmDoctorSaleId;
     doctorId: bigint;
@@ -1082,15 +1099,6 @@ export interface CrmDoctorSaleRecord {
     products: Array<DoctorSaleProductEntry>;
     totalSaleValue: number;
     saleDate: Timestamp;
-}
-export interface UpdateHolidayInput {
-    id: bigint;
-    holidayType?: HolidayType;
-    date?: bigint;
-    name?: string;
-    isActive?: boolean;
-    applicableTo?: HolidayApplicableTo;
-    remarks?: string;
 }
 export interface IncentiveMonthEntry {
     month: bigint;
@@ -1594,6 +1602,19 @@ export interface CreateAdminMessageInput {
     scheduledDate?: string;
     attachmentUrls: Array<string>;
 }
+export type EmployeeDeletionResult = {
+    __kind__: "ok";
+    ok: {
+        employeeId: string;
+        archivedAt: bigint;
+    };
+} | {
+    __kind__: "err";
+    err: {
+        code: string;
+        message: string;
+    };
+};
 export interface BulkUploadRecord {
     id: bigint;
     skippedRows: bigint;
@@ -2620,9 +2641,11 @@ export interface backendInterface {
     addOfficialLetterEmailLog(token: string, letterId: bigint, logEntry: EmailInitiationLog): Promise<MutationResult>;
     addPricelistProduct(token: string, input: AddPricelistProductInput): Promise<MutationResult>;
     addProduct(input: CreateProductInput): Promise<ProductId>;
+    addRegion(token: string, name: string, zoneId: LocationId): Promise<MutationResult>;
     addState(token: string, input: CreateStateInput): Promise<MutationResult>;
     addSuggestionReply(token: string, input: AddSuggestionReplyInput): Promise<MutationResult>;
     addTerritory(token: string, input: CreateTerritoryInput): Promise<MutationResult>;
+    addTerritoryToStation(token: string, name: string, stationId: LocationId): Promise<MutationResult>;
     addZone(token: string, input: CreateZoneInput): Promise<MutationResult>;
     adminSeed(): Promise<MutationResult>;
     allocateSamplesToMR(token: string, input: SampleAllocationInput): Promise<{
@@ -2897,6 +2920,7 @@ export interface backendInterface {
     deleteDoctor(token: string, doctorId: bigint): Promise<boolean>;
     deleteDoctors(token: string, doctorIds: Array<bigint>): Promise<BulkDeleteResult>;
     deleteDocument(token: string, documentId: bigint): Promise<MutationResult>;
+    deleteEmployee(sessionToken: string, employeeId: string): Promise<EmployeeDeletionResult>;
     deleteGiftArticle(token: string, id: GiftArticleId): Promise<{
         __kind__: "ok";
         ok: null;
@@ -2913,6 +2937,7 @@ export interface backendInterface {
     }>;
     deleteOfficialLetter(token: string, id: bigint): Promise<MutationResult>;
     deletePricelistProduct(token: string, id: PricelistProductId): Promise<MutationResult>;
+    deleteRegion(token: string, id: LocationId): Promise<MutationResult>;
     deleteStation(token: string, stationId: LocationId): Promise<boolean>;
     deleteTaDaGrade(token: string, gradeName: string): Promise<{
         __kind__: "ok";
@@ -2921,6 +2946,8 @@ export interface backendInterface {
         __kind__: "err";
         err: string;
     }>;
+    deleteTerritoryUnderStation(token: string, territoryId: LocationId): Promise<MutationResult>;
+    deleteZone(token: string, id: LocationId): Promise<MutationResult>;
     dismissMissedVisitAlert(token: string, mrId: bigint, doctorId: bigint): Promise<{
         __kind__: "ok";
         ok: null;
@@ -2967,6 +2994,7 @@ export interface backendInterface {
     getActiveAdminMessage(token: string, today: string): Promise<AdminMessageInfo | null>;
     getActiveChargeAreaForEmployee(token: string, employeeId: UserId): Promise<[bigint, bigint] | null>;
     getActiveChargesForEmployee(token: string, employeeId: UserId): Promise<Array<AdditionalCharge>>;
+    getActiveHQsByTerritory(token: string, territoryId: LocationId): Promise<Array<HQRecord>>;
     getActiveHolidays(token: string): Promise<Array<CompanyHoliday>>;
     getAdminEmail(token: string): Promise<string | null>;
     getAdvancesByEmployee(employeeId: string): Promise<Array<EmployeeAdvance>>;
@@ -3010,6 +3038,7 @@ export interface backendInterface {
         err: string;
     }>;
     getApprovedTaDaForMonth(token: string, employeeId: bigint, month: bigint, year: bigint): Promise<TaDaTotals>;
+    getAreasByRegion(token: string, regionId: LocationId): Promise<Array<TerritoryRecord>>;
     getAttendanceSummaryForEmployee(token: string, employeeId: bigint, month: bigint, year: bigint): Promise<{
         holidays: bigint;
         present: bigint;
@@ -3081,6 +3110,13 @@ export interface backendInterface {
     getDcrUnsubmittedMRs(token: string, date: string): Promise<{
         __kind__: "ok";
         ok: Array<bigint>;
+    } | {
+        __kind__: "err";
+        err: string;
+    }>;
+    getDeletedEmployeesLog(sessionToken: string): Promise<{
+        __kind__: "ok";
+        ok: Array<EmployeeDeletionAuditEntry>;
     } | {
         __kind__: "err";
         err: string;
@@ -3363,6 +3399,7 @@ export interface backendInterface {
     }>;
     getProduct(productId: ProductId): Promise<ProductInfo | null>;
     getReactivationLog(token: string): Promise<Array<ReactivationLogEntry>>;
+    getRegionsByZone(token: string, zoneId: LocationId): Promise<Array<StateRecord>>;
     getRepairHistory(token: string, limit: bigint): Promise<Array<RepairLog>>;
     getReporteeLocations(token: string): Promise<Array<LocationRecord>>;
     getRoleHierarchyConfig(token: string): Promise<RoleHierarchyConfig>;
@@ -3383,6 +3420,7 @@ export interface backendInterface {
         __kind__: "err";
         err: string;
     }>;
+    getStationsByArea(token: string, areaId: LocationId): Promise<Array<HQRecord>>;
     getStationsByMR(token: string, mrUserId: bigint): Promise<{
         __kind__: "ok";
         ok: Array<string>;
@@ -3432,6 +3470,7 @@ export interface backendInterface {
     }>;
     getTeamTargetVsActual(token: string, month: bigint, year: bigint): Promise<Array<TargetVsActual>>;
     getTeamWorkingStyleHistory(managerId: string, from: bigint, to: bigint): Promise<Array<WorkingStyleRecord>>;
+    getTerritoriesByStation(token: string, stationId: LocationId): Promise<Array<AreaRecord>>;
     getTerritoryCoverage(territory: string, month: string): Promise<TerritoryCoverage>;
     getTodayWorkingStyle(employeeId: string): Promise<WorkingStyleRecord | null>;
     getTrailWithDoctorCalls(session: string, targetUserId: UserId, date: string): Promise<{
@@ -3458,8 +3497,10 @@ export interface backendInterface {
     getUserByEmployeeId(token: string, employeeId: string): Promise<UserInfo | null>;
     getUserByUID(token: string, uid: string): Promise<UserInfo | null>;
     getUserLocationAllotment(token: string, userId: UserId): Promise<UserLocationAllotment | null>;
+    getUsersWithHigherRole(token: string, targetRole: Role): Promise<Array<UserInfo>>;
     getWeeklyTaDaSummaryByRole(from: bigint, to: bigint): Promise<Array<TaDaExpense>>;
     getWorkingStyleHistory(employeeId: string, from: bigint, to: bigint): Promise<Array<WorkingStyleRecord>>;
+    getZones(token: string): Promise<Array<ZoneRecord>>;
     hasUserSeenMessageToday(token: string, messageId: string, today: string): Promise<boolean>;
     isHoliday(token: string, date: bigint): Promise<boolean>;
     listActiveAreasByHQ(token: string, hqId: LocationId): Promise<Array<AreaRecord>>;
@@ -3488,7 +3529,9 @@ export interface backendInterface {
     listAllStations(token: string): Promise<Array<StationRecord>>;
     listAllTravelPlans(token: string, userId: bigint | null, month: string | null): Promise<Array<TravelPlanInfo>>;
     listAllUsers(token: string): Promise<Array<UserInfo>>;
+    listAllZones(): Promise<Array<ZoneRecord>>;
     listAreasByHQ(token: string, hqId: LocationId): Promise<Array<AreaRecord>>;
+    listAreasByRegion(regionId: LocationId): Promise<Array<TerritoryRecord>>;
     listCallReportsByMr(token: string, mrId: UserId, fromDate: bigint, toDate: bigint): Promise<{
         __kind__: "ok";
         ok: Array<CallReportDetail>;
@@ -3543,10 +3586,12 @@ export interface backendInterface {
     listOrdersByChemist(chemistId: ChemistId): Promise<Array<ChemistOrderInfo>>;
     listPricelistProducts(token: string): Promise<Array<PricelistProductInfo>>;
     listProducts(): Promise<Array<ProductInfo>>;
+    listRegionsByZone(zoneId: LocationId): Promise<Array<StateRecord>>;
     listReportees(token: string, managerId: UserId): Promise<Array<UserInfo>>;
     listSecondarySales(token: string, filter: SecondarySaleFilter): Promise<Array<SecondarySaleRecord>>;
     listStatesByZone(token: string, zoneId: LocationId): Promise<Array<StateRecord>>;
     listStationBulkUploadHistory(token: string): Promise<Array<BulkStationImportResult>>;
+    listStationsByArea(areaId: LocationId): Promise<Array<HQRecord>>;
     listStationsByHQ(token: string, hqId: LocationId): Promise<Array<StationRecord>>;
     listStockists(token: string, filter: StockistFilter): Promise<Array<StockistRecord>>;
     listStockistsByArea(token: string, areaId: bigint): Promise<Array<StockistRecord>>;
@@ -3555,6 +3600,9 @@ export interface backendInterface {
     listTeamDcrs(token: string, mrIds: Array<bigint>, fromDate: string, toDate: string): Promise<Array<DcrInfo>>;
     listTeamStockistCalls(token: string, mrIds: Array<bigint>, fromDate: string, toDate: string): Promise<Array<StockistCallInfo>>;
     listTerritoriesByState(token: string, stateId: LocationId): Promise<Array<TerritoryRecord>>;
+    listTerritoriesByStation(token: string, stationId: LocationId): Promise<Array<TerritoryRecord>>;
+    listTerritoriesForStation(stationId: LocationId): Promise<Array<AreaRecord>>;
+    listUsersAboveRole(token: string, targetRole: Role): Promise<Array<UserInfo>>;
     listUsersByRole(token: string, role: Role): Promise<Array<UserInfo>>;
     listUsersByTerritory(token: string, territory: string): Promise<Array<UserInfo>>;
     listUsersWithAllotments(token: string): Promise<Array<UserLocationAllotment>>;
@@ -3857,6 +3905,7 @@ export interface backendInterface {
     updateOrderStatus(orderId: OrderId, status: OrderStatus): Promise<MutationResult>;
     updatePricelistProduct(token: string, id: PricelistProductId, input: UpdatePricelistProductInput): Promise<MutationResult>;
     updateProduct(productId: ProductId, name: string | null, category: ProductCategory | null, description: string | null, productCode: string | null, division: string | null, mrpPaise: bigint | null, packSize: string | null): Promise<MutationResult>;
+    updateRegion(token: string, id: LocationId, name: string): Promise<MutationResult>;
     updateState(token: string, id: LocationId, input: UpdateStateInput): Promise<MutationResult>;
     updateStation(token: string, stationId: LocationId, input: UpdateStationInput): Promise<MutationResult>;
     updateStockist(token: string, req: UpdateStockistRequest): Promise<{
@@ -3868,6 +3917,7 @@ export interface backendInterface {
     }>;
     updateSuggestionStatus(token: string, input: UpdateSuggestionStatusInput): Promise<MutationResult>;
     updateTerritory(token: string, id: LocationId, input: UpdateTerritoryInput): Promise<MutationResult>;
+    updateTerritoryUnderStation(token: string, territoryId: LocationId, name: string): Promise<MutationResult>;
     updateTravelPlan(token: string, id: TravelPlanId, input: CreateTravelPlanInput): Promise<MutationResult>;
     updateUser(token: string, userId: UserId, input: UpdateUserInput): Promise<MutationResult>;
     updateZone(token: string, id: LocationId, input: UpdateZoneInput): Promise<MutationResult>;

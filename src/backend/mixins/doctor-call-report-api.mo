@@ -584,4 +584,72 @@ mixin (
       };
     }
   };
+
+  /// Get the last 30 days of doctor call entries for the calling MR.
+  /// Role required: MR (or RSM acting in MR mode — userId matches an MR record).
+  public query func getDoctorCallsLast30Days(
+    sessionToken : Text,
+  ) : async { #ok : [FieldTypes.DoctorCallReportEntry]; #err : Text } {
+    switch (AuthLib.peekSession(sessions, sessionToken, Time.now())) {
+      case null { #err("Unauthorized: invalid or expired session") };
+      case (?session) {
+        if (session.role != #MR) return #err("MR role required");
+        let filter : FieldTypes.DoctorCallReportFilter = {
+          mrId             = null;
+          fromDate         = "";
+          toDate           = "";
+          doctorNameSearch = null;
+          productFilter    = null;
+          dayTypeFilter    = null;
+          includeDrafts    = false;
+          pageOffset       = null;
+          pageSize         = null;
+        };
+        let page = buildReportPage(session.userId, thirtyDaysAgoISO(), todayISO(), filter, false);
+        #ok(page.entries)
+      };
+    }
+  };
+
+  /// Get paginated doctor call details for a specific MR — for managers and HR/Admin.
+  /// Role required: ASM, RSM, ZSM, HRManager, or Admin.
+  public query func getDoctorCallDetailsByMr(
+    sessionToken : Text,
+    mrId         : Nat,
+    fromDate     : Text,   // DD-MM-YYYY or ISO YYYY-MM-DD
+    toDate       : Text,   // DD-MM-YYYY or ISO YYYY-MM-DD
+    page         : Nat,
+    pageSize     : Nat,
+  ) : async { #ok : FieldTypes.DoctorCallReportPage; #err : Text } {
+    switch (AuthLib.peekSession(sessions, sessionToken, Time.now())) {
+      case null { #err("Unauthorized: invalid or expired session") };
+      case (?session) {
+        switch (session.role) {
+          case (#MR) { return #err("Manager or HR role required") };
+          case _ {};
+        };
+        if (not isInHierarchyScope(session, mrId)) {
+          return #err("Access denied: MR is not within your hierarchy scope")
+        };
+        let fromISO = if (fromDate == "") thirtyDaysAgoISO()
+                      else if (fromDate.size() == 10 and fromDate.get(4) == '-') fromDate
+                      else ddmmyyyyToISO(fromDate);
+        let toISO   = if (toDate == "") todayISO()
+                      else if (toDate.size() == 10 and toDate.get(4) == '-') toDate
+                      else ddmmyyyyToISO(toDate);
+        let filter : FieldTypes.DoctorCallReportFilter = {
+          mrId             = ?mrId;
+          fromDate         = fromDate;
+          toDate           = toDate;
+          doctorNameSearch = null;
+          productFilter    = null;
+          dayTypeFilter    = null;
+          includeDrafts    = false;
+          pageOffset       = ?(page * pageSize);
+          pageSize         = ?pageSize;
+        };
+        #ok(buildReportPage(mrId, fromISO, toISO, filter, true))
+      };
+    }
+  };
 };

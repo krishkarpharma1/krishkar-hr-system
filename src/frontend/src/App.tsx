@@ -54,6 +54,24 @@ const AdminDocumentConfig = lazy(
 const AdminExpensePolicyConfig = lazy(
   () => import("./pages/admin/ExpensePolicyConfig"),
 );
+const AdminSalesTargetReport = lazy(
+  () => import("./pages/admin/SalesTargetReport"),
+);
+const AdminAuditTrail = lazy(() => import("./pages/admin/AuditTrail"));
+const AdminRecruitmentPipeline = lazy(
+  () => import("./pages/admin/RecruitmentPipeline"),
+);
+const AdminAppraisalReport = lazy(
+  () => import("./pages/admin/AppraisalReport"),
+);
+const AdminChemistMaster = lazy(() => import("./pages/admin/ChemistMaster"));
+const AdminAttendanceReports = lazy(
+  () => import("./pages/admin/AttendanceReports"),
+);
+const AdminBulkExport = lazy(() => import("./pages/admin/BulkExport"));
+const AdminPayrollReports = lazy(() => import("./pages/admin/PayrollReports"));
+const AdminDCRReport = lazy(() => import("./pages/admin/DCRReport"));
+const AdminExpenseReports = lazy(() => import("./pages/admin/ExpenseReports"));
 
 // Expense Claim Summary — ASM, RSM, Admin portals
 const AdminExpenseClaimSummary = lazy(() =>
@@ -1024,6 +1042,56 @@ const adminExpensePolicyRoute = makePortalRoute(
 const adminExpenseClaimSummaryRoute = makePortalRoute(
   "/admin/expense-claim-summary",
   AdminExpenseClaimSummary as React.ComponentType,
+  "Admin",
+);
+const adminSalesTargetRoute = makePortalRoute(
+  "/admin/sales-target",
+  AdminSalesTargetReport as React.ComponentType,
+  "Admin",
+);
+const adminAuditTrailRoute = makePortalRoute(
+  "/admin/audit-trail",
+  AdminAuditTrail as React.ComponentType,
+  "Admin",
+);
+const adminRecruitmentRoute = makePortalRoute(
+  "/admin/recruitment",
+  AdminRecruitmentPipeline as React.ComponentType,
+  "Admin",
+);
+const adminAppraisalRoute = makePortalRoute(
+  "/admin/appraisal",
+  AdminAppraisalReport as React.ComponentType,
+  "Admin",
+);
+const adminChemistMasterRoute = makePortalRoute(
+  "/admin/chemist-master",
+  AdminChemistMaster as React.ComponentType,
+  "Admin",
+);
+const adminAttendanceReportsRoute = makePortalRoute(
+  "/admin/attendance-reports",
+  AdminAttendanceReports as React.ComponentType,
+  "Admin",
+);
+const adminBulkExportRoute = makePortalRoute(
+  "/admin/bulk-export",
+  AdminBulkExport as React.ComponentType,
+  "Admin",
+);
+const adminPayrollReportsRoute = makePortalRoute(
+  "/admin/payroll-reports",
+  AdminPayrollReports as React.ComponentType,
+  "Admin",
+);
+const adminDCRReportRoute = makePortalRoute(
+  "/admin/dcr-report",
+  AdminDCRReport as React.ComponentType,
+  "Admin",
+);
+const adminExpenseReportsRoute = makePortalRoute(
+  "/admin/expense-reports",
+  AdminExpenseReports as React.ComponentType,
   "Admin",
 );
 const asmExpenseClaimSummaryRoute = makePortalRoute(
@@ -2907,6 +2975,16 @@ const routeTree = rootRoute.addChildren([
   asmExpenseClaimSummaryRoute,
   rsmExpenseClaimSummaryRoute,
   hrExpenseClaimSummaryRoute,
+  adminSalesTargetRoute,
+  adminAuditTrailRoute,
+  adminRecruitmentRoute,
+  adminAppraisalRoute,
+  adminPayrollReportsRoute,
+  adminDCRReportRoute,
+  adminExpenseReportsRoute,
+  adminChemistMasterRoute,
+  adminAttendanceReportsRoute,
+  adminBulkExportRoute,
   notFoundRoute,
 ]);
 

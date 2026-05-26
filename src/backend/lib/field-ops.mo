@@ -2365,6 +2365,45 @@ module {
           };
         };
 
+        // Fallback A: if no stations found via hqId match, try direct stationIds in hqAssignments
+        if (result.size() == 0) {
+          for (block in u.hqAssignments.values()) {
+            for (sid in block.stationIds.values()) {
+              if (not seen.contains(sid)) {
+                switch (stations.get(sid)) {
+                  case (?s) {
+                    if (s.isActive) {
+                      seen.add(sid);
+                      result.add(s);
+                    };
+                  };
+                  case null {};
+                };
+              };
+            };
+          };
+        };
+
+        // Fallback B: if still no stations, try primaryHqId directly
+        if (result.size() == 0) {
+          switch (u.primaryHqId) {
+            case (?pid) {
+              if (not seen.contains(pid)) {
+                switch (stations.get(pid)) {
+                  case (?s) {
+                    if (s.isActive) {
+                      seen.add(pid);
+                      result.add(s);
+                    };
+                  };
+                  case null {};
+                };
+              };
+            };
+            case null {};
+          };
+        };
+
         // Sort by stationName
         let arr = result.toArray();
         arr.sort(func(a : LocTypes.StationRecord, b : LocTypes.StationRecord) : { #less; #equal; #greater } {

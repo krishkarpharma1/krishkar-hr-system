@@ -350,7 +350,6 @@ export default function JfwEntry({ portalRole }: JfwEntryPageProps) {
               </div>
               <div className="space-y-2">
                 {doctors.map((doc, idx) => (
-                  // biome-ignore lint/suspicious/noArrayIndexKey: form rows keyed by position
                   <div key={idx} className="flex gap-2 items-center">
                     <Input
                       placeholder="Doctor Name"
@@ -589,7 +588,6 @@ export default function JfwEntry({ portalRole }: JfwEntryPageProps) {
                                 {jfw.doctorsJointlyVisited.length > 0 ? (
                                   <ul className="space-y-0.5">
                                     {jfw.doctorsJointlyVisited.map((d, i) => (
-                                      // biome-ignore lint/suspicious/noArrayIndexKey: static list keyed by position
                                       <li key={i} className="text-foreground">
                                         {d.name}
                                         {d.station ? (

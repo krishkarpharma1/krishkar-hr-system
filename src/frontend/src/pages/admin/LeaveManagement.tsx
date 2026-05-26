@@ -17,18 +17,12 @@ import {
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  CheckCircle,
-  Download,
-  FileText,
-  RefreshCw,
-  XCircle,
-} from "lucide-react";
+import { CheckCircle, FileText, RefreshCw, XCircle } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
-import * as XLSX from "xlsx";
 import { LeaveType, Role } from "../../backend";
 import type { RoleLeaveQuota } from "../../backend.d";
+import { ExportButton } from "../../components/ExportButton";
 import {
   DataTable,
   PageContent,
@@ -37,11 +31,10 @@ import {
 } from "../../components/PortalLayout";
 import { useCompanyProfile } from "../../hooks/useCompanyProfile";
 import { api } from "../../lib/api";
-import { buildBrandingExcelRows } from "../../lib/brandingHtml";
+import { exportToExcel, logExportToAuditTrail } from "../../lib/exportUtils";
 import { useAuthStore } from "../../store/authStore";
-import type { LeaveApplication, LeaveExportRow } from "../../types";
-import type { UserInfo } from "../../types";
 import { LeaveStatus } from "../../types";
+import type { LeaveApplication, UserInfo } from "../../types";
 
 const MONTH_NAMES = [
   "Jan",
@@ -271,42 +264,63 @@ export default function AdminLeaveManagement() {
     if (!session) return;
     setExporting(true);
     try {
-      const filter = buildFilter();
-      const res = await api.getLeaveExportRows(session.token, filter);
-      if (res.__kind__ === "err") {
-        toast.error(res.err);
-        return;
-      }
-      const rows = res.ok as LeaveExportRow[];
-      if (rows.length === 0) {
-        toast.warning("No data for the selected filters");
-        return;
-      }
-      const data = rows.map((r) => ({
-        "Leave ID": r.leaveId,
-        "Employee ID": r.employeeId,
-        "Employee Name": r.employeeName,
-        Role: r.role,
-        "Leave Type": LEAVE_TYPE_LABELS[r.leaveType] ?? r.leaveType,
-        "From Date": r.fromDate,
-        "To Date": r.toDate,
-        Days: Number(r.numDays),
-        Reason: r.reason,
-        Status: r.status,
-        "Approver Name": r.approverName ?? "",
-        Remark: r.remark ?? "",
-        "Applied At": r.appliedAt,
+      const data = filtered.map((leave) => ({
+        employeeCode: String(leave.employeeId ?? ""),
+        employeeName:
+          employeeNameMap.get(leave.employeeId) ??
+          String(leave.employeeId ?? ""),
+        role: employeeRoleMap.get(leave.employeeId) ?? "",
+        leaveType:
+          LEAVE_TYPE_LABELS[String(leave.leaveType)] ??
+          String(leave.leaveType ?? ""),
+        fromDate: leave.fromDate ?? "",
+        toDate: leave.toDate ?? "",
+        days: Number(leave.numDays ?? 0),
+        reason: leave.reason ?? "",
+        status: String(leave.status ?? ""),
+        approvedBy: leave.approvedBy ? String(leave.approvedBy) : "",
+        approvalDate: "",
       }));
-      const brandingRows = buildBrandingExcelRows(companyProfile ?? null);
-      const allRows = [...brandingRows, ...data] as Record<string, unknown>[];
-      const ws = XLSX.utils.json_to_sheet(allRows);
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "Leave Records");
-      XLSX.writeFile(
-        wb,
-        `leave-records-admin-${new Date().toISOString().slice(0, 10)}.xlsx`,
+      const activeFilters = [
+        search && `Search: ${search}`,
+        filterRole !== "all" && `Role: ${filterRole}`,
+        filterType !== "all" && `Leave Type: ${filterType}`,
+        filterStatus !== "all" && `Status: ${filterStatus}`,
+        filterMonth !== "all" &&
+          `Month: ${MONTH_NAMES[Number(filterMonth) - 1]}`,
+        filterYear !== "all" && `Year: ${filterYear}`,
+      ]
+        .filter(Boolean)
+        .join(" | ");
+      exportToExcel({
+        reportName: "Leave Report",
+        columns: [
+          { key: "employeeCode", label: "Employee Code", type: "text" },
+          { key: "employeeName", label: "Employee Name", type: "text" },
+          { key: "role", label: "Role", type: "text" },
+          { key: "leaveType", label: "Leave Type", type: "text" },
+          { key: "fromDate", label: "From Date", type: "date" },
+          { key: "toDate", label: "To Date", type: "date" },
+          { key: "days", label: "Days", type: "number" },
+          { key: "reason", label: "Reason", type: "text" },
+          { key: "status", label: "Status", type: "text" },
+          { key: "approvedBy", label: "Approved By", type: "text" },
+          { key: "approvalDate", label: "Approval Date", type: "date" },
+        ],
+        data,
+        activeFilters: activeFilters || "",
+        companyName: companyProfile?.companyName ?? "Krishkar Pharmaceuticals",
+      });
+      logExportToAuditTrail(
+        {
+          userId: String(session?.userId ?? ""),
+          userName: String(session?.name ?? ""),
+          role: String(session?.role ?? ""),
+        },
+        "Leave Report",
+        activeFilters || "",
+        data.length,
       );
-      toast.success(`Exported ${data.length} rows`);
     } catch {
       toast.error("Export failed");
     } finally {
@@ -429,15 +443,24 @@ export default function AdminLeaveManagement() {
               />{" "}
               Refresh
             </Button>
-            <Button
-              size="sm"
+            <ExportButton
               onClick={handleExport}
-              disabled={exporting || loading}
+              disabled={filtered.length === 0 || exporting}
+              tooltip={
+                filtered.length === 0
+                  ? "No data to export"
+                  : filterRole !== "all" ||
+                      filterType !== "all" ||
+                      filterStatus !== "all" ||
+                      filterMonth !== "all" ||
+                      filterYear !== "all" ||
+                      search
+                    ? "Exports currently filtered data"
+                    : "Export all data"
+              }
+              isLoading={exporting}
               data-ocid="export-leaves-btn"
-            >
-              <Download className="w-4 h-4 mr-1" />
-              {exporting ? "Exporting…" : "Export Excel"}
-            </Button>
+            />
           </div>
         }
       />

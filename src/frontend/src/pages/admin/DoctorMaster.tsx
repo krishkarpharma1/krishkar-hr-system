@@ -33,6 +33,7 @@ import type {
   StationRecord,
   UserInfo,
 } from "../../backend.d";
+import { ExportButton } from "../../components/ExportButton";
 import {
   PageContent,
   PageHeader,
@@ -41,8 +42,10 @@ import {
 } from "../../components/PortalLayout";
 import ScrollToBottom from "../../components/ScrollToBottom";
 import ScrollableTable from "../../components/ScrollableTable";
+import { useCompanyProfile } from "../../hooks/useCompanyProfile";
 import { api } from "../../lib/api";
 import type { BulkUploadRecord } from "../../lib/api";
+import { exportToExcel, logExportToAuditTrail } from "../../lib/exportUtils";
 import { useAuthStore } from "../../store/authStore";
 import type { DoctorInfo } from "../../types";
 
@@ -174,16 +177,10 @@ function parseRowsFromSheet(
       "headquarters",
       "Headquarter",
     );
-    const area = getField(
-      row,
-      "Area/Territory",
-      "Area/Territory (Mandatory)",
-      "Area",
-      "Territory",
-      "area",
-      "territory",
-      "area/territory",
-    );
+    const area = getField(row, "Territory", "territory");
+    const _zoneName = getField(row, "Zone", "zone") ?? "";
+    const _regionName = getField(row, "Region", "region") ?? "";
+    const _areaName = getField(row, "Area", "area") ?? "";
     const specialization = getField(
       row,
       "Specialization",
@@ -215,7 +212,8 @@ function parseRowsFromSheet(
     const warnings: string[] = [];
 
     if (!name) errors.push("Missing required field: Doctor Name");
-    if (!area) errors.push("Missing required field: Area/Territory");
+    if (!area)
+      errors.push("Missing required field: Territory (Station Name required)");
     else if (!areaNames.has(area.toLowerCase()))
       errors.push(`Area not found: ${area}`);
 
@@ -368,10 +366,11 @@ function downloadTemplate() {
     "Qualification",
     "Clinic/Hospital Name",
     "Address",
-    "Territory",
-    "Headquarters",
-    "Station",
-    "Area/Territory",
+    "Zone",
+    "Region",
+    "Area",
+    "Station *",
+    "Territory *",
     "Mobile Number",
     "Email ID",
     "Category",
@@ -384,9 +383,10 @@ function downloadTemplate() {
     "MBBS",
     "City Hospital",
     "123 Main Street",
-    "Mumbai Territory",
-    "Mumbai HQ",
-    "Mumbai Central", // realistic station name from Station Master
+    "West Zone",
+    "Maharashtra Region",
+    "Pune Area",
+    "Mumbai Central",
     "Mumbai North",
     "9876543210",
     "doctor@example.com",
@@ -400,10 +400,11 @@ function downloadTemplate() {
     "Optional – match exactly: MBBS, MD, MS, BDS etc.",
     "",
     "",
-    "",
-    "",
-    "Must match an existing Station name under the given HQ",
-    "* Required – must exactly match an existing Area name",
+    "Optional",
+    "Optional",
+    "Optional",
+    "* Required – must match an existing Station name",
+    "* Required – must exactly match an existing Territory name",
     "",
     "",
     "A, B or C",
@@ -515,6 +516,7 @@ function PaginationControls({
 interface EditModalProps {
   doctor: DoctorInfo;
   areas: AreaRecord[];
+  stations: StationRecord[];
   token: string;
   onClose: () => void;
   onSaved: () => void;
@@ -523,6 +525,7 @@ interface EditModalProps {
 function EditDoctorModal({
   doctor,
   areas,
+  stations,
   token,
   onClose,
   onSaved,
@@ -640,18 +643,33 @@ function EditDoctorModal({
           </div>
           <div className="space-y-1">
             <Label className="text-xs">Station</Label>
-            <Input
+            <Select
               value={station}
-              onChange={(e) => setStation(e.target.value)}
-              placeholder="Station name"
-              data-ocid="edit-doctor-station"
-            />
+              onValueChange={(val) => {
+                setStation(val);
+                setArea("");
+              }}
+            >
+              <SelectTrigger data-ocid="edit-doctor-station">
+                <SelectValue placeholder="Select Station" />
+              </SelectTrigger>
+              <SelectContent>
+                {stations.map((s) => (
+                  <SelectItem
+                    key={s.stationId?.toString()}
+                    value={s.stationName}
+                  >
+                    {s.stationName}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="space-y-1">
-            <Label className="text-xs">Area/Territory</Label>
+            <Label className="text-xs">Territory</Label>
             <Select value={area} onValueChange={setArea}>
               <SelectTrigger data-ocid="edit-doctor-area">
-                <SelectValue placeholder="Select Area" />
+                <SelectValue placeholder="Select Territory" />
               </SelectTrigger>
               <SelectContent>
                 {areas.map((a) => (
@@ -745,6 +763,7 @@ export default function DoctorMaster({ portalRole }: { portalRole?: Role }) {
   const { session } = useAuthStore();
   const token = session?.token ?? "";
   const effectiveRole = portalRole ?? session?.role ?? Role.Admin;
+  const { companyProfile } = useCompanyProfile();
 
   const canEdit =
     effectiveRole === Role.Admin || effectiveRole === Role.HRManager;
@@ -761,6 +780,18 @@ export default function DoctorMaster({ portalRole }: { portalRole?: Role }) {
   const [currentPage, setCurrentPage] = useState(1);
 
   // Edit/delete state
+  const [showAddDoctor, setShowAddDoctor] = useState(false);
+  const [addDoctorForm, setAddDoctorForm] = useState({
+    name: "",
+    specialization: "",
+    qualification: "",
+    contactPhone: "",
+    station: "",
+    area: "",
+  });
+  const [selectedStation, setSelectedStation] = useState<StationRecord | null>(
+    null,
+  );
   const [editingDoctor, setEditingDoctor] = useState<DoctorInfo | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<bigint[] | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -830,6 +861,63 @@ export default function DoctorMaster({ portalRole }: { portalRole?: Role }) {
   useEffect(() => {
     setCurrentPage(1);
   }, [search, filterArea]);
+
+  const handleExportDoctors = () => {
+    exportToExcel({
+      reportName: "Doctor Master",
+      columns: [
+        { key: "doctorName", label: "Doctor Name", type: "text" },
+        { key: "specialty", label: "Specialty", type: "text" },
+        { key: "qualification", label: "Qualification", type: "text" },
+        { key: "category", label: "Category (A/B/C)", type: "text" },
+        {
+          key: "prescriptionPotential",
+          label: "Prescription Potential",
+          type: "text",
+        },
+        { key: "clinicHospital", label: "Clinic/Hospital", type: "text" },
+        { key: "territory", label: "Territory", type: "text" },
+        { key: "contactNumber", label: "Contact Number", type: "text" },
+        { key: "visitFrequency", label: "Visit Frequency", type: "text" },
+        { key: "productsPreferred", label: "Products Preferred", type: "text" },
+      ],
+      data: filteredDoctors.map((d) => ({
+        doctorName: d.name || "",
+        specialty: d.specialization || "",
+        qualification: d.qualification || "",
+        category: d.category || "",
+        prescriptionPotential: "",
+        clinicHospital: d.clinicName || "",
+        territory: d.territory || d.station || "",
+        contactNumber: d.contactPhone || "",
+        visitFrequency: String(Number(d.visitFrequencyTarget) || ""),
+        productsPreferred: "",
+      })),
+      activeFilters:
+        [
+          filterArea !== "all" ? `Area: ${filterArea}` : "",
+          search ? `Search: ${search}` : "",
+        ]
+          .filter(Boolean)
+          .join(", ") || "All Data",
+      companyName: companyProfile?.companyName || "Krishkar Pharmaceuticals",
+    });
+    logExportToAuditTrail(
+      {
+        userId: String(session?.userId ?? ""),
+        userName: String(session?.name ?? ""),
+        role: String(session?.role ?? ""),
+      },
+      "Doctor Master",
+      [
+        filterArea !== "all" ? `Area: ${filterArea}` : "",
+        search ? `Search: ${search}` : "",
+      ]
+        .filter(Boolean)
+        .join(", ") || "All Data",
+      filteredDoctors.length,
+    );
+  };
 
   const filteredDoctors = useMemo(
     () =>
@@ -973,10 +1061,199 @@ export default function DoctorMaster({ portalRole }: { portalRole?: Role }) {
 
   return (
     <PortalLayout portalRole={effectiveRole}>
+      {showAddDoctor && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-lg max-h-screen overflow-y-auto">
+            <h2 className="text-lg font-semibold mb-4">Add New Doctor</h2>
+            <div className="space-y-3">
+              <input
+                className="w-full border rounded px-3 py-2 text-sm"
+                placeholder="Doctor Name *"
+                value={addDoctorForm.name}
+                onChange={(e) =>
+                  setAddDoctorForm((f) => ({ ...f, name: e.target.value }))
+                }
+                data-ocid="add-doctor-name"
+              />
+              <input
+                className="w-full border rounded px-3 py-2 text-sm"
+                placeholder="Specialization"
+                value={addDoctorForm.specialization}
+                onChange={(e) =>
+                  setAddDoctorForm((f) => ({
+                    ...f,
+                    specialization: e.target.value,
+                  }))
+                }
+                data-ocid="add-doctor-specialization"
+              />
+              <input
+                className="w-full border rounded px-3 py-2 text-sm"
+                placeholder="Qualification"
+                value={addDoctorForm.qualification}
+                onChange={(e) =>
+                  setAddDoctorForm((f) => ({
+                    ...f,
+                    qualification: e.target.value,
+                  }))
+                }
+                data-ocid="add-doctor-qualification"
+              />
+              <input
+                className="w-full border rounded px-3 py-2 text-sm"
+                placeholder="Mobile Number"
+                value={addDoctorForm.contactPhone}
+                onChange={(e) =>
+                  setAddDoctorForm((f) => ({
+                    ...f,
+                    contactPhone: e.target.value,
+                  }))
+                }
+                data-ocid="add-doctor-phone"
+              />
+              <div>
+                <label
+                  htmlFor="add-doctor-station"
+                  className="text-sm font-medium"
+                >
+                  Station *
+                </label>
+                <select
+                  id="add-doctor-station"
+                  className="w-full border rounded px-3 py-2 text-sm mt-1"
+                  value={selectedStation?.stationId?.toString() ?? ""}
+                  onChange={(e) => {
+                    const s =
+                      stations.find(
+                        (st) => st.stationId?.toString() === e.target.value,
+                      ) || null;
+                    setSelectedStation(s);
+                    setAddDoctorForm((f) => ({
+                      ...f,
+                      station: s?.stationName ?? "",
+                      area: "",
+                    }));
+                  }}
+                  data-ocid="add-doctor-station"
+                >
+                  <option value="">Select Station</option>
+                  {stations.map((s) => (
+                    <option
+                      key={s.stationId?.toString()}
+                      value={s.stationId?.toString()}
+                    >
+                      {s.stationName}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label
+                  htmlFor="add-doctor-territory"
+                  className="text-sm font-medium"
+                >
+                  Territory *
+                </label>
+                <select
+                  id="add-doctor-territory"
+                  className="w-full border rounded px-3 py-2 text-sm mt-1"
+                  value={addDoctorForm.area}
+                  onChange={(e) =>
+                    setAddDoctorForm((f) => ({ ...f, area: e.target.value }))
+                  }
+                  data-ocid="add-doctor-territory"
+                >
+                  <option value="">Select Territory</option>
+                  {areas
+                    .filter(
+                      (a) =>
+                        !selectedStation ||
+                        (a as AreaRecord & { stationId?: bigint }).stationId ===
+                          selectedStation.stationId,
+                    )
+                    .map((a) => (
+                      <option key={a.id?.toString() || a.name} value={a.name}>
+                        {a.name}
+                      </option>
+                    ))}
+                </select>
+              </div>
+            </div>
+            <div className="flex gap-2 mt-4">
+              <button
+                type="button"
+                className="flex-1 bg-blue-600 text-white py-2 rounded text-sm"
+                data-ocid="add-doctor-save"
+                onClick={async () => {
+                  if (
+                    !addDoctorForm.name ||
+                    !addDoctorForm.station ||
+                    !addDoctorForm.area
+                  ) {
+                    alert("Doctor Name, Station and Territory are required");
+                    return;
+                  }
+                  try {
+                    await api.addDoctor(BigInt(0), {
+                      name: addDoctorForm.name,
+                      station: addDoctorForm.station,
+                      area: addDoctorForm.area,
+                      territory: addDoctorForm.area,
+                      specialization: addDoctorForm.specialization,
+                      qualification: addDoctorForm.qualification
+                        ? {
+                            __kind__: "Other" as const,
+                            Other: addDoctorForm.qualification,
+                          }
+                        : { __kind__: "MBBS" as const, MBBS: null },
+                      contactPhone: addDoctorForm.contactPhone,
+                    });
+                    setShowAddDoctor(false);
+                    setAddDoctorForm({
+                      name: "",
+                      specialization: "",
+                      qualification: "",
+                      contactPhone: "",
+                      station: "",
+                      area: "",
+                    });
+                    setSelectedStation(null);
+                    await loadData();
+                  } catch (e) {
+                    alert(`Failed to add doctor: ${(e as Error).message}`);
+                  }
+                }}
+              >
+                Save
+              </button>
+              <button
+                type="button"
+                className="flex-1 border py-2 rounded text-sm"
+                data-ocid="add-doctor-cancel"
+                onClick={() => {
+                  setShowAddDoctor(false);
+                  setAddDoctorForm({
+                    name: "",
+                    specialization: "",
+                    qualification: "",
+                    contactPhone: "",
+                    station: "",
+                    area: "",
+                  });
+                  setSelectedStation(null);
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {editingDoctor && (
         <EditDoctorModal
           doctor={editingDoctor}
           areas={areas}
+          stations={stations}
           token={token}
           onClose={() => setEditingDoctor(null)}
           onSaved={loadData}
@@ -1062,10 +1339,33 @@ export default function DoctorMaster({ portalRole }: { portalRole?: Role }) {
                     Delete Selected ({selectedIds.size})
                   </Button>
                 )}
+                {canEdit && (
+                  <Button
+                    size="sm"
+                    onClick={() => setShowAddDoctor(true)}
+                    data-ocid="btn-add-new-doctor"
+                  >
+                    + Add New Doctor
+                  </Button>
+                )}
               </div>
             </SectionCard>
 
-            <SectionCard title={`Doctors (${filteredDoctors.length})`}>
+            <div className="flex items-center justify-between mb-2">
+              <span className="font-medium text-sm text-foreground">
+                Doctors ({filteredDoctors.length})
+              </span>
+              <ExportButton
+                onClick={handleExportDoctors}
+                disabled={filteredDoctors.length === 0}
+                tooltip={
+                  filteredDoctors.length === 0
+                    ? "No data to export"
+                    : "Exports currently filtered data"
+                }
+              />
+            </div>
+            <SectionCard title="Doctors">
               {loading ? (
                 /* Loading skeleton */
                 <ScrollableTable>
@@ -1092,10 +1392,8 @@ export default function DoctorMaster({ portalRole }: { portalRole?: Role }) {
                     </thead>
                     <tbody>
                       {Array.from({ length: 5 }).map((_, rowIdx) => (
-                        // biome-ignore lint/suspicious/noArrayIndexKey: skeleton rows have no stable id
                         <tr key={rowIdx} className="border-b border-border">
                           {[20, 160, 80, 100, 90, 110, 80].map((w, colIdx) => (
-                            // biome-ignore lint/suspicious/noArrayIndexKey: skeleton cols have no stable id
                             <td key={colIdx} className="px-3 py-3">
                               <div
                                 className="h-4 bg-muted rounded animate-pulse"

@@ -394,7 +394,6 @@ export default function MonthlyTargetsAdmin({
                     </Button>
                   </div>
                   {productRows.map((row, i) => (
-                    // biome-ignore lint/suspicious/noArrayIndexKey: positional
                     <div key={i} className="flex gap-2 items-center">
                       <Input
                         placeholder="Product name"
@@ -630,7 +629,6 @@ export default function MonthlyTargetsAdmin({
                   </thead>
                   <tbody className="divide-y divide-border">
                     {bulkRows.map((row, i) => (
-                      // biome-ignore lint/suspicious/noArrayIndexKey: positional
                       <tr key={i} className="hover:bg-muted/10">
                         <td className="px-3 py-2 font-body font-medium text-foreground">
                           {row.user.name}
@@ -847,7 +845,6 @@ export default function MonthlyTargetsAdmin({
                     {[...historyTarget.revisionHistory]
                       .reverse()
                       .map((rev: TargetRevision, i) => (
-                        // biome-ignore lint/suspicious/noArrayIndexKey: display
                         <div key={i} className="py-2.5 text-sm">
                           <div className="flex justify-between">
                             <span className="font-mono text-foreground">

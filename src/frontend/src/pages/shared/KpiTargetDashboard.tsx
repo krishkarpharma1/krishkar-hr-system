@@ -393,7 +393,6 @@ export default function KpiTargetDashboard({
               data-ocid="kpi.month_select"
             >
               {MONTHS.map((m, i) => (
-                // biome-ignore lint/suspicious/noArrayIndexKey: month options keyed by 1-indexed month number
                 <option key={i + 1} value={i + 1}>
                   {m}
                 </option>

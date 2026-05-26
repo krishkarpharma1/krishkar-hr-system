@@ -21,6 +21,9 @@ import { LeaveStatus } from "../types";
 
 export const mockBackend: backendInterface = {
   addArea: async () => ({ __kind__: "ok", ok: null }),
+  addTerritoryToStation: async () => ({ __kind__: "ok", ok: null }),
+  updateTerritoryUnderStation: async () => ({ __kind__: "ok", ok: null }),
+  deleteTerritoryUnderStation: async () => ({ __kind__: "ok", ok: null }),
   addChemist: async () => BigInt(1),
   addDoctor: async () => BigInt(1),
   addDocument: async () => ({ __kind__: "ok", ok: null }),
@@ -45,6 +48,7 @@ export const mockBackend: backendInterface = {
       distance: 1200,
       recordedAt: BigInt(Date.now()),
       matchedLocation: "Delhi HQ",
+      wasAutoCheckedOut: false,
     },
   }),
   captureGpsBackground: async () => ({ __kind__: "ok" as const, ok: null }),
@@ -57,6 +61,8 @@ export const mockBackend: backendInterface = {
   deactivateTerritory: async () => ({ __kind__: "ok", ok: null }),
   deactivateUser: async () => ({ __kind__: "ok", ok: null }),
   reactivateUser: async () => ({ __kind__: "ok", ok: null }),
+  deleteEmployee: async () => ({ __kind__: "ok" as const, ok: { employeeId: "EMP001", archivedAt: BigInt(Date.now()) } }),
+  getDeletedEmployeesLog: async (_token: string) => ({ __kind__: 'ok' as const, ok: [] }),
   getInactiveUsers: async () => [],
   getReactivationLog: async () => [],
   deactivateZone: async () => ({ __kind__: "ok", ok: null }),
@@ -113,6 +119,7 @@ export const mockBackend: backendInterface = {
       distance: 800,
       recordedAt: BigInt(Date.now() - 28800000),
       matchedLocation: "Delhi HQ",
+      wasAutoCheckedOut: false,
     },
     {
       status: CheckInStatus.unmatched,
@@ -121,6 +128,7 @@ export const mockBackend: backendInterface = {
       date: "2026-04-08",
       distance: 8500,
       recordedAt: BigInt(Date.now() - 86400000),
+      wasAutoCheckedOut: false,
     },
   ],
   getChemist: async () => null,
@@ -247,6 +255,7 @@ export const mockBackend: backendInterface = {
       distance: 800,
       recordedAt: BigInt(Date.now() - 28800000),
       matchedLocation: "Delhi HQ",
+      wasAutoCheckedOut: false,
     },
     {
       status: CheckInStatus.unmatched,
@@ -255,6 +264,7 @@ export const mockBackend: backendInterface = {
       date: "2026-04-07",
       distance: 7200,
       recordedAt: BigInt(Date.now() - 172800000),
+      wasAutoCheckedOut: false,
     },
   ],
   getMyDaHistory: async () => [
@@ -391,21 +401,33 @@ export const mockBackend: backendInterface = {
     zoneIds: [BigInt(1)],
     territoryIds: [BigInt(1)],
   }),
-  listActiveAreasByHQ: async () => [
-    { id: BigInt(1), hqId: BigInt(1), name: "North Area", createdAt: BigInt(0), isActive: true },
-  ],
+  getUsersWithHigherRole: async () => [],
+  listActiveAreasByHQ: async (_token: string, hqId: bigint) => [
+    { id: BigInt(1), hqId: BigInt(1), name: "Pune Area", createdAt: BigInt(0), isActive: true },
+    { id: BigInt(2), hqId: BigInt(1), name: "Mumbai Area", createdAt: BigInt(0), isActive: true },
+    { id: BigInt(3), hqId: BigInt(2), name: "Ahmedabad Area", createdAt: BigInt(0), isActive: true },
+  ].filter((a) => a.hqId === hqId),
   listActiveHQsByTerritory: async () => [
     { id: BigInt(1), name: "Delhi HQ", createdAt: BigInt(0), territoryId: BigInt(1), isActive: true },
   ],
-  listActiveStatesByZone: async () => [
-    { id: BigInt(1), name: "Delhi", createdAt: BigInt(0), isActive: true, zoneId: BigInt(1) },
-  ],
+  listActiveStatesByZone: async (_token: string, zoneId: bigint) => [
+    { id: BigInt(1), name: "Maharashtra", createdAt: BigInt(0), isActive: true, zoneId: BigInt(1) },
+    { id: BigInt(2), name: "Gujarat", createdAt: BigInt(0), isActive: true, zoneId: BigInt(1) },
+    { id: BigInt(3), name: "West Bengal", createdAt: BigInt(0), isActive: true, zoneId: BigInt(2) },
+  ].filter((s) => s.zoneId === zoneId),
   listActiveTerritories: async () => [
     { id: BigInt(1), stateId: BigInt(1), name: "North Territory", createdAt: BigInt(0), isActive: true },
   ],
   listActiveZones: async () => [
-    { id: BigInt(1), code: "NZ", name: "North Zone", createdAt: BigInt(0), isActive: true },
+    { id: BigInt(1), code: "WEST", name: "Western Zone", createdAt: BigInt(0), isActive: true },
+    { id: BigInt(2), code: "EAST", name: "Eastern Zone", createdAt: BigInt(0), isActive: true },
+    { id: BigInt(3), code: "CENT", name: "Central Zone", createdAt: BigInt(0), isActive: true },
   ],
+  listAllZones: async () => [],
+  listRegionsByZone: async () => [],
+  listAreasByRegion: async () => [],
+  listStationsByArea: async () => [],
+  listTerritoriesForStation: async () => [],
   listAllActiveAreas: async () => [
     { id: BigInt(1), hqId: BigInt(1), name: "North Area", createdAt: BigInt(0), isActive: true },
   ],
@@ -470,7 +492,7 @@ export const mockBackend: backendInterface = {
       migrationDone: true,
     },
   ],
-  listAreasByHQ: async () => [
+  listAreasByHQ: async (_token: string, _hqId: bigint) => [
     { id: BigInt(1), hqId: BigInt(1), name: "North Area", createdAt: BigInt(0), isActive: true },
   ],
   listChemists: async () => [],
@@ -492,16 +514,23 @@ export const mockBackend: backendInterface = {
     { id: BigInt(2), name: "Krishkar Amoxicillin 250mg", createdAt: BigInt(0), description: "Antibiotic capsule", isActive: true, category: ProductCategory.Capsule, productCode: "KP-002", division: "Cardiac", mrpPaise: BigInt(2500), packSize: "6 capsules/strip" },
   ],
   listReportees: async () => [],
-  listStatesByZone: async () => [
+  listStatesByZone: async (_token: string, _zoneId: bigint) => [
     { id: BigInt(1), name: "Delhi", createdAt: BigInt(0), isActive: true, zoneId: BigInt(1) },
   ],
   listSubmittedReports: async () => [],
   listTerritoriesByState: async () => [
     { id: BigInt(1), stateId: BigInt(1), name: "North Territory", createdAt: BigInt(0), isActive: true },
   ],
+  listTerritoriesByStation: async (_token: string, _stationId: bigint) => [
+    { id: BigInt(1), stateId: BigInt(1), name: "Sadar Bazar", createdAt: BigInt(0), isActive: true },
+    { id: BigInt(2), stateId: BigInt(1), name: "Paharganj", createdAt: BigInt(0), isActive: true },
+    { id: BigInt(3), stateId: BigInt(2), name: "Civil Lines", createdAt: BigInt(0), isActive: true },
+  ],
   listUsersByRole: async () => [],
   listUsersByTerritory: async () => [],
   listUsersWithAllotments: async () => [],
+  listUsersAboveRole: async (_token: any, _role: any) => [],
+  getActiveHQsByTerritory: async (_token: any, _locationId: any) => [],
   listZones: async () => [
     { id: BigInt(1), code: "NZ", name: "North Zone", createdAt: BigInt(0), isActive: true },
   ],
@@ -584,7 +613,16 @@ export const mockBackend: backendInterface = {
   updateState: async () => ({ __kind__: "ok", ok: null }),
   updateTerritory: async () => ({ __kind__: "ok", ok: null }),
   updateUser: async () => ({ __kind__: "ok", ok: null }),
-  updateZone: async () => ({ __kind__: "ok", ok: null }),
+  updateZone: async () => ({ __kind__: "ok", ok: null }),  addRegion: async () => ({ __kind__: "ok" as const, ok: null }),
+  deleteRegion: async () => ({ __kind__: "ok" as const, ok: null }),
+  deleteZone: async () => ({ __kind__: "ok" as const, ok: null }),
+  getAreasByRegion: async () => [],
+  getRegionsByZone: async () => [],
+  getZones: async () => [],
+  getStationsByArea: async () => [],
+  getTerritoriesByStation: async () => [],
+  updateRegion: async () => ({ __kind__: "ok" as const, ok: null }),
+
   upsertPerformance: async () => ({ __kind__: "ok", ok: null }),
 
   // CRM
@@ -1048,8 +1086,20 @@ export const mockBackend: backendInterface = {
   createStation: async () => ({ __kind__: "ok" as const, ok: null }),
   updateStation: async () => ({ __kind__: "ok" as const, ok: null }),
   deleteStation: async () => true,
-  listStationsByHQ: async () => [],
-  listAllStations: async () => [],
+  listStationsByHQ: async (_token: string, hqId: bigint) => [
+    { stationId: BigInt(1), stationName: "Connaught Place", hqId: BigInt(1), isActive: true, createdAt: BigInt(0), updatedAt: BigInt(0) },
+    { stationId: BigInt(2), stationName: "Lajpat Nagar", hqId: BigInt(1), isActive: true, createdAt: BigInt(0), updatedAt: BigInt(0) },
+    { stationId: BigInt(3), stationName: "Rohini", hqId: BigInt(2), isActive: true, createdAt: BigInt(0), updatedAt: BigInt(0) },
+    { stationId: BigInt(4), stationName: "Dwarka", hqId: BigInt(2), isActive: true, createdAt: BigInt(0), updatedAt: BigInt(0) },
+    { stationId: BigInt(5), stationName: "Karol Bagh", hqId: BigInt(1), isActive: true, createdAt: BigInt(0), updatedAt: BigInt(0) },
+  ].filter((s) => s.hqId === hqId),
+  listAllStations: async () => [
+    { stationId: BigInt(1), stationName: "Connaught Place", hqId: BigInt(1), isActive: true, createdAt: BigInt(0), updatedAt: BigInt(0) },
+    { stationId: BigInt(2), stationName: "Lajpat Nagar", hqId: BigInt(1), isActive: true, createdAt: BigInt(0), updatedAt: BigInt(0) },
+    { stationId: BigInt(3), stationName: "Rohini", hqId: BigInt(2), isActive: true, createdAt: BigInt(0), updatedAt: BigInt(0) },
+    { stationId: BigInt(4), stationName: "Dwarka", hqId: BigInt(2), isActive: true, createdAt: BigInt(0), updatedAt: BigInt(0) },
+    { stationId: BigInt(5), stationName: "Karol Bagh", hqId: BigInt(1), isActive: true, createdAt: BigInt(0), updatedAt: BigInt(0) },
+  ],
   bulkImportStations: async () => ({
     totalRows: BigInt(0),
     saved: BigInt(0),

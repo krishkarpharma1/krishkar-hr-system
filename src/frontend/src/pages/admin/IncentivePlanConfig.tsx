@@ -416,7 +416,6 @@ export default function IncentivePlanConfig({
                 </thead>
                 <tbody className="divide-y divide-border">
                   {slabs.map((slab, idx) => (
-                    // biome-ignore lint/suspicious/noArrayIndexKey: positional
                     <tr key={idx}>
                       <td className="px-3 py-2">
                         <Input
@@ -604,7 +603,6 @@ export default function IncentivePlanConfig({
                         </thead>
                         <tbody className="divide-y divide-border">
                           {plan.slabs.map((slab, i) => (
-                            // biome-ignore lint/suspicious/noArrayIndexKey: display only
                             <tr key={i} className="hover:bg-muted/10">
                               <td className="px-4 py-2 font-mono text-sm">
                                 {slab.minAchievementPct}%

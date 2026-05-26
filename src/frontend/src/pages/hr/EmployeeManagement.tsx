@@ -27,6 +27,7 @@ import {
   RefreshCw,
   Search,
   Square,
+  Trash2,
   UserCheck,
   UserX,
   X,
@@ -40,6 +41,9 @@ import type {
   LocationLevel,
   PrimaryHqInfo,
 } from "../../backend.d";
+import LocationAllotmentComponent, {
+  type LocationAllotmentData,
+} from "../../components/LocationAllotment";
 import {
   EMPTY_ALLOTMENT,
   type LocationAllotment,
@@ -52,6 +56,8 @@ import {
   PageHeader,
   PortalLayout,
 } from "../../components/PortalLayout";
+
+import type { RoleLocationState } from "../../components/RoleBasedLocationAllotment";
 import ScrollToBottom from "../../components/ScrollToBottom";
 import { api } from "../../lib/api";
 import { useAuthStore } from "../../store/authStore";
@@ -72,7 +78,12 @@ const ROLE_HQ_LEVEL: Record<string, string> = {
 // Roles that support Location Allotment
 const MANAGER_ROLES_WITH_ALLOTMENT = ["ASM", "RSM", "ZSM"] as const;
 
-const EMPTY_FORM: CreateUserInput = {
+// Local form state uses string fields for controlled inputs; BigInt conversion happens at submit time
+type EmployeeFormState = Omit<CreateUserInput, "reportsTo"> & {
+  reportsTo: string;
+};
+
+const EMPTY_FORM: EmployeeFormState = {
   name: "",
   username: "",
   password: "",
@@ -91,6 +102,7 @@ const EMPTY_FORM: CreateUserInput = {
     pfPercent: 12n,
     esiPercent: 75n,
   },
+  reportsTo: "",
 };
 
 type TabView = "active" | "inactive";
@@ -282,11 +294,24 @@ export default function EmployeeManagement() {
   const [tabView, setTabView] = useState<TabView>("active");
   const [showCreate, setShowCreate] = useState(false);
   const [editUser, setEditUser] = useState<UserInfo | null>(null);
-  const [form, setForm] = useState<CreateUserInput>(EMPTY_FORM);
+  const [form, setForm] = useState<EmployeeFormState>(EMPTY_FORM);
   const [allotment, setAllotment] =
     useState<LocationAllotment>(EMPTY_ALLOTMENT);
   const [saving, setSaving] = useState(false);
   const [allotmentLoading, setAllotmentLoading] = useState(false);
+
+  const [locationState, setLocationState] = useState<RoleLocationState>({
+    territoryIds: [],
+    isValid: false,
+  });
+  const [locationData, setLocationData] = useState<LocationAllotmentData>({});
+  const [managersForRole, setManagersForRole] = useState<UserInfo[]>([]);
+
+  // Location name maps for hierarchy display
+  const [zoneMap, setZoneMap] = useState<Record<string, string>>({});
+  const [stateMap, _setStateMap] = useState<Record<string, string>>({});
+  const [areaMap, setAreaMap] = useState<Record<string, string>>({});
+  const [stationMap, setStationMap] = useState<Record<string, string>>({});
 
   // Primary HQ state
   const [primaryHqId, setPrimaryHqId] = useState("");
@@ -306,6 +331,8 @@ export default function EmployeeManagement() {
   );
   const [activityLogLoading, setActivityLogLoading] = useState(false);
   const [showActivityLog, setShowActivityLog] = useState(false);
+
+  const [modalOpenKey, setModalOpenKey] = useState(0);
 
   const isAdminOrHR =
     session?.role === "Admin" || session?.role === "HRManager";
@@ -328,6 +355,40 @@ export default function EmployeeManagement() {
   }, [load]);
 
   useEffect(() => {
+    if (!session?.token) return;
+    api
+      .listActiveZones(session.token)
+      .then((zones) => {
+        const map: Record<string, string> = {};
+        for (const z of zones) {
+          map[z.id.toString()] = z.name;
+        }
+        setZoneMap(map);
+      })
+      .catch(() => {});
+    api
+      .listAllStations(session.token)
+      .then((stations) => {
+        const map: Record<string, string> = {};
+        for (const s of stations) {
+          map[s.stationId.toString()] = s.stationName;
+        }
+        setStationMap(map);
+      })
+      .catch(() => {});
+    api
+      .listAllAreas(session.token)
+      .then((areas) => {
+        const map: Record<string, string> = {};
+        for (const a of areas) {
+          map[a.id.toString()] = a.name;
+        }
+        setAreaMap(map);
+      })
+      .catch(() => {});
+  }, [session?.token]);
+
+  useEffect(() => {
     let list = employees;
     if (tabView === "active")
       list = list.filter((e) => e.status === UserStatus.Active);
@@ -346,7 +407,20 @@ export default function EmployeeManagement() {
     setSelectedIds(new Set());
   }, [employees, search, roleFilter, tabView]);
 
+  useEffect(() => {
+    if (!session?.token || !form?.role) {
+      setManagersForRole([]);
+      return;
+    }
+    api
+      .listUsersAboveRole(session.token, form.role)
+      .then((result) => setManagersForRole(result || []))
+      .catch(() => setManagersForRole([]));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session?.token, form?.role]);
+
   const openCreate = () => {
+    setModalOpenKey((k) => k + 1);
     setForm(EMPTY_FORM);
     setAllotment(EMPTY_ALLOTMENT);
     setPrimaryHqId("");
@@ -355,6 +429,7 @@ export default function EmployeeManagement() {
   };
 
   const openEdit = (u: UserInfo) => {
+    setModalOpenKey((k) => k + 1);
     setEditUser(u);
     setPrimaryHqId(u.primaryHqId ? String(u.primaryHqId) : "");
     setHqError("");
@@ -364,6 +439,8 @@ export default function EmployeeManagement() {
         (u as UserInfo & { hqAssignments?: HqAssignment[] }).hqAssignments ??
         [];
       setAllotment({ ...EMPTY_ALLOTMENT, hqAssignments });
+      const _firstAssignment = hqAssignments[0];
+      // stationId/hqId/territories are now managed by RoleBasedLocationAllotment
     } else if (
       session &&
       (MANAGER_ROLES_WITH_ALLOTMENT as readonly string[]).includes(u.role)
@@ -410,6 +487,7 @@ export default function EmployeeManagement() {
       role: u.role,
       salary: u.salary,
       dateOfBirth: u.dateOfBirth ?? "",
+      reportsTo: (u as any).reportsTo ?? "",
     });
     if (session) {
       setActivityLogLoading(true);
@@ -457,13 +535,53 @@ export default function EmployeeManagement() {
       const isManagerWithAllotment = (
         MANAGER_ROLES_WITH_ALLOTMENT as readonly string[]
       ).includes(form.role);
-      const hqAssignments =
-        isMR && allotment.hqAssignments.length > 0
-          ? allotment.hqAssignments.filter((b) => b.hqId !== BigInt(0))
-          : undefined;
+
+      // Validate location allotment for field roles
+      if (
+        ["ZSM", "RSM", "ASM", "MR"].includes(form.role) &&
+        !locationState.isValid
+      ) {
+        if (form.role === "ZSM") {
+          toast.error("Please select a Zone for this ZSM.");
+        } else if (form.role === "RSM") {
+          toast.error("Please select a Region for this RSM.");
+        } else if (form.role === "ASM") {
+          toast.error("Please select an Area for this ASM.");
+        } else {
+          toast.error(
+            "Please select a Station and at least one Territory for this MR.",
+          );
+        }
+        return;
+      }
+
+      const hqAssignments: HqAssignment[] | undefined =
+        isMR && locationState.stationId
+          ? [
+              {
+                hqId: locationState.areaId ?? locationState.stationId,
+                stationIds: [locationState.stationId],
+                areaIds: locationState.areaId ? [locationState.areaId] : [],
+                exStationIds: locationState.territoryIds,
+              },
+            ]
+          : isMR && allotment.hqAssignments.length > 0
+            ? allotment.hqAssignments.filter((b) => b.hqId !== BigInt(0))
+            : undefined;
 
       const toBI = (ids: string[]): bigint[] =>
         ids.filter(Boolean).map((id) => BigInt(id));
+
+      // Build zone/region/area ids from locationState for manager roles
+      const locationZoneIds = locationState.zoneId
+        ? [locationState.zoneId]
+        : toBI(allotment.zoneIds);
+      const locationRegionIds = locationState.regionId
+        ? [locationState.regionId]
+        : toBI(allotment.stateIds);
+      const locationAreaIds = locationState.areaId
+        ? [locationState.areaId]
+        : toBI(allotment.areaIds);
 
       if (editUser) {
         const upd: UpdateUserInput = {
@@ -479,13 +597,27 @@ export default function EmployeeManagement() {
           ...(form.dateOfBirth ? { dateOfBirth: form.dateOfBirth } : {}),
           ...(form.password ? { newPassword: form.password } : {}),
           ...(isMR && hqAssignments !== undefined ? { hqAssignments } : {}),
+          ...(isMR && locationState.areaId
+            ? { hqIds: [locationState.areaId], areaIds: [locationState.areaId] }
+            : {}),
+          ...(isMR && locationState.zoneId
+            ? { zoneIds: [locationState.zoneId] }
+            : {}),
+          ...(isMR && locationState.regionId
+            ? { stateIds: [locationState.regionId] }
+            : {}),
+          ...(isMR && locationState.territoryIds?.length > 0
+            ? { territoryIds: locationState.territoryIds }
+            : {}),
           ...(isManagerWithAllotment
             ? {
-                zoneIds: toBI(allotment.zoneIds),
-                stateIds: toBI(allotment.stateIds),
-                hqIds: toBI(allotment.hqIds),
+                zoneIds: locationZoneIds,
+                stateIds: locationRegionIds,
+                hqIds: locationState.areaId
+                  ? [locationState.areaId]
+                  : toBI(allotment.hqIds),
                 territoryIds: toBI(allotment.territoryIds),
-                areaIds: toBI(allotment.areaIds),
+                areaIds: locationAreaIds,
               }
             : {}),
           ...(primaryHqId ? { primaryHqId: BigInt(primaryHqId) } : {}),
@@ -517,18 +649,27 @@ export default function EmployeeManagement() {
         const createInput = {
           ...form,
           ...(isMR && hqAssignments !== undefined ? { hqAssignments } : {}),
+          ...(isMR && locationState.areaId
+            ? { hqIds: [locationState.areaId], areaIds: [locationState.areaId] }
+            : {}),
+          ...(isMR && locationState.zoneId
+            ? { zoneIds: [locationState.zoneId] }
+            : {}),
+          ...(isMR && locationState.regionId
+            ? { stateIds: [locationState.regionId] }
+            : {}),
+          ...(isMR && locationState.territoryIds?.length > 0
+            ? { territoryIds: locationState.territoryIds }
+            : {}),
           ...(isManagerWithAllotment
             ? {
                 zoneIds:
-                  allotment.zoneIds.length > 0
-                    ? toBI(allotment.zoneIds)
-                    : undefined,
+                  locationZoneIds.length > 0 ? locationZoneIds : undefined,
                 stateIds:
-                  allotment.stateIds.length > 0
-                    ? toBI(allotment.stateIds)
-                    : undefined,
-                hqIds:
-                  allotment.hqIds.length > 0
+                  locationRegionIds.length > 0 ? locationRegionIds : undefined,
+                hqIds: locationState.areaId
+                  ? [locationState.areaId]
+                  : allotment.hqIds.length > 0
                     ? toBI(allotment.hqIds)
                     : undefined,
                 territoryIds:
@@ -536,12 +677,11 @@ export default function EmployeeManagement() {
                     ? toBI(allotment.territoryIds)
                     : undefined,
                 areaIds:
-                  allotment.areaIds.length > 0
-                    ? toBI(allotment.areaIds)
-                    : undefined,
+                  locationAreaIds.length > 0 ? locationAreaIds : undefined,
               }
             : {}),
           ...(primaryHqId ? { primaryHqId: BigInt(primaryHqId) } : {}),
+          reportsTo: form.reportsTo ? BigInt(form.reportsTo) : undefined,
         };
         const res = await api.createUser(session.token, createInput);
         if (res.__kind__ === "err") {
@@ -572,6 +712,29 @@ export default function EmployeeManagement() {
     else {
       toast.success("User deactivated");
       await load();
+    }
+  };
+
+  const handleDelete = async (u: UserInfo) => {
+    if (
+      !window.confirm(
+        `Are you sure you want to permanently delete ${u.name}? All their records will be archived. This cannot be undone.`,
+      )
+    )
+      return;
+    try {
+      const res = await api.deleteEmployee(
+        session!.token,
+        (u as UserInfo & { employeeId?: string }).employeeId ?? String(u.id),
+      );
+      if (res.__kind__ === "ok") {
+        toast.success("Employee deleted and all records archived.");
+        load();
+      } else {
+        toast.error(res.err?.message ?? "Failed to delete employee.");
+      }
+    } catch {
+      toast.error("An error occurred while deleting the employee.");
     }
   };
 
@@ -689,7 +852,7 @@ export default function EmployeeManagement() {
     { key: "role", label: "Role" },
     { key: "dept", label: "Dept" },
     { key: "hq", label: "HQ" },
-    { key: "location", label: "Location" },
+    { key: "location", label: "Hierarchy" },
     { key: "status", label: "Status" },
     { key: "actions", label: "Actions", className: "text-right" },
   ];
@@ -871,7 +1034,13 @@ export default function EmployeeManagement() {
                 <HqCell user={u} />
               </td>
               <td className="px-4 py-3">
-                <LocationCell role={u.role} territory={u.territory} />
+                <LocationCell
+                  user={u}
+                  zoneMap={zoneMap}
+                  stateMap={stateMap}
+                  areaMap={areaMap}
+                  stationMap={stationMap}
+                />
               </td>
               <td className="px-4 py-3">
                 <span
@@ -914,6 +1083,18 @@ export default function EmployeeManagement() {
                       title="Reactivate"
                     >
                       <UserCheck className="w-3.5 h-3.5" />
+                    </Button>
+                  )}
+                  {!(session?.role === "HRManager" && u.role === "Admin") && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 text-red-600 hover:text-red-700 hover:bg-red-50"
+                      onClick={() => handleDelete(u)}
+                      data-ocid={`delete-emp-${u.id}`}
+                      title="Delete Employee"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
                     </Button>
                   )}
                 </div>
@@ -1220,6 +1401,7 @@ export default function EmployeeManagement() {
                   onValueChange={(v) => {
                     f("role", v as typeof form.role);
                     setAllotment(EMPTY_ALLOTMENT);
+                    setLocationState({ territoryIds: [], isValid: false });
                     setPrimaryHqId("");
                     setHqError("");
                   }}
@@ -1236,6 +1418,37 @@ export default function EmployeeManagement() {
                   </SelectContent>
                 </Select>
               </div>
+
+              {form.role &&
+                form.role !== "Admin" &&
+                form.role !== "HRManager" && (
+                  <div className="mb-3">
+                    <label
+                      htmlFor="reporting-manager-select"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Reporting Manager
+                    </label>
+                    <select
+                      id="reporting-manager-select"
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                      value={form.reportsTo ?? ""}
+                      onChange={(e) =>
+                        setForm((prev: any) => ({
+                          ...prev,
+                          reportsTo: e.target.value,
+                        }))
+                      }
+                    >
+                      <option value="">Select Reporting Manager</option>
+                      {managersForRole.map((m: UserInfo) => (
+                        <option key={String(m.id)} value={String(m.id)}>
+                          {m.name} ({m.employeeId})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
 
               {/* Primary HQ Selector */}
               <PrimaryHqSelector
@@ -1279,14 +1492,31 @@ export default function EmployeeManagement() {
                           </p>
                         </div>
                       )}
-                    <div className="grid grid-cols-2 gap-3">
-                      <MultiSelectLocationAllotment
-                        token={session?.token ?? ""}
+                    {!["Admin", "HR", "HRManager"].includes(form.role) && (
+                      <LocationAllotmentComponent
                         role={form.role}
-                        value={allotment}
-                        onChange={setAllotment}
+                        reportingManagerId={form.reportsTo || null}
+                        token={session?.token ?? ""}
+                        onChange={(data: LocationAllotmentData) => {
+                          setLocationData(data);
+                          setLocationState({
+                            zoneId: data.zoneIdBI,
+                            zoneName: data.zoneName,
+                            regionId: data.regionIdBI,
+                            regionName: data.regionName,
+                            areaId: data.areaIdBI,
+                            areaName: data.areaName,
+                            stationId: data.stationIdBI,
+                            stationName: data.stationName,
+                            territoryIds: data.territoryIdsBI ?? [],
+                            isValid: data.isValid ?? false,
+                          });
+                        }}
+                        existingData={editUser ? locationData : undefined}
+                        mode={editUser ? "edit" : "create"}
+                        refreshKey={modalOpenKey}
                       />
-                    </div>
+                    )}
                     {hasAllotment && (
                       <p className="mt-2 text-xs text-muted-foreground bg-primary/5 border border-primary/20 rounded px-3 py-1.5 flex items-center gap-1.5">
                         <MapPin className="w-3 h-3 text-primary shrink-0" />
@@ -1385,9 +1615,19 @@ function HqCell({ user }: { user: UserInfo }) {
 
 // ── Location cell helper ────────────────────────────────────────────────────
 function LocationCell({
-  role,
-  territory,
-}: { role: string; territory: string }) {
+  user,
+  zoneMap,
+  stateMap,
+  areaMap,
+  stationMap,
+}: {
+  user: UserInfo & { hqAssignments?: HqAssignment[] };
+  zoneMap: Record<string, string>;
+  stateMap: Record<string, string>;
+  areaMap: Record<string, string>;
+  stationMap: Record<string, string>;
+}) {
+  const role = user.role;
   if (role === Role.HRManager || role === Role.Admin) {
     return (
       <span className="inline-flex items-center gap-1 text-xs bg-primary/10 text-primary rounded-full px-2 py-0.5 font-display">
@@ -1395,30 +1635,39 @@ function LocationCell({
       </span>
     );
   }
-  if (role === Role.ZSM)
-    return (
-      <span className="text-xs text-muted-foreground" title={territory}>
-        Zone → Regions
-      </span>
-    );
-  if (role === Role.RSM)
-    return (
-      <span className="text-xs text-muted-foreground" title={territory}>
-        Region → Areas
-      </span>
-    );
-  if (role === "ASM")
-    return (
-      <span className="text-xs text-muted-foreground" title={territory}>
-        Area → Stations
-      </span>
-    );
+
+  const zoneId = user.zoneIds?.[0]?.toString();
+  const zoneName = zoneId ? zoneMap[zoneId] || zoneId : null;
+  const stateId = user.stateIds?.[0]?.toString();
+  const stateName = stateId ? stateMap[stateId] || stateId : null;
+  const areaId = user.areaIds?.[0]?.toString();
+  const areaName = areaId ? areaMap[areaId] || areaId : null;
+  const stationId = user.hqAssignments?.[0]?.stationIds?.[0]?.toString();
+  const stationName = stationId ? stationMap[stationId] || stationId : null;
+  const territoryId = user.territoryIds?.[0]?.toString();
+  const territoryName = territoryId ? `Territory ${territoryId}` : null;
+
+  let path: string;
+  if (role === Role.ZSM) {
+    path = [zoneName].filter(Boolean).join(" > ") || "—";
+  } else if (role === Role.RSM) {
+    path = [stateName, zoneName].filter(Boolean).join(" > ") || "—";
+  } else if (role === Role.ASM) {
+    path = [areaName, stateName, zoneName].filter(Boolean).join(" > ") || "—";
+  } else {
+    // MR: Territory > Station > Area > Region > Zone
+    path =
+      [territoryName, stationName, areaName, stateName, zoneName]
+        .filter(Boolean)
+        .join(" > ") || "—";
+  }
+
   return (
     <span
-      className="text-xs text-muted-foreground truncate block max-w-[120px]"
-      title={territory}
+      className="text-xs text-muted-foreground truncate block max-w-[200px]"
+      title={path}
     >
-      {territory || "—"}
+      {path}
     </span>
   );
 }

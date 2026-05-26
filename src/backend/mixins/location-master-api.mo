@@ -149,6 +149,15 @@ mixin (
     Lib.listActiveHQsByTerritory(hqs, territoryId)
   };
 
+  /// Alias for `listActiveHQsByTerritory` — returns all active HQ records
+  /// whose territoryId matches the given territoryId (Area level).
+  /// Used by User Management to list Stations under an ASM's Area:
+  /// chain is Territory(Area) → HQ → Station.
+  public query func getActiveHQsByTerritory(token : Text, territoryId : Types.LocationId) : async [Types.HQRecord] {
+    if (not isAuthenticated(token)) { return [] };
+    Lib.listActiveHQsByTerritory(hqs, territoryId)
+  };
+
   // ── Area endpoints ────────────────────────────────────────────────────────
 
   public func addArea(token : Text, input : Types.CreateAreaInput) : async Types.MutationResult {
@@ -271,6 +280,155 @@ mixin (
   public query func listAllStations(token : Text) : async [Types.StationRecord] {
     if (not isAuthenticated(token)) { return [] };
     Lib.listAllStations(stations)
+  };
+
+  /// List Territory records reachable from the given Station via the
+  /// Station → HQ → Territory chain. Returns [territory] if the Territory
+  /// is active, or [] for any missing/inactive step. Authenticated users only.
+  public query func listTerritoriesByStation(token : Text, stationId : Types.LocationId) : async [Types.TerritoryRecord] {
+    if (not isAuthenticated(token)) { return [] };
+    Lib.listTerritoriesByStation(stations, hqs, territories, stationId)
+  };
+
+
+  // ── Alias wrappers for User Management dropdowns (new naming convention) ────
+  // The 6-level hierarchy uses these semantic names:
+  //   Zone → Region (=State) → Area (=Territory) → Station (=HQ) → Territory (=Area)
+
+  /// Alias for listActiveZones — for User Management Zone dropdown.
+  public query func getZones(token : Text) : async [Types.ZoneRecord] {
+    if (not isAuthenticated(token)) { return [] };
+    Lib.listActiveZones(zones)
+  };
+
+  /// Return active Regions under a Zone. Region = State in storage.
+  public query func getRegionsByZone(token : Text, zoneId : Types.LocationId) : async [Types.StateRecord] {
+    if (not isAuthenticated(token)) { return [] };
+    Lib.listActiveStatesByZone(states, zoneId)
+  };
+
+  /// Return active Areas under a Region. Area = Territory in storage; parent = stateId.
+  public query func getAreasByRegion(token : Text, regionId : Types.LocationId) : async [Types.TerritoryRecord] {
+    if (not isAuthenticated(token)) { return [] };
+    Lib.listActiveTerritories(territories, regionId)
+  };
+
+  /// Return active Stations under an Area. Station = HQ in storage; parent = territoryId.
+  public query func getStationsByArea(token : Text, areaId : Types.LocationId) : async [Types.HQRecord] {
+    if (not isAuthenticated(token)) { return [] };
+    Lib.listActiveHQsByTerritory(hqs, areaId)
+  };
+
+  /// Return active Territories under a Station. Territory = Area in storage; parent = hqId.
+  public query func getTerritoriesByStation(token : Text, stationId : Types.LocationId) : async [Types.AreaRecord] {
+    if (not isAuthenticated(token)) { return [] };
+    Lib.listActiveAreasByHQ(areas, stationId)
+  };
+
+  /// Add a Territory under a Station (5th-level "Territory" in the 6-level hierarchy).
+  /// Territory = Area in storage; stationId = hqId in storage.
+  public func addTerritoryToStation(
+    token     : Text,
+    name      : Text,
+    stationId : Types.LocationId,
+  ) : async Types.MutationResult {
+    if (not isAdmin(token)) { return #err("Unauthorized: Admin role required") };
+    Lib.addArea(areas, nextAreaId, { name; hqId = stationId }, Time.now())
+  };
+
+  /// Update a Territory's name (Territory = Area in storage).
+  public func updateTerritoryUnderStation(
+    token       : Text,
+    territoryId : Types.LocationId,
+    name        : Text,
+  ) : async Types.MutationResult {
+    if (not isAdmin(token)) { return #err("Unauthorized: Admin role required") };
+    Lib.updateArea(areas, territoryId, { name = ?name; hqId = null })
+  };
+
+  /// Soft-delete a Territory (Territory = Area in storage).
+  public func deleteTerritoryUnderStation(
+    token       : Text,
+    territoryId : Types.LocationId,
+  ) : async Types.MutationResult {
+    if (not isAdmin(token)) { return #err("Unauthorized: Admin role required") };
+    Lib.deactivateArea(areas, territoryId)
+  };
+
+  // ── Open (no-auth) cascade query functions for dropdown population ──────────
+  // These functions return an empty array for missing/invalid IDs but do NOT
+  // require an auth token. They are safe read-only endpoints intended to
+  // populate Add/Edit Employee location dropdowns before the form has an
+  // active session, or when the token state is being initialised.
+
+  /// All active zones — no auth required. Used by User Management Zone dropdown.
+  public query func listAllZones() : async [Types.ZoneRecord] {
+    Lib.listAllZonesPublic(zones)
+  };
+
+  /// Active regions under a zone — no auth required. regionId = zoneId.
+  public query func listRegionsByZone(zoneId : Types.LocationId) : async [Types.StateRecord] {
+    Lib.listRegionsByZonePublic(states, zoneId)
+  };
+
+  /// Active areas under a region — no auth required. regionId = stateId in storage.
+  public query func listAreasByRegion(regionId : Types.LocationId) : async [Types.TerritoryRecord] {
+    Lib.listAreasByRegionPublic(territories, regionId)
+  };
+
+  /// Active stations under an area — no auth required. areaId = territoryId in storage.
+  public query func listStationsByArea(areaId : Types.LocationId) : async [Types.HQRecord] {
+    Lib.listStationsByAreaPublic(hqs, areaId)
+  };
+
+  /// Active territories under a station — no auth required. stationId = hqId in storage.
+  public query func listTerritoriesForStation(stationId : Types.LocationId) : async [Types.AreaRecord] {
+    Lib.listTerritoriesByStationPublic(areas, stationId)
+  };
+
+  // ── Zone delete (hard deactivate with child-guard) ────────────────────────
+
+  /// Delete (deactivate) a Zone. Blocked if any active child Regions exist.
+  public func deleteZone(token : Text, id : Types.LocationId) : async Types.MutationResult {
+    if (not isAdmin(token)) { return #err("Unauthorized: Admin role required") };
+    // Block if active child states (Regions) exist
+    let childStates = Lib.listActiveStatesByZone(states, id);
+    if (childStates.size() > 0) {
+      return #err("Cannot delete Zone: active Regions exist under it. Delete or deactivate them first.")
+    };
+    Lib.deactivateZone(zones, id)
+  };
+
+  // ── Region (State) CRUD wrappers ───────────────────────────────────────────
+
+  /// Add a Region under a Zone. Region = State in storage.
+  public func addRegion(
+    token  : Text,
+    name   : Text,
+    zoneId : Types.LocationId,
+  ) : async Types.MutationResult {
+    if (not isAdmin(token)) { return #err("Unauthorized: Admin role required") };
+    Lib.addState(states, nextStateId, { name; zoneId }, Time.now())
+  };
+
+  /// Update a Region's name. Region = State in storage.
+  public func updateRegion(
+    token  : Text,
+    id     : Types.LocationId,
+    name   : Text,
+  ) : async Types.MutationResult {
+    if (not isAdmin(token)) { return #err("Unauthorized: Admin role required") };
+    Lib.updateState(states, id, { name = ?name; zoneId = null })
+  };
+
+  /// Delete (deactivate) a Region. Blocked if active child Areas exist.
+  public func deleteRegion(token : Text, id : Types.LocationId) : async Types.MutationResult {
+    if (not isAdmin(token)) { return #err("Unauthorized: Admin role required") };
+    let childAreas = Lib.listActiveTerritories(territories, id);
+    if (childAreas.size() > 0) {
+      return #err("Cannot delete Region: active Areas exist under it. Delete or deactivate them first.")
+    };
+    Lib.deactivateState(states, id)
   };
 
   // ── Bulk Station Import ────────────────────────────────────────────────────

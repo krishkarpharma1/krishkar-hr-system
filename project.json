@@ -1,26 +1,22 @@
 {
-  "overview": "Krishkar Pharmaceuticals SFA — a comprehensive Sales Force Automation platform for pharmaceutical field teams. Includes 6 role-based portals (MR, ASM, RSM, ZSM, HR, Admin) with complete field activity management, order tracking, sample management, and HR workflows.",
+  "overview": "Krishkar Pharmaceuticals SFA — comprehensive sales force automation platform with Excel export across all Admin Portal data tables and reports.",
   "features": [
-    "Role-based portals for MR, ASM, RSM, ZSM, HR, and Admin",
-    "Daily Call Reports with GPS enforcement and auto-checkout",
-    "Monthly Tour Plan with bulk upload and station selection",
-    "Order Management with distributor tracking and credit check",
-    "E-Detailing product catalog with PDF downloads and usage metrics",
-    "Sample issuance and return tracking with compliance ledger",
-    "Visit Frequency Planner with tier-based compliance tracking",
-    "Leave management with EL, Field Leave, and full approval workflow",
-    "Official Letters with company letterhead PDF generation",
-    "Compact PDF exports with company branding across all portals"
+    "Export to Excel from 14 Admin Portal modules",
+    "Company-branded Excel files with title, filters, and footer rows",
+    "Filtered data export with active filter summary",
+    "Bulk Export: multi-sheet .xlsx for multiple reports in one click",
+    "Audit Trail logging for every export action",
+    "IST timestamps in all exported files",
+    "Automated browser download on export completion"
   ],
-  "category": "productivity",
+  "category": "enterprise-app",
   "tags": [
     "pharma",
     "sfa",
-    "sales-force",
-    "field-management",
     "hr",
-    "gps",
-    "crm"
+    "excel-export",
+    "admin-portal",
+    "reporting"
   ],
-  "last_updated": "2026-05-05T20:45:36.465Z"
+  "last_updated": "2026-05-23T15:40:29.634Z"
 }

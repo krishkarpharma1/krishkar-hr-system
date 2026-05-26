@@ -180,6 +180,41 @@ mixin (
     }
   };
 
+  /// Return all active users whose role rank is strictly above the given role.
+  /// Intended for the Reporting Manager dropdown in User Management:
+  /// only employees of a higher rank than the employee being created/edited
+  /// should be selectable as reporting managers.
+  /// Admin and HRManager only.
+  public query func listUsersAboveRole(token : Text, targetRole : Types.Role) : async [Types.UserInfo] {
+    switch (Lib.peekSession(sessions, token, Time.now())) {
+      case null { [] };
+      case (?session) {
+        switch (session.role) {
+          case (#Admin or #HRManager) {
+            Lib.listUsersAboveRole(users, userDobMap, targetRole)
+          };
+          case _ { [] };
+        }
+      };
+    }
+  };
+
+  /// Alias for listUsersAboveRole — returns active users whose role rank is
+  /// strictly above `targetRole`. Used by User Management reporting manager dropdown.
+  public query func getUsersWithHigherRole(token : Text, targetRole : Types.Role) : async [Types.UserInfo] {
+    switch (Lib.peekSession(sessions, token, Time.now())) {
+      case null { [] };
+      case (?session) {
+        switch (session.role) {
+          case (#Admin or #HRManager) {
+            Lib.listUsersAboveRole(users, userDobMap, targetRole)
+          };
+          case _ { [] };
+        }
+      };
+    }
+  };
+
   /// List users in a given territory.
   public query func listUsersByTerritory(token : Text, territory : Text) : async [Types.UserInfo] {
     switch (Lib.peekSession(sessions, token, Time.now())) {

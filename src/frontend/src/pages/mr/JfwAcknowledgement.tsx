@@ -326,7 +326,6 @@ export default function JfwAcknowledgement() {
                                 {jfw.doctorsJointlyVisited.length > 0 ? (
                                   <ul className="space-y-0.5">
                                     {jfw.doctorsJointlyVisited.map((d, i) => (
-                                      // biome-ignore lint/suspicious/noArrayIndexKey: static data keyed by position
                                       <li key={i} className="text-foreground">
                                         {d.name}
                                         {d.station ? (

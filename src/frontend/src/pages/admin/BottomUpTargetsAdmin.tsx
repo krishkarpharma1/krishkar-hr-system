@@ -1030,7 +1030,6 @@ function SummaryReportTab() {
                 (["sk0", "sk1", "sk2"] as const).map((sk) => (
                   <tr key={sk} className="border-b border-border">
                     {Array.from({ length: 10 }).map((_, j) => (
-                      // biome-ignore lint/suspicious/noArrayIndexKey: skeleton only
                       <td key={j} className="px-3 py-2.5">
                         <div className="h-4 bg-muted rounded animate-pulse" />
                       </td>
@@ -1050,7 +1049,6 @@ function SummaryReportTab() {
                 <>
                   {rows.map((row, i) => (
                     <tr
-                      // biome-ignore lint/suspicious/noArrayIndexKey: summary rows have no stable id
                       key={i}
                       className="border-b border-border last:border-0 hover:bg-muted/20 transition-colors"
                       data-ocid={`summary-row-${i}`}

@@ -288,7 +288,6 @@ export default function TargetAdjustmentHistory({
                   [1, 2, 3].map((i) => (
                     <tr key={i} className="border-b border-border">
                       {Array.from({ length: 10 }).map((_, j) => (
-                        // biome-ignore lint/suspicious/noArrayIndexKey: skeleton
                         <td key={j} className="px-3 py-2.5">
                           <div className="h-4 bg-muted rounded animate-pulse" />
                         </td>

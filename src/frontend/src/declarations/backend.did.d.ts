@@ -153,6 +153,7 @@ export interface AssignProductsInput {
 export interface AttendanceCheckIn {
   'status' : CheckInStatus,
   'gpsCoord' : GpsCoord,
+  'wasAutoCheckedOut' : boolean,
   'userId' : UserId,
   'date' : string,
   'distance' : number,
@@ -979,6 +980,17 @@ export interface EmployeeAdvance {
   'amountRecovered' : number,
   'reason' : string,
 }
+export interface EmployeeDeletionAuditEntry {
+  'dataArchivedSummary' : string,
+  'deletedEmployeeName' : string,
+  'deletedEmployeeId' : string,
+  'deletedByUserId' : string,
+  'deletedAt' : bigint,
+}
+export type EmployeeDeletionResult = {
+    'ok' : { 'employeeId' : string, 'archivedAt' : bigint }
+  } |
+  { 'err' : { 'code' : string, 'message' : string } };
 export interface EmployeeDocument {
   'id' : bigint,
   'documentType' : DocumentType,
@@ -2449,12 +2461,17 @@ export interface _SERVICE {
     MutationResult
   >,
   'addProduct' : ActorMethod<[CreateProductInput], ProductId>,
+  'addRegion' : ActorMethod<[string, string, LocationId], MutationResult>,
   'addState' : ActorMethod<[string, CreateStateInput], MutationResult>,
   'addSuggestionReply' : ActorMethod<
     [string, AddSuggestionReplyInput],
     MutationResult
   >,
   'addTerritory' : ActorMethod<[string, CreateTerritoryInput], MutationResult>,
+  'addTerritoryToStation' : ActorMethod<
+    [string, string, LocationId],
+    MutationResult
+  >,
   'addZone' : ActorMethod<[string, CreateZoneInput], MutationResult>,
   'adminSeed' : ActorMethod<[], MutationResult>,
   'allocateSamplesToMR' : ActorMethod<
@@ -2684,6 +2701,7 @@ export interface _SERVICE {
   'deleteDoctor' : ActorMethod<[string, bigint], boolean>,
   'deleteDoctors' : ActorMethod<[string, Array<bigint>], BulkDeleteResult>,
   'deleteDocument' : ActorMethod<[string, bigint], MutationResult>,
+  'deleteEmployee' : ActorMethod<[string, string], EmployeeDeletionResult>,
   'deleteGiftArticle' : ActorMethod<
     [string, GiftArticleId],
     { 'ok' : null } |
@@ -2699,12 +2717,18 @@ export interface _SERVICE {
     [string, PricelistProductId],
     MutationResult
   >,
+  'deleteRegion' : ActorMethod<[string, LocationId], MutationResult>,
   'deleteStation' : ActorMethod<[string, LocationId], boolean>,
   'deleteTaDaGrade' : ActorMethod<
     [string, string],
     { 'ok' : null } |
       { 'err' : string }
   >,
+  'deleteTerritoryUnderStation' : ActorMethod<
+    [string, LocationId],
+    MutationResult
+  >,
+  'deleteZone' : ActorMethod<[string, LocationId], MutationResult>,
   'dismissMissedVisitAlert' : ActorMethod<
     [string, bigint, bigint],
     { 'ok' : null } |
@@ -2790,6 +2814,10 @@ export interface _SERVICE {
     [string, UserId],
     Array<AdditionalCharge>
   >,
+  'getActiveHQsByTerritory' : ActorMethod<
+    [string, LocationId],
+    Array<HQRecord>
+  >,
   'getActiveHolidays' : ActorMethod<[string], Array<CompanyHoliday>>,
   'getAdminEmail' : ActorMethod<[string], [] | [string]>,
   'getAdvancesByEmployee' : ActorMethod<[string], Array<EmployeeAdvance>>,
@@ -2847,6 +2875,10 @@ export interface _SERVICE {
   'getApprovedTaDaForMonth' : ActorMethod<
     [string, bigint, bigint, bigint],
     TaDaTotals
+  >,
+  'getAreasByRegion' : ActorMethod<
+    [string, LocationId],
+    Array<TerritoryRecord>
   >,
   'getAttendanceSummaryForEmployee' : ActorMethod<
     [string, bigint, bigint, bigint],
@@ -2948,6 +2980,11 @@ export interface _SERVICE {
   'getDcrUnsubmittedMRs' : ActorMethod<
     [string, string],
     { 'ok' : Array<bigint> } |
+      { 'err' : string }
+  >,
+  'getDeletedEmployeesLog' : ActorMethod<
+    [string],
+    { 'ok' : Array<EmployeeDeletionAuditEntry> } |
       { 'err' : string }
   >,
   'getDoctor' : ActorMethod<[DoctorId], [] | [DoctorInfo]>,
@@ -3312,6 +3349,7 @@ export interface _SERVICE {
   >,
   'getProduct' : ActorMethod<[ProductId], [] | [ProductInfo]>,
   'getReactivationLog' : ActorMethod<[string], Array<ReactivationLogEntry>>,
+  'getRegionsByZone' : ActorMethod<[string, LocationId], Array<StateRecord>>,
   'getRepairHistory' : ActorMethod<[string, bigint], Array<RepairLog>>,
   'getReporteeLocations' : ActorMethod<[string], Array<LocationRecord>>,
   'getRoleHierarchyConfig' : ActorMethod<[string], RoleHierarchyConfig>,
@@ -3334,6 +3372,7 @@ export interface _SERVICE {
     { 'ok' : SfaReminderSettings } |
       { 'err' : string }
   >,
+  'getStationsByArea' : ActorMethod<[string, LocationId], Array<HQRecord>>,
   'getStationsByMR' : ActorMethod<
     [string, bigint],
     { 'ok' : Array<string> } |
@@ -3400,6 +3439,10 @@ export interface _SERVICE {
     [string, bigint, bigint],
     Array<WorkingStyleRecord>
   >,
+  'getTerritoriesByStation' : ActorMethod<
+    [string, LocationId],
+    Array<AreaRecord>
+  >,
   'getTerritoryCoverage' : ActorMethod<[string, string], TerritoryCoverage>,
   'getTodayWorkingStyle' : ActorMethod<[string], [] | [WorkingStyleRecord]>,
   'getTrailWithDoctorCalls' : ActorMethod<
@@ -3432,6 +3475,7 @@ export interface _SERVICE {
     [string, UserId],
     [] | [UserLocationAllotment]
   >,
+  'getUsersWithHigherRole' : ActorMethod<[string, Role], Array<UserInfo>>,
   'getWeeklyTaDaSummaryByRole' : ActorMethod<
     [bigint, bigint],
     Array<TaDaExpense>
@@ -3440,6 +3484,7 @@ export interface _SERVICE {
     [string, bigint, bigint],
     Array<WorkingStyleRecord>
   >,
+  'getZones' : ActorMethod<[string], Array<ZoneRecord>>,
   'hasUserSeenMessageToday' : ActorMethod<[string, string, string], boolean>,
   'isHoliday' : ActorMethod<[string, bigint], boolean>,
   'listActiveAreasByHQ' : ActorMethod<[string, LocationId], Array<AreaRecord>>,
@@ -3487,7 +3532,9 @@ export interface _SERVICE {
     Array<TravelPlanInfo>
   >,
   'listAllUsers' : ActorMethod<[string], Array<UserInfo>>,
+  'listAllZones' : ActorMethod<[], Array<ZoneRecord>>,
   'listAreasByHQ' : ActorMethod<[string, LocationId], Array<AreaRecord>>,
+  'listAreasByRegion' : ActorMethod<[LocationId], Array<TerritoryRecord>>,
   'listCallReportsByMr' : ActorMethod<
     [string, UserId, bigint, bigint],
     { 'ok' : Array<CallReportDetail> } |
@@ -3569,6 +3616,7 @@ export interface _SERVICE {
   'listOrdersByChemist' : ActorMethod<[ChemistId], Array<ChemistOrderInfo>>,
   'listPricelistProducts' : ActorMethod<[string], Array<PricelistProductInfo>>,
   'listProducts' : ActorMethod<[], Array<ProductInfo>>,
+  'listRegionsByZone' : ActorMethod<[LocationId], Array<StateRecord>>,
   'listReportees' : ActorMethod<[string, UserId], Array<UserInfo>>,
   'listSecondarySales' : ActorMethod<
     [string, SecondarySaleFilter],
@@ -3579,6 +3627,7 @@ export interface _SERVICE {
     [string],
     Array<BulkStationImportResult>
   >,
+  'listStationsByArea' : ActorMethod<[LocationId], Array<HQRecord>>,
   'listStationsByHQ' : ActorMethod<[string, LocationId], Array<StationRecord>>,
   'listStockists' : ActorMethod<
     [string, StockistFilter],
@@ -3602,6 +3651,12 @@ export interface _SERVICE {
     [string, LocationId],
     Array<TerritoryRecord>
   >,
+  'listTerritoriesByStation' : ActorMethod<
+    [string, LocationId],
+    Array<TerritoryRecord>
+  >,
+  'listTerritoriesForStation' : ActorMethod<[LocationId], Array<AreaRecord>>,
+  'listUsersAboveRole' : ActorMethod<[string, Role], Array<UserInfo>>,
   'listUsersByRole' : ActorMethod<[string, Role], Array<UserInfo>>,
   'listUsersByTerritory' : ActorMethod<[string, string], Array<UserInfo>>,
   'listUsersWithAllotments' : ActorMethod<
@@ -3973,6 +4028,7 @@ export interface _SERVICE {
     ],
     MutationResult
   >,
+  'updateRegion' : ActorMethod<[string, LocationId, string], MutationResult>,
   'updateState' : ActorMethod<
     [string, LocationId, UpdateStateInput],
     MutationResult
@@ -3992,6 +4048,10 @@ export interface _SERVICE {
   >,
   'updateTerritory' : ActorMethod<
     [string, LocationId, UpdateTerritoryInput],
+    MutationResult
+  >,
+  'updateTerritoryUnderStation' : ActorMethod<
+    [string, LocationId, string],
     MutationResult
   >,
   'updateTravelPlan' : ActorMethod<

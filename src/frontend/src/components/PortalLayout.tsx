@@ -61,11 +61,11 @@ export function PortalLayout({
             <Menu className="w-5 h-5" />
           </button>
           <div className="flex items-center gap-2.5 flex-1 min-w-0">
-            <div className="w-7 h-7 bg-primary rounded-md flex items-center justify-center flex-shrink-0 shadow-xs">
-              <span className="text-primary-foreground font-display font-bold text-[10px]">
-                KP
-              </span>
-            </div>
+            <img
+              src="/assets/krishkar_logo.png"
+              alt="Krishkar Pharmaceuticals"
+              className="h-10 w-auto object-contain flex-shrink-0"
+            />
             <span className="font-display font-semibold text-sm text-foreground truncate">
               Krishkar Pharma
             </span>

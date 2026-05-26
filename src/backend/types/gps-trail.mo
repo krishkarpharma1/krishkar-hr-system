@@ -38,8 +38,9 @@ module {
     distance        : Float;         // distance in km to nearest assigned location
     status          : CheckInStatus;
     recordedAt      : Timestamp;
-    checkOutTime    : ?Timestamp;    // set when the employee checks out
-    checkOutGps     : ?GpsCoord;     // GPS coord at check-out time (if provided)
+    checkOutTime      : ?Timestamp;  // set when the employee checks out
+    checkOutGps       : ?GpsCoord;   // GPS coord at check-out time (if provided)
+    wasAutoCheckedOut : Bool;        // true when auto-checkout fired at 9 PM
   };
 
   public type MutationResult = CommonTypes.MutationResult;

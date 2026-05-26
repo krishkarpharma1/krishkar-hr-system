@@ -305,7 +305,7 @@ module {
     checkIns.mapInPlace(func(ci : GpsTypes.AttendanceCheckIn) : GpsTypes.AttendanceCheckIn {
       if (ci.userId == userId and ci.date == date and ci.checkOutTime == null) {
         found := true;
-        { ci with checkOutTime = ?checkOutTs }
+        { ci with checkOutTime = ?checkOutTs; wasAutoCheckedOut = true }
       } else { ci }
     });
     found

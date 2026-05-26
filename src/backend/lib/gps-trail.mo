@@ -159,6 +159,7 @@ module {
       recordedAt      = now;
       checkOutTime    = null;
       checkOutGps     = null;
+      wasAutoCheckedOut = false;
     };
     checkIns.add(record);
     #ok(record)

@@ -548,6 +548,74 @@ module {
     result.toArray()
   };
 
+  /// Traverse Station → HQ → Territory to return the Territory records
+  /// associated with a given Station.
+  /// Chain: StationRecord.hqId → HQRecord.territoryId → TerritoryRecord.
+  /// Returns [territory] if the Territory is active, otherwise [].
+  public func listTerritoriesByStation(
+    stations    : Map.Map<LocationId, StationRecord>,
+    hqs         : Map.Map<LocationId, HQRecord>,
+    territories : Map.Map<LocationId, TerritoryRecord>,
+    stationId   : LocationId,
+  ) : [TerritoryRecord] {
+    // Step 1: look up the Station to get its hqId
+    let hqId = switch (stations.get(stationId)) {
+      case null { return [] };
+      case (?s) { s.hqId };
+    };
+    // Step 2: look up the HQ to get its territoryId
+    let territoryId = switch (hqs.get(hqId)) {
+      case null { return [] };
+      case (?h) { h.territoryId };
+    };
+    // Step 3: look up the Territory and check isActive
+    switch (territories.get(territoryId)) {
+      case null { [] };
+      case (?t) {
+        if (t.isActive) { [t] } else { [] }
+      };
+    }
+  };
+
+  // ── No-auth cascade helpers (for dropdown population without token) ─────────
+
+  /// Return all active zones (no auth required — for dropdown population).
+  public func listAllZonesPublic(zones : Map.Map<LocationId, ZoneRecord>) : [ZoneRecord] {
+    listActiveZones(zones)
+  };
+
+  /// Return active Regions (States) under a Zone (no auth required).
+  public func listRegionsByZonePublic(
+    states : Map.Map<LocationId, StateRecord>,
+    zoneId : LocationId,
+  ) : [StateRecord] {
+    listActiveStatesByZone(states, zoneId)
+  };
+
+  /// Return active Areas (Territories) under a Region/State (no auth required).
+  public func listAreasByRegionPublic(
+    territories : Map.Map<LocationId, TerritoryRecord>,
+    regionId    : LocationId,
+  ) : [TerritoryRecord] {
+    listActiveTerritories(territories, regionId)
+  };
+
+  /// Return active Stations (HQs) under an Area/Territory (no auth required).
+  public func listStationsByAreaPublic(
+    hqs    : Map.Map<LocationId, HQRecord>,
+    areaId : LocationId,
+  ) : [HQRecord] {
+    listActiveHQsByTerritory(hqs, areaId)
+  };
+
+  /// Return active Territories (Areas) under a Station/HQ (no auth required).
+  public func listTerritoriesByStationPublic(
+    areas     : Map.Map<LocationId, AreaRecord>,
+    stationId : LocationId,
+  ) : [AreaRecord] {
+    listActiveAreasByHQ(areas, stationId)
+  };
+
   // ── Bulk Station Import ────────────────────────────────────────────────────
 
   /// Bulk-import stations from an array of (stationName, hqName) rows.

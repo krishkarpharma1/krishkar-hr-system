@@ -123,11 +123,11 @@ export default function LoginPage() {
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header bar */}
       <header className="bg-card border-b border-border px-6 py-3 flex items-center gap-3">
-        <div className="w-7 h-7 bg-primary rounded flex items-center justify-center">
-          <span className="text-primary-foreground font-display font-bold text-xs">
-            KP
-          </span>
-        </div>
+        <img
+          src="/assets/krishkar_logo.png"
+          alt="Krishkar Pharmaceuticals"
+          className="h-11 md:h-14 w-auto object-contain flex-shrink-0"
+        />
         <span className="font-display font-semibold text-foreground tracking-wide text-sm uppercase">
           Krishkar Pharmaceuticals
         </span>
@@ -138,11 +138,15 @@ export default function LoginPage() {
         <div className="w-full max-w-sm">
           {/* Brand block */}
           <div className="mb-8 text-center">
-            <div className="w-14 h-14 bg-primary/10 border border-primary/30 rounded-lg flex items-center justify-center mx-auto mb-4">
-              <Lock className="w-6 h-6 text-primary" />
+            <div className="flex items-center justify-center mb-4">
+              <img
+                src="/assets/krishkar_logo.png"
+                alt="Krishkar Pharmaceuticals"
+                className="h-14 md:h-16 w-auto object-contain"
+              />
             </div>
             <h1 className="font-display font-bold text-2xl text-foreground tracking-tight">
-              HR Portal Login
+              SFA Portal Login
             </h1>
             <p className="text-muted-foreground text-sm mt-1">
               Use credentials assigned by your Admin or HR Manager

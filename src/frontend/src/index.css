@@ -93,11 +93,20 @@
     text-size-adjust: 100%;
     color-scheme: light;
     scroll-behavior: smooth;
+    /* Prevent colored flash on Android PWA launch */
+    background-color: #ffffff;
   }
 
   body {
     @apply bg-background text-foreground font-body antialiased;
     overscroll-behavior: none;
+    min-height: 100dvh;
+    /* Ensure white background during PWA app load on Android */
+    background-color: #ffffff;
+  }
+
+  #root {
+    background-color: #ffffff;
     min-height: 100dvh;
   }
 

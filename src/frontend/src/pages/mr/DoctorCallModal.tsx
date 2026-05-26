@@ -44,18 +44,24 @@ import { toast } from "sonner";
 import { WorkType, WorkingMode, WorkingStationSource } from "../../backend";
 import type { WorkingStationSource__1 } from "../../backend.d";
 import ScrollToBottom from "../../components/ScrollToBottom";
+import { useConnectivity } from "../../hooks/useConnectivity";
 import {
   GPS_ACCURACY_THRESHOLD_M,
   GPS_ACCURACY_WEAK_MAX_M,
-  type GpsAccuracyStatus,
   computeAccuracyStatus,
   getGpsCoords,
   isGpsRequired,
   isMobileDevice,
   useGps,
+  useGpsStore,
 } from "../../hooks/useGps";
+import type { GpsAccuracyStatus } from "../../hooks/useGps";
 import { api } from "../../lib/api";
 import { useAuthStore } from "../../store/authStore";
+import {
+  addOfflineDcrRecord,
+  useOfflineDcrQueue,
+} from "../../store/offlineDcrQueue";
 import type {
   CallReportInfo,
   DoctorInfo,
@@ -867,6 +873,8 @@ export default function DoctorCallModal({ open, onOpenChange }: Props) {
     refreshGps,
   } = useGps();
   const { buildMailto } = useAttachmentMailto();
+  const { isOnline } = useConnectivity();
+  const refreshPendingCount = useOfflineDcrQueue((s) => s.refreshPendingCount);
 
   // ── GPS enforcement state ─────────────────────────────────────────────────
   const [gpsEnforcementEnabled, setGpsEnforcementEnabled] = useState<
@@ -1096,9 +1104,68 @@ export default function DoctorCallModal({ open, onOpenChange }: Props) {
       api.getAllActiveHQs(session.token),
       api.listGiftArticles(session.token),
     ])
-      .then(([p, records, hqList, gifts]) => {
+      .then(async ([p, records, hqList, gifts]) => {
         setProducts(p);
-        setStationRecords(records);
+
+        let resolvedRecords = records;
+
+        // Fallback: if getStationsByMRHqAssignments returned nothing, try direct user profile lookup
+        if (!resolvedRecords || resolvedRecords.length === 0) {
+          try {
+            const userInfo = await api
+              .getUser(session.token, session.userId)
+              .catch(() => null);
+            const userTyped = userInfo as {
+              primaryHqId?: bigint | number | null;
+              hqAssignments?: { stationIds?: (bigint | number)[] }[];
+            } | null;
+            if (userTyped) {
+              // Try primaryHqId first
+              if (userTyped.primaryHqId != null) {
+                const primaryHqId =
+                  typeof userTyped.primaryHqId === "bigint"
+                    ? userTyped.primaryHqId
+                    : BigInt(userTyped.primaryHqId as number);
+                const hqStations = await api
+                  .listStationsByHQ(session.token, primaryHqId)
+                  .catch(() => []);
+                if (hqStations && hqStations.length > 0) {
+                  resolvedRecords = hqStations;
+                }
+              }
+              // Also try hqAssignments[].stationIds if still empty
+              if (
+                resolvedRecords.length === 0 &&
+                userTyped.hqAssignments &&
+                userTyped.hqAssignments.length > 0
+              ) {
+                const allHqStations = await Promise.all(
+                  userTyped.hqAssignments.map((assignment) =>
+                    Promise.all(
+                      (assignment.stationIds ?? []).map((sid) => {
+                        const stationId =
+                          typeof sid === "bigint" ? sid : BigInt(sid as number);
+                        return api
+                          .listStationsByHQ(session.token, stationId)
+                          .catch(() => []);
+                      }),
+                    ).then((results) => results.flat()),
+                  ),
+                ).then((results) => results.flat());
+                if (allHqStations.length > 0) {
+                  resolvedRecords = allHqStations;
+                }
+              }
+            }
+          } catch (e) {
+            console.error(
+              "[DoctorCallModal] Fallback station lookup failed:",
+              e,
+            );
+          }
+        }
+
+        setStationRecords(resolvedRecords);
         const map = new Map<string, string>();
         for (const hq of hqList) map.set(String(hq.id), hq.name);
         setHqNameMap(map);
@@ -1493,39 +1560,6 @@ export default function DoctorCallModal({ open, onOpenChange }: Props) {
     gpsBlocksSubmission ||
     gpsStatus === "fetching";
 
-  function waitForGps(
-    maxMs: number,
-  ): Promise<{ lat: number; lng: number; accuracy: number | null } | null> {
-    return new Promise((resolve) => {
-      const current = getGpsCoords();
-      if (current) {
-        resolve({
-          lat: current.lat,
-          lng: current.lng,
-          accuracy: current.accuracy,
-        });
-        return;
-      }
-      const start = Date.now();
-      const interval = setInterval(() => {
-        const coords = getGpsCoords();
-        if (coords) {
-          clearInterval(interval);
-          resolve({
-            lat: coords.lat,
-            lng: coords.lng,
-            accuracy: coords.accuracy,
-          });
-          return;
-        }
-        if (Date.now() - start >= maxMs) {
-          clearInterval(interval);
-          resolve(null);
-        }
-      }, 200);
-    });
-  }
-
   async function handleAttachment() {
     const doctorName = selectedDoctor?.name ?? visit.doctorId?.toString() ?? "";
     const userInfo = session
@@ -1594,20 +1628,44 @@ export default function DoctorCallModal({ open, onOpenChange }: Props) {
       }
     }
 
-    const rawCoords = getGpsCoords();
-    let resolvedLat: number | null = rawCoords?.lat ?? null;
-    let resolvedLng: number | null = rawCoords?.lng ?? null;
-    let resolvedAccuracy: number | null = rawCoords?.accuracy ?? null;
+    // ── Fresh pinpoint GPS capture at the exact moment of submission ──────
+    setWaitingForGps(true);
+    const freshCoords = await new Promise<{
+      lat: number;
+      lng: number;
+      accuracy: number | null;
+    } | null>((resolve) => {
+      if (!navigator.geolocation) {
+        resolve(null);
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          resolve({
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude,
+            accuracy: pos.coords.accuracy ?? null,
+          });
+        },
+        () => resolve(null),
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 },
+      );
+    });
+    setWaitingForGps(false);
 
-    if (resolvedLat === null) {
-      if (!gpsLoading) refreshGps();
-      setWaitingForGps(true);
-      const waited = await waitForGps(10_000);
-      setWaitingForGps(false);
-      resolvedLat = waited?.lat ?? null;
-      resolvedLng = waited?.lng ?? null;
-      resolvedAccuracy = waited?.accuracy ?? null;
+    // Update the shared GPS store so the accuracy badge re-renders
+    if (freshCoords) {
+      useGpsStore.getState().setCoords({
+        lat: freshCoords.lat,
+        lng: freshCoords.lng,
+        accuracy: freshCoords.accuracy,
+        timestamp: Date.now(),
+      });
     }
+
+    let resolvedLat: number | null = freshCoords?.lat ?? null;
+    let resolvedLng: number | null = freshCoords?.lng ?? null;
+    let resolvedAccuracy: number | null = freshCoords?.accuracy ?? null;
     const hasGps = resolvedLat !== null && resolvedLng !== null;
 
     if (gpsEnforcementEnabled !== false && !gpsOverrideActive) {
@@ -1709,11 +1767,51 @@ export default function DoctorCallModal({ open, onOpenChange }: Props) {
       const msg = err instanceof Error ? err.message : String(err);
       console.error("Doctor call save failed:", err);
       if (
+        msg.toLowerCase().includes("unauthorized") ||
         msg.toLowerCase().includes("session") ||
-        msg.toLowerCase().includes("unauthorized")
-      )
+        msg.toLowerCase().includes("not authenticated")
+      ) {
         toast.error("Session expired. Please log in again.");
-      else toast.error("Failed to save visit. Please try again.");
+      } else {
+        const isNetworkError =
+          !isOnline ||
+          (err instanceof Error &&
+            (err.message.includes("fetch") ||
+              err.message.includes("network") ||
+              err.message.toLowerCase().includes("failed to fetch")));
+        if (isNetworkError) {
+          const istTimestamp = new Date().toLocaleString("en-IN", {
+            timeZone: "Asia/Kolkata",
+          });
+          const offlineSession = useAuthStore.getState().session;
+          await addOfflineDcrRecord({
+            mrId: offlineSession?.userId?.toString() ?? "",
+            mrName: offlineSession?.name ?? "",
+            timestamp: istTimestamp,
+            doctorName: "",
+            specialty: "",
+            clinicHospital: "",
+            visitOutcome: "",
+            productsDetailed: [],
+            samplesGiven: [],
+            nextAction: "",
+            followUpDate: "",
+            gpsLat: gpsCoords?.lat ?? null,
+            gpsLng: gpsCoords?.lng ?? null,
+            gpsAccuracy: gpsCoords?.accuracy ?? null,
+            territory: "",
+            station: visit.selectedDoctorStation ?? "",
+            rawFormData: visit,
+          });
+          await refreshPendingCount();
+          toast.success(
+            "No internet connection. Your doctor call has been saved offline and will sync automatically when you are back online.",
+            { duration: 5000 },
+          );
+        } else {
+          toast.error("Failed to save visit. Please try again.");
+        }
+      }
     } finally {
       setSaving(false);
     }
@@ -2346,6 +2444,16 @@ export default function DoctorCallModal({ open, onOpenChange }: Props) {
                   Cancel
                 </Button>
               </div>
+              {/* GPS accuracy badge — shown once coords are known */}
+              {gpsCoords && (
+                <span
+                  className="text-xs text-green-600 font-medium flex items-center gap-1"
+                  data-ocid="doctor-call-gps-accuracy-badge"
+                >
+                  <MapPin className="w-3 h-3" />
+                  GPS: ±{Math.round(gpsCoords.accuracy ?? 0)}m
+                </span>
+              )}
               {gpsBlocksSubmission && !gpsOverrideActive && (
                 <p
                   className="text-xs text-muted-foreground flex items-start gap-1.5"

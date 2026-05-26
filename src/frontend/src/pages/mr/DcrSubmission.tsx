@@ -29,6 +29,7 @@ import {
   handleSessionError,
 } from "../../lib/sessionErrorHandler";
 import { useAuthStore } from "../../store/authStore";
+import { useOfflineDcrQueue } from "../../store/offlineDcrQueue";
 import { useAttachmentMailto } from "../../utils/attachmentMailto";
 import { formatDate, formatDateTime } from "../../utils/dateFormatter";
 
@@ -411,6 +412,7 @@ export default function DcrSubmission() {
   const session = useAuthStore((s) => s.session);
   const { coords: gpsCoords, loading: gpsLoading, refreshGps } = useGps();
   const { buildMailto } = useAttachmentMailto();
+  const pendingCount = useOfflineDcrQueue((s) => s.pendingCount);
 
   const today = new Date().toISOString().slice(0, 10);
 
@@ -903,6 +905,12 @@ export default function DcrSubmission() {
             <h2 className="font-display font-semibold text-sm text-foreground">
               DCR History
             </h2>
+            {pendingCount > 0 && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-700 border border-amber-200">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                {pendingCount} pending sync
+              </span>
+            )}
             <div className="flex items-center gap-2 flex-wrap">
               <input
                 type="date"

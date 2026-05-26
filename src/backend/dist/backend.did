@@ -1688,6 +1688,25 @@ type EmployeeDocument =
    uploadedAt: Timestamp;
    uploadedBy: EmployeeId;
  };
+type EmployeeDeletionResult = 
+ variant {
+   err: record {
+          code: text;
+          message: text;
+        };
+   ok: record {
+         archivedAt: int;
+         employeeId: text;
+       };
+ };
+type EmployeeDeletionAuditEntry = 
+ record {
+   dataArchivedSummary: text;
+   deletedAt: int;
+   deletedByUserId: text;
+   deletedEmployeeId: text;
+   deletedEmployeeName: text;
+ };
 type EmployeeAdvance = 
  record {
    advanceAmount: float64;
@@ -2670,6 +2689,7 @@ type AttendanceCheckIn =
    recordedAt: Timestamp;
    status: CheckInStatus;
    userId: UserId;
+   wasAutoCheckedOut: bool;
  };
 type AssignProductsInput = 
  record {
@@ -2871,10 +2891,14 @@ service : {
   addPricelistProduct: (token: text, input: AddPricelistProductInput) ->
    (MutationResult);
   addProduct: (input: CreateProductInput) -> (ProductId);
+  addRegion: (token: text, name: text, zoneId: LocationId) ->
+   (MutationResult);
   addState: (token: text, input: CreateStateInput) -> (MutationResult);
   addSuggestionReply: (token: text, input: AddSuggestionReplyInput) ->
    (MutationResult);
   addTerritory: (token: text, input: CreateTerritoryInput) ->
+   (MutationResult);
+  addTerritoryToStation: (token: text, name: text, stationId: LocationId) ->
    (MutationResult);
   addZone: (token: text, input: CreateZoneInput) -> (MutationResult);
   adminSeed: () -> (MutationResult);
@@ -3082,6 +3106,8 @@ service : {
   deleteDoctor: (token: text, doctorId: nat) -> (bool);
   deleteDoctors: (token: text, doctorIds: vec nat) -> (BulkDeleteResult);
   deleteDocument: (token: text, documentId: nat) -> (MutationResult);
+  deleteEmployee: (sessionToken: text, employeeId: text) ->
+   (EmployeeDeletionResult);
   deleteGiftArticle: (token: text, id: GiftArticleId) ->
    (variant {
       err: text;
@@ -3095,12 +3121,16 @@ service : {
   deleteOfficialLetter: (token: text, id: nat) -> (MutationResult);
   deletePricelistProduct: (token: text, id: PricelistProductId) ->
    (MutationResult);
+  deleteRegion: (token: text, id: LocationId) -> (MutationResult);
   deleteStation: (token: text, stationId: LocationId) -> (bool);
   deleteTaDaGrade: (token: text, gradeName: text) ->
    (variant {
       err: text;
       ok;
     });
+  deleteTerritoryUnderStation: (token: text, territoryId: LocationId) ->
+   (MutationResult);
+  deleteZone: (token: text, id: LocationId) -> (MutationResult);
   dismissMissedVisitAlert: (token: text, mrId: nat, doctorId: nat) ->
    (variant {
       err: text;
@@ -3161,6 +3191,8 @@ service : {
         });
   getActiveChargesForEmployee: (token: text, employeeId: UserId) ->
    (vec AdditionalCharge);
+  getActiveHQsByTerritory: (token: text, territoryId: LocationId) ->
+   (vec HQRecord) query;
   getActiveHolidays: (token: text) -> (vec CompanyHoliday) query;
   getAdminEmail: (token: text) -> (opt text) query;
   getAdvancesByEmployee: (employeeId: text) -> (vec EmployeeAdvance) query;
@@ -3207,6 +3239,8 @@ service : {
     }) query;
   getApprovedTaDaForMonth: (token: text, employeeId: nat, month: nat, year:
    nat) -> (TaDaTotals) query;
+  getAreasByRegion: (token: text, regionId: LocationId) ->
+   (vec TerritoryRecord) query;
   getAttendanceSummaryForEmployee: (token: text, employeeId: nat, month: 
    nat, year: nat) ->
    (record {
@@ -3293,6 +3327,11 @@ service : {
    (variant {
       err: text;
       ok: vec nat;
+    }) query;
+  getDeletedEmployeesLog: (sessionToken: text) ->
+   (variant {
+      err: text;
+      ok: vec EmployeeDeletionAuditEntry;
     }) query;
   getDoctor: (doctorId: DoctorId) -> (opt DoctorInfo) query;
   getDoctorAssignment: (mrId: UserId, doctorId: DoctorId) ->
@@ -3592,6 +3631,8 @@ service : {
     }) query;
   getProduct: (productId: ProductId) -> (opt ProductInfo) query;
   getReactivationLog: (token: text) -> (vec ReactivationLogEntry) query;
+  getRegionsByZone: (token: text, zoneId: LocationId) ->
+   (vec StateRecord) query;
   getRepairHistory: (token: text, limit: nat) -> (vec RepairLog) query;
   getReporteeLocations: (token: text) -> (vec LocationRecord) query;
   getRoleHierarchyConfig: (token: text) -> (RoleHierarchyConfig) query;
@@ -3610,6 +3651,8 @@ service : {
       err: text;
       ok: SfaReminderSettings;
     }) query;
+  getStationsByArea: (token: text, areaId: LocationId) ->
+   (vec HQRecord) query;
   getStationsByMR: (token: text, mrUserId: nat) ->
    (variant {
       err: text;
@@ -3663,6 +3706,8 @@ service : {
    (vec TargetVsActual);
   getTeamWorkingStyleHistory: (managerId: text, from: int, to: int) ->
    (vec WorkingStyleRecord) query;
+  getTerritoriesByStation: (token: text, stationId: LocationId) ->
+   (vec AreaRecord) query;
   getTerritoryCoverage: (territory: text, month: text) ->
    (TerritoryCoverage) query;
   getTodayWorkingStyle: (employeeId: text) -> (opt WorkingStyleRecord) query;
@@ -3692,9 +3737,12 @@ service : {
   getUserByUID: (token: text, uid: text) -> (opt UserInfo);
   getUserLocationAllotment: (token: text, userId: UserId) ->
    (opt UserLocationAllotment) query;
+  getUsersWithHigherRole: (token: text, targetRole: Role) ->
+   (vec UserInfo) query;
   getWeeklyTaDaSummaryByRole: (from: int, to: int) -> (vec TaDaExpense) query;
   getWorkingStyleHistory: (employeeId: text, from: int, to: int) ->
    (vec WorkingStyleRecord) query;
+  getZones: (token: text) -> (vec ZoneRecord) query;
   hasUserSeenMessageToday: (token: text, messageId: text, today: text) ->
    (bool) query;
   isHoliday: (token: text, date: int) -> (bool) query;
@@ -3730,7 +3778,9 @@ service : {
   listAllTravelPlans: (token: text, userId: opt nat, month: opt text) ->
    (vec TravelPlanInfo) query;
   listAllUsers: (token: text) -> (vec UserInfo) query;
+  listAllZones: () -> (vec ZoneRecord) query;
   listAreasByHQ: (token: text, hqId: LocationId) -> (vec AreaRecord) query;
+  listAreasByRegion: (regionId: LocationId) -> (vec TerritoryRecord) query;
   listCallReportsByMr: (token: text, mrId: UserId, fromDate: int, toDate:
    int) -> (variant {
               err: text;
@@ -3793,6 +3843,7 @@ service : {
   listOrdersByChemist: (chemistId: ChemistId) -> (vec ChemistOrderInfo) query;
   listPricelistProducts: (token: text) -> (vec PricelistProductInfo) query;
   listProducts: () -> (vec ProductInfo) query;
+  listRegionsByZone: (zoneId: LocationId) -> (vec StateRecord) query;
   listReportees: (token: text, managerId: UserId) -> (vec UserInfo) query;
   listSecondarySales: (token: text, filter: SecondarySaleFilter) ->
    (vec SecondarySaleRecord);
@@ -3800,6 +3851,7 @@ service : {
    (vec StateRecord) query;
   listStationBulkUploadHistory: (token: text) ->
    (vec BulkStationImportResult) query;
+  listStationsByArea: (areaId: LocationId) -> (vec HQRecord) query;
   listStationsByHQ: (token: text, hqId: LocationId) ->
    (vec StationRecord) query;
   listStockists: (token: text, filter: StockistFilter) ->
@@ -3814,6 +3866,11 @@ service : {
    toDate: text) -> (vec StockistCallInfo) query;
   listTerritoriesByState: (token: text, stateId: LocationId) ->
    (vec TerritoryRecord) query;
+  listTerritoriesByStation: (token: text, stationId: LocationId) ->
+   (vec TerritoryRecord) query;
+  listTerritoriesForStation: (stationId: LocationId) ->
+   (vec AreaRecord) query;
+  listUsersAboveRole: (token: text, targetRole: Role) -> (vec UserInfo) query;
   listUsersByRole: (token: text, role: Role) -> (vec UserInfo) query;
   listUsersByTerritory: (token: text, territory: text) ->
    (vec UserInfo) query;
@@ -4085,6 +4142,7 @@ service : {
    opt ProductCategory, description: opt text, productCode: opt text,
    division: opt text, mrpPaise: opt nat, packSize: opt text) ->
    (MutationResult);
+  updateRegion: (token: text, id: LocationId, name: text) -> (MutationResult);
   updateState: (token: text, id: LocationId, input: UpdateStateInput) ->
    (MutationResult);
   updateStation: (token: text, stationId: LocationId, input:
@@ -4098,6 +4156,8 @@ service : {
    UpdateSuggestionStatusInput) -> (MutationResult);
   updateTerritory: (token: text, id: LocationId, input:
    UpdateTerritoryInput) -> (MutationResult);
+  updateTerritoryUnderStation: (token: text, territoryId: LocationId, name:
+   text) -> (MutationResult);
   updateTravelPlan: (token: text, id: TravelPlanId, input:
    CreateTravelPlanInput) -> (MutationResult);
   updateUser: (token: text, userId: UserId, input: UpdateUserInput) ->

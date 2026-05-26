@@ -63,6 +63,7 @@ export default function AttendanceCheckIn() {
   const [checkingOut, setCheckingOut] = useState(false);
   const [historyRecords, setHistoryRecords] = useState<CheckInRecord[]>([]);
   const [historyLoading, setHistoryLoading] = useState(true);
+  const [showAutoCheckoutWarning, setShowAutoCheckoutWarning] = useState(false);
 
   const today = todayISO();
 
@@ -73,6 +74,23 @@ export default function AttendanceCheckIn() {
       const todayCheckIn = records.find((r) => r.date === today) ?? null;
       setTodayRecord(todayCheckIn);
       setHistoryRecords(records.slice().reverse().slice(0, 10));
+
+      // Check if yesterday's record has wasAutoCheckedOut === true
+      const nowIST = new Date(
+        new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }),
+      );
+      const yesterdayIST = new Date(nowIST);
+      yesterdayIST.setDate(yesterdayIST.getDate() - 1);
+      const yesterdayKey = yesterdayIST.toISOString().split("T")[0];
+      const yesterdayRecord = records.find((r) => r.date === yesterdayKey);
+      if (yesterdayRecord?.wasAutoCheckedOut === true) {
+        const dismissed = localStorage.getItem(
+          `autoCheckoutWarning_${yesterdayKey}`,
+        );
+        if (!dismissed) {
+          setShowAutoCheckoutWarning(true);
+        }
+      }
     } catch {
       // silently fail
     } finally {
@@ -226,6 +244,45 @@ export default function AttendanceCheckIn() {
         subtitle="Verify your attendance at your assigned location"
       />
       <PageContent>
+        {showAutoCheckoutWarning && (
+          <div
+            className="flex items-start gap-3 bg-amber-50 border border-amber-300 text-amber-800 px-4 py-3 rounded-lg mb-4"
+            data-ocid="auto-checkout-warning"
+          >
+            <span className="text-lg" aria-hidden="true">
+              ⚠
+            </span>
+            <div className="flex-1">
+              <p className="font-semibold text-sm">Auto-Checkout Notice</p>
+              <p className="text-sm">
+                System Auto-Checked you out at 9:00 PM yesterday. Please
+                remember to complete your daily work report manually.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                const nowIST = new Date(
+                  new Date().toLocaleString("en-US", {
+                    timeZone: "Asia/Kolkata",
+                  }),
+                );
+                const y = new Date(nowIST);
+                y.setDate(y.getDate() - 1);
+                const yesterdayKey = y.toISOString().split("T")[0];
+                localStorage.setItem(
+                  `autoCheckoutWarning_${yesterdayKey}`,
+                  "dismissed",
+                );
+                setShowAutoCheckoutWarning(false);
+              }}
+              className="text-amber-600 hover:text-amber-800 font-bold text-xl leading-none"
+              aria-label="Dismiss warning"
+            >
+              ×
+            </button>
+          </div>
+        )}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {/* Check-in / Check-out action card */}
           <div className="bg-card border border-border rounded-lg overflow-hidden">

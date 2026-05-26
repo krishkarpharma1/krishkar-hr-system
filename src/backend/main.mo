@@ -68,6 +68,8 @@ import SfaSampleMixin "mixins/sfa-sample-api";
 import CCTypes   "types/chemist-call";
 import ChemistCallMixin "mixins/chemist-call-api";
 import DashboardMixin  "mixins/dashboard-api";
+import EDTypes "types/employee-delete";
+import EmployeeDeleteMixin "mixins/employee-delete-api";
 
 
 
@@ -109,9 +111,11 @@ import Timer "mo:core/Timer";
 
 
 
-import Migration "migration";
 
-(with migration = Migration.run)
+
+
+
+
 actor {
   // ── Stable migration types (M0170 fix) ─────────────────────────────────────
   // These OLD types match the shapes stored in the previously-deployed canister.
@@ -383,6 +387,7 @@ actor {
 
   // ── User Reactivation log ───────────────────────────────────────────────────
   let reactivationLog : List.List<AuthTypes.ReactivationLogEntry> = List.empty();
+  let deletionLog : List.List<EDTypes.EmployeeDeletionAuditEntry> = List.empty();
 
   // ── DCR (Daily Call Report) state ───────────────────────────────────────────────
   let dcrs         : List.List<DcrTypes.DcrRecord> = List.empty();
@@ -652,6 +657,7 @@ actor {
     hqs, areas, stations,
   );
   include ReportingChainEmailsMixin(sessions, users);
+  include EmployeeDeleteMixin(users, usernameIndex, sessions, deletionLog);
 
   // ── Daily absence check recurringTimer ─────────────────────────────────────────────
   let _absenceCheckTimer = Timer.recurringTimer<system>(

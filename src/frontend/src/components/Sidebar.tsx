@@ -325,11 +325,11 @@ export function Sidebar({
       {/* Logo + role badge */}
       <div className="px-4 py-4 border-b border-sidebar-border bg-sidebar">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 bg-primary rounded-lg flex items-center justify-center flex-shrink-0 shadow-xs">
-            <span className="text-primary-foreground font-display font-bold text-xs">
-              KP
-            </span>
-          </div>
+          <img
+            src="/assets/krishkar_logo.png"
+            alt="Krishkar Pharmaceuticals"
+            className="h-12 w-auto object-contain flex-shrink-0"
+          />
           <div className="min-w-0 flex-1">
             <p className="font-display font-bold text-sm text-sidebar-foreground truncate leading-tight">
               Krishkar Pharma

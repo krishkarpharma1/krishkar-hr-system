@@ -1,11 +1,11 @@
 {
-  "name": "Krishkar HR System",
-  "short_name": "Krishkar HR",
-  "description": "Krishkar Pharmaceuticals HR Management System",
+  "name": "Krishkar Pharmaceuticals SFA",
+  "short_name": "KP SFA",
+  "description": "Krishkar Pharmaceuticals Sales Force Automation System",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#e0f2fe",
-  "theme_color": "#0ea5e9",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
   "orientation": "portrait",
   "scope": "/",
   "lang": "en",
@@ -14,26 +14,50 @@
       "src": "/icons/icon-192.svg",
       "sizes": "192x192",
       "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "/icons/icon-512.svg",
       "sizes": "512x512",
       "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/krishkar_logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/krishkar_logo.png",
+      "sizes": "256x256",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/krishkar_logo.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/krishkar_logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
       "purpose": "any maskable"
     }
   ],
   "screenshots": [
     {
-      "src": "/icons/icon-192.svg",
+      "src": "/assets/krishkar_logo.png",
       "sizes": "192x192",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "form_factor": "narrow"
     },
     {
-      "src": "/icons/icon-512.svg",
+      "src": "/assets/krishkar_logo.png",
       "sizes": "512x512",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "form_factor": "wide"
     }
   ]

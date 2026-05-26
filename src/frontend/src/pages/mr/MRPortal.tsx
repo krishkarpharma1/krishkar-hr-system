@@ -173,11 +173,7 @@ function KpiSkeleton() {
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-5">
       {Array.from({ length: 6 }).map((_, i) => (
-        <div
-          // biome-ignore lint/suspicious/noArrayIndexKey: skeleton indices are stable
-          key={i}
-          className="h-28 rounded-xl bg-muted/60 animate-pulse"
-        />
+        <div key={i} className="h-28 rounded-xl bg-muted/60 animate-pulse" />
       ))}
     </div>
   );
@@ -971,6 +967,46 @@ export default function MRPortal() {
         {/* ── On-Leave Banner ── */}
         <OnLeaveBanner />
 
+        {/* ── 6. Quick Actions Bar ── */}
+        <div className="mb-5" data-ocid="mr-quick-actions.section">
+          <h2 className="font-display font-semibold text-xs uppercase tracking-wider text-muted-foreground mb-3">
+            Quick Actions
+          </h2>
+          <QuickActionsBar actions={quickActions} />
+        </div>
+
+        {/* ── Primary Action Buttons (kept for backward compat + additional actions) ── */}
+        <div className="mb-6">
+          <h2 className="font-display font-semibold text-xs uppercase tracking-wider text-muted-foreground mb-3">
+            Field Actions
+          </h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+            {primaryActions.map((btn) => {
+              const Icon = btn.icon;
+              const isDone = btn.isCompleted;
+              return (
+                <button
+                  key={btn.id}
+                  type="button"
+                  onClick={() => handlePrimaryAction(btn)}
+                  data-ocid={`primary-action-${btn.id}`}
+                  className={`relative flex flex-col items-center justify-center gap-2.5 rounded-xl font-semibold text-sm transition-all duration-200 active:scale-95 focus:outline-none focus:ring-2 focus:ring-offset-2 border-2 ${isDone ? btn.doneClass : btn.activeClass}`}
+                  style={{ minHeight: "88px", padding: "14px 8px" }}
+                  aria-label={isDone ? btn.completedLabel : btn.label}
+                >
+                  {isDone && (
+                    <CheckCircle2 className="absolute top-2 right-2 w-4 h-4 opacity-70" />
+                  )}
+                  <Icon className="w-7 h-7 shrink-0" />
+                  <span className="text-center leading-tight text-xs font-semibold">
+                    {isDone ? btn.completedLabel : btn.label}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         {/* ── 2. SFA KPI Cards ── */}
         <section className="mb-5" data-ocid="mr-kpi.section">
           <div className="flex items-center justify-between mb-3">
@@ -1205,46 +1241,6 @@ export default function MRPortal() {
                 </button>
               </div>
             )}
-          </div>
-        </div>
-
-        {/* ── 6. Quick Actions Bar ── */}
-        <div className="mb-5" data-ocid="mr-quick-actions.section">
-          <h2 className="font-display font-semibold text-xs uppercase tracking-wider text-muted-foreground mb-3">
-            Quick Actions
-          </h2>
-          <QuickActionsBar actions={quickActions} />
-        </div>
-
-        {/* ── Primary Action Buttons (kept for backward compat + additional actions) ── */}
-        <div className="mb-6">
-          <h2 className="font-display font-semibold text-xs uppercase tracking-wider text-muted-foreground mb-3">
-            Field Actions
-          </h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-            {primaryActions.map((btn) => {
-              const Icon = btn.icon;
-              const isDone = btn.isCompleted;
-              return (
-                <button
-                  key={btn.id}
-                  type="button"
-                  onClick={() => handlePrimaryAction(btn)}
-                  data-ocid={`primary-action-${btn.id}`}
-                  className={`relative flex flex-col items-center justify-center gap-2.5 rounded-xl font-semibold text-sm transition-all duration-200 active:scale-95 focus:outline-none focus:ring-2 focus:ring-offset-2 border-2 ${isDone ? btn.doneClass : btn.activeClass}`}
-                  style={{ minHeight: "88px", padding: "14px 8px" }}
-                  aria-label={isDone ? btn.completedLabel : btn.label}
-                >
-                  {isDone && (
-                    <CheckCircle2 className="absolute top-2 right-2 w-4 h-4 opacity-70" />
-                  )}
-                  <Icon className="w-7 h-7 shrink-0" />
-                  <span className="text-center leading-tight text-xs font-semibold">
-                    {isDone ? btn.completedLabel : btn.label}
-                  </span>
-                </button>
-              );
-            })}
           </div>
         </div>
 

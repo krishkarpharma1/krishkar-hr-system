@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import type { Role } from "../../backend";
 import { Role as RoleEnum } from "../../backend";
 import type { DcrInfo, TravelPlanInfo } from "../../backend.d";
+import { ExportButton } from "../../components/ExportButton";
 import {
   PageContent,
   PageHeader,
@@ -31,6 +32,7 @@ import {
   buildBrandingExcelRows,
   buildBrandingHtml,
 } from "../../lib/brandingHtml";
+import { exportToExcel } from "../../lib/exportUtils";
 import { useAuthStore } from "../../store/authStore";
 import type { UserInfo } from "../../types";
 import { formatDate } from "../../utils/dateFormatter";
@@ -274,6 +276,47 @@ export default function MtpVsActualReport({
     toast.success("Exported successfully");
   };
 
+  const handleExportTourPlan = () => {
+    exportToExcel({
+      reportName: "Tour Plan Report",
+      columns: [
+        { key: "employeeCode", label: "Employee Code", type: "text" },
+        { key: "employeeName", label: "Employee Name", type: "text" },
+        { key: "role", label: "Role", type: "text" },
+        { key: "territory", label: "Territory", type: "text" },
+        { key: "planMonth", label: "Plan Month", type: "text" },
+        { key: "plannedVisitDate", label: "Planned Visit Date", type: "date" },
+        { key: "entityName", label: "Doctor/Entity Name", type: "text" },
+        { key: "planned", label: "Planned", type: "text" },
+        { key: "visited", label: "Visited", type: "text" },
+        { key: "status", label: "Status", type: "text" },
+      ],
+      data: rows.map((r) => ({
+        employeeCode: "",
+        employeeName: mrName || "",
+        role: "",
+        territory: r.plannedStation || r.actualStation || "",
+        planMonth: `${String(month).padStart(2, "0")}/${year}`,
+        plannedVisitDate: r.date || "",
+        entityName: r.plannedPrimaryStation || r.plannedStation || "",
+        planned: r.plannedStation ? "Yes" : "No",
+        visited: r.hasDcr ? "Yes" : "No",
+        status: r.hasDeviation
+          ? "Deviation"
+          : r.hasDcr
+            ? "Visited"
+            : "Not Visited",
+      })),
+      activeFilters: [
+        mrName ? `MR: ${mrName}` : "",
+        `Month: ${String(month).padStart(2, "0")}/${year}`,
+      ]
+        .filter(Boolean)
+        .join(" | "),
+      companyName: companyProfile?.companyName || "Krishkar Pharmaceuticals",
+    });
+  };
+
   const needsMrSelect = !isMR && !selectedMrId;
 
   return (
@@ -303,6 +346,15 @@ export default function MtpVsActualReport({
             >
               <Download className="w-4 h-4" /> Export CSV
             </Button>
+            <ExportButton
+              onClick={handleExportTourPlan}
+              disabled={rows.length === 0}
+              tooltip={
+                rows.length === 0
+                  ? "No data to export"
+                  : "Exports currently filtered data"
+              }
+            />
           </div>
         }
       />

@@ -16,12 +16,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Download, Edit2, Plus, Search, XCircle } from "lucide-react";
+import { Edit2, Plus, Search, XCircle } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import * as XLSX from "xlsx";
 import { Role } from "../../backend";
 import type { AreaRecord, HQRecord, StockistRecord } from "../../backend.d";
+import { ExportButton } from "../../components/ExportButton";
 import {
   PageContent,
   PageHeader,
@@ -30,7 +30,7 @@ import {
 } from "../../components/PortalLayout";
 import { useCompanyProfile } from "../../hooks/useCompanyProfile";
 import { api } from "../../lib/api";
-import { buildBrandingExcelRows } from "../../lib/brandingHtml";
+import { exportToExcel, logExportToAuditTrail } from "../../lib/exportUtils";
 import { useAuthStore } from "../../store/authStore";
 
 interface FormState {
@@ -249,30 +249,39 @@ export default function StockistMaster({ portalRole }: { portalRole?: Role }) {
   }
 
   async function handleExport() {
-    const data = filtered.map((s, i) => ({
-      "Sr No": i + 1,
-      "Stockist Name": s.name,
-      "Proprietor/Contact": s.proprietorName,
-      Mobile: s.mobileNumber,
-      Email: s.emailId ?? "",
-      Address: s.address,
-      Area: areaMap.get(String(s.areaId))?.name ?? String(s.areaId),
-      HQ: hqMap.get(String(s.hqId)) ?? String(s.hqId),
-      "Drug License No": s.drugLicenseNumber ?? "",
-      "GST No": s.gstNumber ?? "",
-      Remarks: s.remarks ?? "",
-      Status: s.isActive ? "Active" : "Inactive",
-    }));
-    const brandingRows = buildBrandingExcelRows(companyProfile ?? null);
-    const allRows = [...brandingRows, ...data] as Record<string, unknown>[];
-    const ws = XLSX.utils.json_to_sheet(allRows);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Stockists");
-    XLSX.writeFile(
-      wb,
-      `Stockist_Master_${new Date().toISOString().slice(0, 10)}.xlsx`,
+    exportToExcel({
+      reportName: "Stockist Master",
+      columns: [
+        { key: "stockistName", label: "Stockist Name", type: "text" },
+        { key: "address", label: "Address", type: "text" },
+        { key: "territory", label: "Territory", type: "text" },
+        { key: "contactNumber", label: "Contact Number", type: "text" },
+        {
+          key: "outstandingBalance",
+          label: "Outstanding Balance",
+          type: "number",
+        },
+      ],
+      data: filtered.map((s) => ({
+        stockistName: s.name || "",
+        address: s.address || "",
+        territory: "",
+        contactNumber: s.mobileNumber || "",
+        outstandingBalance: 0,
+      })),
+      activeFilters: "",
+      companyName: companyProfile?.companyName || "Krishkar Pharmaceuticals",
+    });
+    logExportToAuditTrail(
+      {
+        userId: String(session?.userId ?? ""),
+        userName: String(session?.name ?? ""),
+        role: String(session?.role ?? ""),
+      },
+      "Stockist Master",
+      search ? `Search: ${search}` : "",
+      filtered.length,
     );
-    toast.success(`Exported ${data.length} stockists`);
   }
 
   const fieldF = (
@@ -302,15 +311,14 @@ export default function StockistMaster({ portalRole }: { portalRole?: Role }) {
         subtitle="Manage stockists and their territory assignments"
         actions={
           <div className="flex gap-2">
-            <Button
-              size="sm"
-              variant="outline"
+            <ExportButton
               onClick={handleExport}
               disabled={filtered.length === 0}
+              tooltip={
+                filtered.length === 0 ? "No data to export" : "Export all data"
+              }
               data-ocid="btn-export-stockists"
-            >
-              <Download className="w-4 h-4 mr-1.5" /> Export Excel
-            </Button>
+            />
             <Button size="sm" onClick={openAdd} data-ocid="btn-add-stockist">
               <Plus className="w-4 h-4 mr-1.5" /> Add New Stockist
             </Button>

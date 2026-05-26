@@ -389,6 +389,41 @@ module {
     result.toArray()
   };
 
+  /// Map a Role variant to a numeric rank. MR=1, ASM=2, RSM=3, ZSM=4, HRManager=5, Admin=6.
+  private func roleRank(role : Types.Role) : Nat {
+    switch (role) {
+      case (#MR)        { 1 };
+      case (#ASM)       { 2 };
+      case (#RSM)       { 3 };
+      case (#ZSM)       { 4 };
+      case (#HRManager) { 5 };
+      case (#Admin)     { 6 };
+    }
+  };
+
+  /// Return all active users whose role rank is strictly greater than the rank
+  /// of `targetRole`. Used to populate the Reporting Manager dropdown in
+  /// User Management (only show employees of higher rank).
+  /// MR → rank≥2 (ASM/RSM/ZSM/HRManager/Admin)
+  /// ASM → rank≥3 (RSM/ZSM/HRManager/Admin)
+  /// RSM → rank≥4 (ZSM/HRManager/Admin)
+  /// ZSM → rank≥5 (HRManager/Admin)
+  /// HRManager/Admin → empty
+  public func listUsersAboveRole(
+    users      : Map.Map<UserId, UserRecord>,
+    dobMap     : Map.Map<Text, Text>,
+    targetRole : Types.Role,
+  ) : [UserInfo] {
+    let minRank = roleRank(targetRole) + 1;
+    let result  = List.empty<UserInfo>();
+    for ((_, u) in users.entries()) {
+      if (u.status == #Active and roleRank(u.role) >= minRank) {
+        result.add(toUserInfo(u, dobMap))
+      };
+    };
+    result.toArray()
+  };
+
   /// Return all users (admin view).
   public func listAll(users : Map.Map<UserId, UserRecord>, dobMap : Map.Map<Text, Text>) : [UserInfo] {
     let result = List.empty<UserInfo>();

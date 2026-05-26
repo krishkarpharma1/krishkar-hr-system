@@ -372,6 +372,7 @@ export const CheckInStatus = IDL.Variant({
 export const AttendanceCheckIn = IDL.Record({
   'status' : CheckInStatus,
   'gpsCoord' : GpsCoord,
+  'wasAutoCheckedOut' : IDL.Bool,
   'userId' : UserId,
   'date' : IDL.Text,
   'distance' : IDL.Float64,
@@ -744,6 +745,10 @@ export const BulkDeleteResult = IDL.Record({
   'deleted' : IDL.Nat,
   'failed' : IDL.Nat,
 });
+export const EmployeeDeletionResult = IDL.Variant({
+  'ok' : IDL.Record({ 'employeeId' : IDL.Text, 'archivedAt' : IDL.Int }),
+  'err' : IDL.Record({ 'code' : IDL.Text, 'message' : IDL.Text }),
+});
 export const PricelistProductId = IDL.Nat;
 export const AbsenceResult = IDL.Variant({ 'ok' : IDL.Text, 'err' : IDL.Text });
 export const ExportFilter = IDL.Record({
@@ -945,6 +950,13 @@ export const AdditionalAreaInfo = IDL.Record({
   'hqId' : IDL.Nat,
   'areaId' : IDL.Nat,
 });
+export const HQRecord = IDL.Record({
+  'id' : LocationId,
+  'name' : IDL.Text,
+  'createdAt' : Timestamp,
+  'territoryId' : LocationId,
+  'isActive' : IDL.Bool,
+});
 export const CompanyHoliday = IDL.Record({
   'id' : IDL.Nat,
   'holidayType' : HolidayType,
@@ -981,13 +993,6 @@ export const EmployeeAdvance = IDL.Record({
   'remarks' : IDL.Opt(IDL.Text),
   'amountRecovered' : IDL.Float64,
   'reason' : IDL.Text,
-});
-export const HQRecord = IDL.Record({
-  'id' : LocationId,
-  'name' : IDL.Text,
-  'createdAt' : Timestamp,
-  'territoryId' : LocationId,
-  'isActive' : IDL.Bool,
 });
 export const StateRecord = IDL.Record({
   'id' : LocationId,
@@ -1440,6 +1445,13 @@ export const DcrSummaryRow = IDL.Record({
   'mrName' : IDL.Text,
   'totalDoctors' : IDL.Nat,
   'totalChemists' : IDL.Nat,
+});
+export const EmployeeDeletionAuditEntry = IDL.Record({
+  'dataArchivedSummary' : IDL.Text,
+  'deletedEmployeeName' : IDL.Text,
+  'deletedEmployeeId' : IDL.Text,
+  'deletedByUserId' : IDL.Text,
+  'deletedAt' : IDL.Int,
 });
 export const DoctorInfo = IDL.Record({
   'id' : DoctorId,
@@ -2092,6 +2104,13 @@ export const MrDailyActivityRow = IDL.Record({
   'lastGpsLat' : IDL.Opt(IDL.Float64),
   'lastGpsLng' : IDL.Opt(IDL.Float64),
 });
+export const AreaRecord = IDL.Record({
+  'id' : LocationId,
+  'hqId' : LocationId,
+  'name' : IDL.Text,
+  'createdAt' : Timestamp,
+  'isActive' : IDL.Bool,
+});
 export const TerritoryCoverage = IDL.Record({
   'territory' : IDL.Text,
   'totalDoctors' : IDL.Nat,
@@ -2132,13 +2151,6 @@ export const UserLocationAllotment = IDL.Record({
   'areaIds' : IDL.Vec(IDL.Nat),
   'zoneIds' : IDL.Vec(IDL.Nat),
   'territoryIds' : IDL.Vec(IDL.Nat),
-});
-export const AreaRecord = IDL.Record({
-  'id' : LocationId,
-  'hqId' : LocationId,
-  'name' : IDL.Text,
-  'createdAt' : Timestamp,
-  'isActive' : IDL.Bool,
 });
 export const AdditionalChargeFilter = IDL.Record({
   'area' : IDL.Opt(IDL.Text),
@@ -2571,6 +2583,11 @@ export const idlService = IDL.Service({
       [],
     ),
   'addProduct' : IDL.Func([CreateProductInput], [ProductId], []),
+  'addRegion' : IDL.Func(
+      [IDL.Text, IDL.Text, LocationId],
+      [MutationResult],
+      [],
+    ),
   'addState' : IDL.Func([IDL.Text, CreateStateInput], [MutationResult], []),
   'addSuggestionReply' : IDL.Func(
       [IDL.Text, AddSuggestionReplyInput],
@@ -2579,6 +2596,11 @@ export const idlService = IDL.Service({
     ),
   'addTerritory' : IDL.Func(
       [IDL.Text, CreateTerritoryInput],
+      [MutationResult],
+      [],
+    ),
+  'addTerritoryToStation' : IDL.Func(
+      [IDL.Text, IDL.Text, LocationId],
       [MutationResult],
       [],
     ),
@@ -2862,6 +2884,11 @@ export const idlService = IDL.Service({
       [],
     ),
   'deleteDocument' : IDL.Func([IDL.Text, IDL.Nat], [MutationResult], []),
+  'deleteEmployee' : IDL.Func(
+      [IDL.Text, IDL.Text],
+      [EmployeeDeletionResult],
+      [],
+    ),
   'deleteGiftArticle' : IDL.Func(
       [IDL.Text, GiftArticleId],
       [IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text })],
@@ -2878,12 +2905,19 @@ export const idlService = IDL.Service({
       [MutationResult],
       [],
     ),
+  'deleteRegion' : IDL.Func([IDL.Text, LocationId], [MutationResult], []),
   'deleteStation' : IDL.Func([IDL.Text, LocationId], [IDL.Bool], []),
   'deleteTaDaGrade' : IDL.Func(
       [IDL.Text, IDL.Text],
       [IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text })],
       [],
     ),
+  'deleteTerritoryUnderStation' : IDL.Func(
+      [IDL.Text, LocationId],
+      [MutationResult],
+      [],
+    ),
+  'deleteZone' : IDL.Func([IDL.Text, LocationId], [MutationResult], []),
   'dismissMissedVisitAlert' : IDL.Func(
       [IDL.Text, IDL.Nat, IDL.Nat],
       [IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text })],
@@ -3004,6 +3038,11 @@ export const idlService = IDL.Service({
       [IDL.Vec(AdditionalCharge)],
       [],
     ),
+  'getActiveHQsByTerritory' : IDL.Func(
+      [IDL.Text, LocationId],
+      [IDL.Vec(HQRecord)],
+      ['query'],
+    ),
   'getActiveHolidays' : IDL.Func(
       [IDL.Text],
       [IDL.Vec(CompanyHoliday)],
@@ -3099,6 +3138,11 @@ export const idlService = IDL.Service({
   'getApprovedTaDaForMonth' : IDL.Func(
       [IDL.Text, IDL.Nat, IDL.Nat, IDL.Nat],
       [TaDaTotals],
+      ['query'],
+    ),
+  'getAreasByRegion' : IDL.Func(
+      [IDL.Text, LocationId],
+      [IDL.Vec(TerritoryRecord)],
       ['query'],
     ),
   'getAttendanceSummaryForEmployee' : IDL.Func(
@@ -3258,6 +3302,16 @@ export const idlService = IDL.Service({
   'getDcrUnsubmittedMRs' : IDL.Func(
       [IDL.Text, IDL.Text],
       [IDL.Variant({ 'ok' : IDL.Vec(IDL.Nat), 'err' : IDL.Text })],
+      ['query'],
+    ),
+  'getDeletedEmployeesLog' : IDL.Func(
+      [IDL.Text],
+      [
+        IDL.Variant({
+          'ok' : IDL.Vec(EmployeeDeletionAuditEntry),
+          'err' : IDL.Text,
+        }),
+      ],
       ['query'],
     ),
   'getDoctor' : IDL.Func([DoctorId], [IDL.Opt(DoctorInfo)], ['query']),
@@ -3803,6 +3857,11 @@ export const idlService = IDL.Service({
       [IDL.Vec(ReactivationLogEntry)],
       ['query'],
     ),
+  'getRegionsByZone' : IDL.Func(
+      [IDL.Text, LocationId],
+      [IDL.Vec(StateRecord)],
+      ['query'],
+    ),
   'getRepairHistory' : IDL.Func(
       [IDL.Text, IDL.Nat],
       [IDL.Vec(RepairLog)],
@@ -3837,6 +3896,11 @@ export const idlService = IDL.Service({
   'getSfaReminderSettings' : IDL.Func(
       [IDL.Text],
       [IDL.Variant({ 'ok' : SfaReminderSettings, 'err' : IDL.Text })],
+      ['query'],
+    ),
+  'getStationsByArea' : IDL.Func(
+      [IDL.Text, LocationId],
+      [IDL.Vec(HQRecord)],
       ['query'],
     ),
   'getStationsByMR' : IDL.Func(
@@ -3935,6 +3999,11 @@ export const idlService = IDL.Service({
       [IDL.Vec(WorkingStyleRecord)],
       ['query'],
     ),
+  'getTerritoriesByStation' : IDL.Func(
+      [IDL.Text, LocationId],
+      [IDL.Vec(AreaRecord)],
+      ['query'],
+    ),
   'getTerritoryCoverage' : IDL.Func(
       [IDL.Text, IDL.Text],
       [TerritoryCoverage],
@@ -3987,6 +4056,11 @@ export const idlService = IDL.Service({
       [IDL.Opt(UserLocationAllotment)],
       ['query'],
     ),
+  'getUsersWithHigherRole' : IDL.Func(
+      [IDL.Text, Role],
+      [IDL.Vec(UserInfo)],
+      ['query'],
+    ),
   'getWeeklyTaDaSummaryByRole' : IDL.Func(
       [IDL.Int, IDL.Int],
       [IDL.Vec(TaDaExpense)],
@@ -3997,6 +4071,7 @@ export const idlService = IDL.Service({
       [IDL.Vec(WorkingStyleRecord)],
       ['query'],
     ),
+  'getZones' : IDL.Func([IDL.Text], [IDL.Vec(ZoneRecord)], ['query']),
   'hasUserSeenMessageToday' : IDL.Func(
       [IDL.Text, IDL.Text, IDL.Text],
       [IDL.Bool],
@@ -4083,9 +4158,15 @@ export const idlService = IDL.Service({
       ['query'],
     ),
   'listAllUsers' : IDL.Func([IDL.Text], [IDL.Vec(UserInfo)], ['query']),
+  'listAllZones' : IDL.Func([], [IDL.Vec(ZoneRecord)], ['query']),
   'listAreasByHQ' : IDL.Func(
       [IDL.Text, LocationId],
       [IDL.Vec(AreaRecord)],
+      ['query'],
+    ),
+  'listAreasByRegion' : IDL.Func(
+      [LocationId],
+      [IDL.Vec(TerritoryRecord)],
       ['query'],
     ),
   'listCallReportsByMr' : IDL.Func(
@@ -4236,6 +4317,11 @@ export const idlService = IDL.Service({
       ['query'],
     ),
   'listProducts' : IDL.Func([], [IDL.Vec(ProductInfo)], ['query']),
+  'listRegionsByZone' : IDL.Func(
+      [LocationId],
+      [IDL.Vec(StateRecord)],
+      ['query'],
+    ),
   'listReportees' : IDL.Func(
       [IDL.Text, UserId],
       [IDL.Vec(UserInfo)],
@@ -4256,6 +4342,7 @@ export const idlService = IDL.Service({
       [IDL.Vec(BulkStationImportResult)],
       ['query'],
     ),
+  'listStationsByArea' : IDL.Func([LocationId], [IDL.Vec(HQRecord)], ['query']),
   'listStationsByHQ' : IDL.Func(
       [IDL.Text, LocationId],
       [IDL.Vec(StationRecord)],
@@ -4290,6 +4377,21 @@ export const idlService = IDL.Service({
   'listTerritoriesByState' : IDL.Func(
       [IDL.Text, LocationId],
       [IDL.Vec(TerritoryRecord)],
+      ['query'],
+    ),
+  'listTerritoriesByStation' : IDL.Func(
+      [IDL.Text, LocationId],
+      [IDL.Vec(TerritoryRecord)],
+      ['query'],
+    ),
+  'listTerritoriesForStation' : IDL.Func(
+      [LocationId],
+      [IDL.Vec(AreaRecord)],
+      ['query'],
+    ),
+  'listUsersAboveRole' : IDL.Func(
+      [IDL.Text, Role],
+      [IDL.Vec(UserInfo)],
       ['query'],
     ),
   'listUsersByRole' : IDL.Func(
@@ -4727,6 +4829,11 @@ export const idlService = IDL.Service({
       [MutationResult],
       [],
     ),
+  'updateRegion' : IDL.Func(
+      [IDL.Text, LocationId, IDL.Text],
+      [MutationResult],
+      [],
+    ),
   'updateState' : IDL.Func(
       [IDL.Text, LocationId, UpdateStateInput],
       [MutationResult],
@@ -4749,6 +4856,11 @@ export const idlService = IDL.Service({
     ),
   'updateTerritory' : IDL.Func(
       [IDL.Text, LocationId, UpdateTerritoryInput],
+      [MutationResult],
+      [],
+    ),
+  'updateTerritoryUnderStation' : IDL.Func(
+      [IDL.Text, LocationId, IDL.Text],
       [MutationResult],
       [],
     ),
@@ -5151,6 +5263,7 @@ export const idlFactory = ({ IDL }) => {
   const AttendanceCheckIn = IDL.Record({
     'status' : CheckInStatus,
     'gpsCoord' : GpsCoord,
+    'wasAutoCheckedOut' : IDL.Bool,
     'userId' : UserId,
     'date' : IDL.Text,
     'distance' : IDL.Float64,
@@ -5517,6 +5630,10 @@ export const idlFactory = ({ IDL }) => {
     'deleted' : IDL.Nat,
     'failed' : IDL.Nat,
   });
+  const EmployeeDeletionResult = IDL.Variant({
+    'ok' : IDL.Record({ 'employeeId' : IDL.Text, 'archivedAt' : IDL.Int }),
+    'err' : IDL.Record({ 'code' : IDL.Text, 'message' : IDL.Text }),
+  });
   const PricelistProductId = IDL.Nat;
   const AbsenceResult = IDL.Variant({ 'ok' : IDL.Text, 'err' : IDL.Text });
   const ExportFilter = IDL.Record({
@@ -5718,6 +5835,13 @@ export const idlFactory = ({ IDL }) => {
     'hqId' : IDL.Nat,
     'areaId' : IDL.Nat,
   });
+  const HQRecord = IDL.Record({
+    'id' : LocationId,
+    'name' : IDL.Text,
+    'createdAt' : Timestamp,
+    'territoryId' : LocationId,
+    'isActive' : IDL.Bool,
+  });
   const CompanyHoliday = IDL.Record({
     'id' : IDL.Nat,
     'holidayType' : HolidayType,
@@ -5754,13 +5878,6 @@ export const idlFactory = ({ IDL }) => {
     'remarks' : IDL.Opt(IDL.Text),
     'amountRecovered' : IDL.Float64,
     'reason' : IDL.Text,
-  });
-  const HQRecord = IDL.Record({
-    'id' : LocationId,
-    'name' : IDL.Text,
-    'createdAt' : Timestamp,
-    'territoryId' : LocationId,
-    'isActive' : IDL.Bool,
   });
   const StateRecord = IDL.Record({
     'id' : LocationId,
@@ -6210,6 +6327,13 @@ export const idlFactory = ({ IDL }) => {
     'mrName' : IDL.Text,
     'totalDoctors' : IDL.Nat,
     'totalChemists' : IDL.Nat,
+  });
+  const EmployeeDeletionAuditEntry = IDL.Record({
+    'dataArchivedSummary' : IDL.Text,
+    'deletedEmployeeName' : IDL.Text,
+    'deletedEmployeeId' : IDL.Text,
+    'deletedByUserId' : IDL.Text,
+    'deletedAt' : IDL.Int,
   });
   const DoctorInfo = IDL.Record({
     'id' : DoctorId,
@@ -6856,6 +6980,13 @@ export const idlFactory = ({ IDL }) => {
     'lastGpsLat' : IDL.Opt(IDL.Float64),
     'lastGpsLng' : IDL.Opt(IDL.Float64),
   });
+  const AreaRecord = IDL.Record({
+    'id' : LocationId,
+    'hqId' : LocationId,
+    'name' : IDL.Text,
+    'createdAt' : Timestamp,
+    'isActive' : IDL.Bool,
+  });
   const TerritoryCoverage = IDL.Record({
     'territory' : IDL.Text,
     'totalDoctors' : IDL.Nat,
@@ -6896,13 +7027,6 @@ export const idlFactory = ({ IDL }) => {
     'areaIds' : IDL.Vec(IDL.Nat),
     'zoneIds' : IDL.Vec(IDL.Nat),
     'territoryIds' : IDL.Vec(IDL.Nat),
-  });
-  const AreaRecord = IDL.Record({
-    'id' : LocationId,
-    'hqId' : LocationId,
-    'name' : IDL.Text,
-    'createdAt' : Timestamp,
-    'isActive' : IDL.Bool,
   });
   const AdditionalChargeFilter = IDL.Record({
     'area' : IDL.Opt(IDL.Text),
@@ -7332,6 +7456,11 @@ export const idlFactory = ({ IDL }) => {
         [],
       ),
     'addProduct' : IDL.Func([CreateProductInput], [ProductId], []),
+    'addRegion' : IDL.Func(
+        [IDL.Text, IDL.Text, LocationId],
+        [MutationResult],
+        [],
+      ),
     'addState' : IDL.Func([IDL.Text, CreateStateInput], [MutationResult], []),
     'addSuggestionReply' : IDL.Func(
         [IDL.Text, AddSuggestionReplyInput],
@@ -7340,6 +7469,11 @@ export const idlFactory = ({ IDL }) => {
       ),
     'addTerritory' : IDL.Func(
         [IDL.Text, CreateTerritoryInput],
+        [MutationResult],
+        [],
+      ),
+    'addTerritoryToStation' : IDL.Func(
+        [IDL.Text, IDL.Text, LocationId],
         [MutationResult],
         [],
       ),
@@ -7623,6 +7757,11 @@ export const idlFactory = ({ IDL }) => {
         [],
       ),
     'deleteDocument' : IDL.Func([IDL.Text, IDL.Nat], [MutationResult], []),
+    'deleteEmployee' : IDL.Func(
+        [IDL.Text, IDL.Text],
+        [EmployeeDeletionResult],
+        [],
+      ),
     'deleteGiftArticle' : IDL.Func(
         [IDL.Text, GiftArticleId],
         [IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text })],
@@ -7643,12 +7782,19 @@ export const idlFactory = ({ IDL }) => {
         [MutationResult],
         [],
       ),
+    'deleteRegion' : IDL.Func([IDL.Text, LocationId], [MutationResult], []),
     'deleteStation' : IDL.Func([IDL.Text, LocationId], [IDL.Bool], []),
     'deleteTaDaGrade' : IDL.Func(
         [IDL.Text, IDL.Text],
         [IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text })],
         [],
       ),
+    'deleteTerritoryUnderStation' : IDL.Func(
+        [IDL.Text, LocationId],
+        [MutationResult],
+        [],
+      ),
+    'deleteZone' : IDL.Func([IDL.Text, LocationId], [MutationResult], []),
     'dismissMissedVisitAlert' : IDL.Func(
         [IDL.Text, IDL.Nat, IDL.Nat],
         [IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text })],
@@ -7769,6 +7915,11 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Vec(AdditionalCharge)],
         [],
       ),
+    'getActiveHQsByTerritory' : IDL.Func(
+        [IDL.Text, LocationId],
+        [IDL.Vec(HQRecord)],
+        ['query'],
+      ),
     'getActiveHolidays' : IDL.Func(
         [IDL.Text],
         [IDL.Vec(CompanyHoliday)],
@@ -7878,6 +8029,11 @@ export const idlFactory = ({ IDL }) => {
     'getApprovedTaDaForMonth' : IDL.Func(
         [IDL.Text, IDL.Nat, IDL.Nat, IDL.Nat],
         [TaDaTotals],
+        ['query'],
+      ),
+    'getAreasByRegion' : IDL.Func(
+        [IDL.Text, LocationId],
+        [IDL.Vec(TerritoryRecord)],
         ['query'],
       ),
     'getAttendanceSummaryForEmployee' : IDL.Func(
@@ -8041,6 +8197,16 @@ export const idlFactory = ({ IDL }) => {
     'getDcrUnsubmittedMRs' : IDL.Func(
         [IDL.Text, IDL.Text],
         [IDL.Variant({ 'ok' : IDL.Vec(IDL.Nat), 'err' : IDL.Text })],
+        ['query'],
+      ),
+    'getDeletedEmployeesLog' : IDL.Func(
+        [IDL.Text],
+        [
+          IDL.Variant({
+            'ok' : IDL.Vec(EmployeeDeletionAuditEntry),
+            'err' : IDL.Text,
+          }),
+        ],
         ['query'],
       ),
     'getDoctor' : IDL.Func([DoctorId], [IDL.Opt(DoctorInfo)], ['query']),
@@ -8590,6 +8756,11 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Vec(ReactivationLogEntry)],
         ['query'],
       ),
+    'getRegionsByZone' : IDL.Func(
+        [IDL.Text, LocationId],
+        [IDL.Vec(StateRecord)],
+        ['query'],
+      ),
     'getRepairHistory' : IDL.Func(
         [IDL.Text, IDL.Nat],
         [IDL.Vec(RepairLog)],
@@ -8624,6 +8795,11 @@ export const idlFactory = ({ IDL }) => {
     'getSfaReminderSettings' : IDL.Func(
         [IDL.Text],
         [IDL.Variant({ 'ok' : SfaReminderSettings, 'err' : IDL.Text })],
+        ['query'],
+      ),
+    'getStationsByArea' : IDL.Func(
+        [IDL.Text, LocationId],
+        [IDL.Vec(HQRecord)],
         ['query'],
       ),
     'getStationsByMR' : IDL.Func(
@@ -8722,6 +8898,11 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Vec(WorkingStyleRecord)],
         ['query'],
       ),
+    'getTerritoriesByStation' : IDL.Func(
+        [IDL.Text, LocationId],
+        [IDL.Vec(AreaRecord)],
+        ['query'],
+      ),
     'getTerritoryCoverage' : IDL.Func(
         [IDL.Text, IDL.Text],
         [TerritoryCoverage],
@@ -8774,6 +8955,11 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Opt(UserLocationAllotment)],
         ['query'],
       ),
+    'getUsersWithHigherRole' : IDL.Func(
+        [IDL.Text, Role],
+        [IDL.Vec(UserInfo)],
+        ['query'],
+      ),
     'getWeeklyTaDaSummaryByRole' : IDL.Func(
         [IDL.Int, IDL.Int],
         [IDL.Vec(TaDaExpense)],
@@ -8784,6 +8970,7 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Vec(WorkingStyleRecord)],
         ['query'],
       ),
+    'getZones' : IDL.Func([IDL.Text], [IDL.Vec(ZoneRecord)], ['query']),
     'hasUserSeenMessageToday' : IDL.Func(
         [IDL.Text, IDL.Text, IDL.Text],
         [IDL.Bool],
@@ -8878,9 +9065,15 @@ export const idlFactory = ({ IDL }) => {
         ['query'],
       ),
     'listAllUsers' : IDL.Func([IDL.Text], [IDL.Vec(UserInfo)], ['query']),
+    'listAllZones' : IDL.Func([], [IDL.Vec(ZoneRecord)], ['query']),
     'listAreasByHQ' : IDL.Func(
         [IDL.Text, LocationId],
         [IDL.Vec(AreaRecord)],
+        ['query'],
+      ),
+    'listAreasByRegion' : IDL.Func(
+        [LocationId],
+        [IDL.Vec(TerritoryRecord)],
         ['query'],
       ),
     'listCallReportsByMr' : IDL.Func(
@@ -9031,6 +9224,11 @@ export const idlFactory = ({ IDL }) => {
         ['query'],
       ),
     'listProducts' : IDL.Func([], [IDL.Vec(ProductInfo)], ['query']),
+    'listRegionsByZone' : IDL.Func(
+        [LocationId],
+        [IDL.Vec(StateRecord)],
+        ['query'],
+      ),
     'listReportees' : IDL.Func(
         [IDL.Text, UserId],
         [IDL.Vec(UserInfo)],
@@ -9049,6 +9247,11 @@ export const idlFactory = ({ IDL }) => {
     'listStationBulkUploadHistory' : IDL.Func(
         [IDL.Text],
         [IDL.Vec(BulkStationImportResult)],
+        ['query'],
+      ),
+    'listStationsByArea' : IDL.Func(
+        [LocationId],
+        [IDL.Vec(HQRecord)],
         ['query'],
       ),
     'listStationsByHQ' : IDL.Func(
@@ -9085,6 +9288,21 @@ export const idlFactory = ({ IDL }) => {
     'listTerritoriesByState' : IDL.Func(
         [IDL.Text, LocationId],
         [IDL.Vec(TerritoryRecord)],
+        ['query'],
+      ),
+    'listTerritoriesByStation' : IDL.Func(
+        [IDL.Text, LocationId],
+        [IDL.Vec(TerritoryRecord)],
+        ['query'],
+      ),
+    'listTerritoriesForStation' : IDL.Func(
+        [LocationId],
+        [IDL.Vec(AreaRecord)],
+        ['query'],
+      ),
+    'listUsersAboveRole' : IDL.Func(
+        [IDL.Text, Role],
+        [IDL.Vec(UserInfo)],
         ['query'],
       ),
     'listUsersByRole' : IDL.Func(
@@ -9547,6 +9765,11 @@ export const idlFactory = ({ IDL }) => {
         [MutationResult],
         [],
       ),
+    'updateRegion' : IDL.Func(
+        [IDL.Text, LocationId, IDL.Text],
+        [MutationResult],
+        [],
+      ),
     'updateState' : IDL.Func(
         [IDL.Text, LocationId, UpdateStateInput],
         [MutationResult],
@@ -9569,6 +9792,11 @@ export const idlFactory = ({ IDL }) => {
       ),
     'updateTerritory' : IDL.Func(
         [IDL.Text, LocationId, UpdateTerritoryInput],
+        [MutationResult],
+        [],
+      ),
+    'updateTerritoryUnderStation' : IDL.Func(
+        [IDL.Text, LocationId, IDL.Text],
         [MutationResult],
         [],
       ),

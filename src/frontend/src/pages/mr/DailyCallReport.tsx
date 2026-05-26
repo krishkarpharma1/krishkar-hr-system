@@ -1029,7 +1029,6 @@ function ProductsDetailedSection({
           )}
           {rows.map((row, idx) => (
             <div
-              // biome-ignore lint/suspicious/noArrayIndexKey: stable positional rows
               key={`pd-${visitIndex}-${idx}`}
               className="flex flex-col gap-2 p-3 rounded-md bg-muted/20 border border-border/40"
               data-ocid={`product-detail-row-${visitIndex}-${idx}`}
@@ -1322,7 +1321,6 @@ function SampleBalanceSection({
                   : 0;
                 return (
                   <div
-                    // biome-ignore lint/suspicious/noArrayIndexKey: stable positional rows
                     key={`sb-${visitIndex}-${idx}`}
                     className="flex flex-col sm:flex-row gap-2 items-start sm:items-center"
                     data-ocid={`sample-given-row-${visitIndex}-${idx}`}

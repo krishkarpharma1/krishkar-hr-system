@@ -161,6 +161,9 @@ export const api = {
   reactivateUser: async (token: string, userId: bigint) =>
     (await actor()).reactivateUser(token, userId),
 
+  deleteEmployee: async (token: string, employeeId: string) =>
+    (await actor()).deleteEmployee(token, employeeId),
+
   getInactiveUsers: async (token: string) =>
     (await actor()).getInactiveUsers(token),
 
@@ -176,6 +179,11 @@ export const api = {
     token: string,
     role: Parameters<backendInterface["listUsersByRole"]>[1],
   ) => (await actor()).listUsersByRole(token, role),
+
+  listUsersAboveRole: async (
+    token: string,
+    targetRole: Parameters<backendInterface["listUsersAboveRole"]>[1],
+  ) => (await actor()).listUsersAboveRole(token, targetRole),
 
   listReportees: async (token: string, managerId: bigint) =>
     (await actor()).listReportees(token, managerId),
@@ -542,6 +550,21 @@ export const api = {
     token: string,
     id: Parameters<backendInterface["deactivateArea"]>[1],
   ) => (await actor()).deactivateArea(token, id),
+
+  addTerritoryToStation: async (
+    token: string,
+    name: string,
+    stationId: bigint,
+  ) => (await actor()).addTerritoryToStation(token, name, stationId),
+
+  updateTerritoryUnderStation: async (
+    token: string,
+    territoryId: bigint,
+    name: string,
+  ) => (await actor()).updateTerritoryUnderStation(token, territoryId, name),
+
+  deleteTerritoryUnderStation: async (token: string, territoryId: bigint) =>
+    (await actor()).deleteTerritoryUnderStation(token, territoryId),
 
   // Field Ops - Products
   addProduct: async (input: Parameters<backendInterface["addProduct"]>[0]) =>
@@ -2406,6 +2429,44 @@ export const api = {
   ): Promise<import("../backend.d").StationRecord[]> => {
     try {
       return (await actor()).listAllStations(token);
+    } catch {
+      return [];
+    }
+  },
+
+  listTerritoriesByStation: async (
+    token: string,
+    stationId: string | bigint,
+  ): Promise<import("../backend.d").TerritoryRecord[]> => {
+    try {
+      const stationIdBigInt =
+        typeof stationId === "bigint" ? stationId : BigInt(stationId);
+      const result = await (await actor()).listTerritoriesByStation(
+        token,
+        stationIdBigInt,
+      );
+      return Array.isArray(result)
+        ? result
+        : result && typeof result === "object" && "ok" in result
+          ? (result as { ok: import("../backend.d").TerritoryRecord[] }).ok
+          : [];
+    } catch {
+      return [];
+    }
+  },
+
+  getTerritoriesByStation: async (
+    token: string,
+    stationId: string | bigint,
+  ): Promise<import("../backend.d").AreaRecord[]> => {
+    try {
+      const id = typeof stationId === "bigint" ? stationId : BigInt(stationId);
+      const result = await (await actor()).getTerritoriesByStation(token, id);
+      return Array.isArray(result)
+        ? result
+        : result && typeof result === "object" && "ok" in result
+          ? (result as { ok: import("../backend.d").AreaRecord[] }).ok
+          : [];
     } catch {
       return [];
     }

@@ -26,7 +26,7 @@ import {
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import * as XLSX from "xlsx";
-import { Role } from "../../backend";
+import { type AttendanceCheckIn, Role } from "../../backend";
 
 import {
   PageContent,
@@ -689,10 +689,28 @@ export default function LocationTrailPage({
   const [exportingExcel, setExportingExcel] = useState(false);
   const [exportingPdf, setExportingPdf] = useState(false);
 
+  // Check-In/Out log tab
+  const [activeTab, setActiveTab] = useState<"trail" | "checkin-log">("trail");
+  const [checkInLogs, setCheckInLogs] = useState<AttendanceCheckIn[]>([]);
+  const [checkInLogsLoading, setCheckInLogsLoading] = useState(false);
+
   // Ensure print styles are injected once
   useEffect(() => {
     ensurePrintStyle();
   }, []);
+
+  // Fetch check-in/out logs when that tab is active
+  useEffect(() => {
+    if (activeTab !== "checkin-log" || !session?.token || !date) return;
+    setCheckInLogsLoading(true);
+    api
+      .getCheckInsByDate(session.token, date)
+      .then((data) => {
+        setCheckInLogs((data as AttendanceCheckIn[]) ?? []);
+      })
+      .catch(() => setCheckInLogs([]))
+      .finally(() => setCheckInLogsLoading(false));
+  }, [activeTab, date, session]);
 
   // Load employee list
   useEffect(() => {
@@ -1350,8 +1368,38 @@ export default function LocationTrailPage({
           </div>
         </div>
 
-        {/* ── SINGLE-EMPLOYEE mode ─────────────────────────────────── */}
+        {/* Tab switcher — single-employee mode only */}
         {!isMultiMode && (
+          <div className="flex gap-2 mb-4">
+            <button
+              type="button"
+              onClick={() => setActiveTab("trail")}
+              className={`px-4 py-2 rounded text-sm font-medium transition-colors ${
+                activeTab === "trail"
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+              data-ocid="trail-tab-trail"
+            >
+              Location Trail
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab("checkin-log")}
+              className={`px-4 py-2 rounded text-sm font-medium transition-colors ${
+                activeTab === "checkin-log"
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+              data-ocid="trail-tab-checkin-log"
+            >
+              Check-In/Out Log
+            </button>
+          </div>
+        )}
+
+        {/* ── SINGLE-EMPLOYEE mode ─────────────────────────────────── */}
+        {!isMultiMode && activeTab === "trail" && (
           <>
             {/* Summary badges */}
             {trailCoords !== null && selectedEmployee && (
@@ -1514,6 +1562,159 @@ export default function LocationTrailPage({
               </div>
             )}
           </>
+        )}
+
+        {/* ── Check-In/Out Log tab (single-employee mode) ────────────────── */}
+        {!isMultiMode && activeTab === "checkin-log" && (
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-foreground">
+              Employee Check-In/Out Log
+            </h3>
+            {checkInLogsLoading ? (
+              <div className="space-y-2">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <div
+                    key={`skeleton-${i}`}
+                    className="h-10 bg-muted rounded animate-pulse"
+                  />
+                ))}
+              </div>
+            ) : checkInLogs.length === 0 ? (
+              <div
+                className="text-center py-8 text-muted-foreground bg-card border border-border rounded-lg"
+                data-ocid="checkin-log-empty_state"
+              >
+                No check-in/out records found for the selected date.
+              </div>
+            ) : (
+              <div className="overflow-x-auto rounded-lg border border-border">
+                <table className="w-full text-sm border-collapse">
+                  <thead>
+                    <tr className="bg-primary/10 text-primary">
+                      <th className="border border-border px-3 py-2 text-left">
+                        Employee
+                      </th>
+                      <th className="border border-border px-3 py-2 text-left">
+                        Date
+                      </th>
+                      <th className="border border-border px-3 py-2 text-left">
+                        Check-In Time
+                      </th>
+                      <th className="border border-border px-3 py-2 text-left">
+                        Check-In Location
+                      </th>
+                      <th className="border border-border px-3 py-2 text-left">
+                        Check-Out Time
+                      </th>
+                      <th className="border border-border px-3 py-2 text-left">
+                        Check-Out Location
+                      </th>
+                      <th className="border border-border px-3 py-2 text-left">
+                        Method
+                      </th>
+                      <th className="border border-border px-3 py-2 text-left">
+                        Duration
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {checkInLogs.map((log, i) => {
+                      const checkInMs = log.recordedAt
+                        ? Number(log.recordedAt) / 1_000_000
+                        : null;
+                      const checkOutMs = log.checkOutTime
+                        ? Number(log.checkOutTime) / 1_000_000
+                        : null;
+                      const durationHrs =
+                        checkInMs && checkOutMs
+                          ? ((checkOutMs - checkInMs) / 3_600_000).toFixed(1)
+                          : null;
+                      const fmtTime = (ms: number | null) =>
+                        ms
+                          ? new Date(ms).toLocaleTimeString("en-IN", {
+                              timeZone: "Asia/Kolkata",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })
+                          : "—";
+                      const fmtDate = (ms: number | null) =>
+                        ms
+                          ? new Date(ms).toLocaleDateString("en-IN", {
+                              timeZone: "Asia/Kolkata",
+                              day: "2-digit",
+                              month: "2-digit",
+                              year: "numeric",
+                            })
+                          : "—";
+                      return (
+                        <tr
+                          key={`log-${i}`}
+                          className={i % 2 === 0 ? "bg-card" : "bg-muted/30"}
+                          data-ocid={`checkin-log.item.${i + 1}`}
+                        >
+                          <td className="border border-border px-3 py-2">
+                            {(log as AttendanceCheckIn & { userId?: string })
+                              .userId ?? "—"}
+                          </td>
+                          <td className="border border-border px-3 py-2">
+                            {fmtDate(checkInMs)}
+                          </td>
+                          <td className="border border-border px-3 py-2">
+                            {fmtTime(checkInMs)}
+                          </td>
+                          <td className="border border-border px-3 py-2">
+                            {log.gpsCoord?.lat != null ? (
+                              <a
+                                href={`https://www.google.com/maps?q=${log.gpsCoord.lat},${log.gpsCoord.lng}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-primary underline text-xs"
+                              >
+                                View on Map
+                              </a>
+                            ) : (
+                              "—"
+                            )}
+                          </td>
+                          <td className="border border-border px-3 py-2">
+                            {checkOutMs ? fmtTime(checkOutMs) : "Not Yet"}
+                          </td>
+                          <td className="border border-border px-3 py-2">
+                            {log.checkOutGps?.lat != null ? (
+                              <a
+                                href={`https://www.google.com/maps?q=${log.checkOutGps.lat},${log.checkOutGps.lng}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-primary underline text-xs"
+                              >
+                                View on Map
+                              </a>
+                            ) : (
+                              "—"
+                            )}
+                          </td>
+                          <td className="border border-border px-3 py-2">
+                            {log.wasAutoCheckedOut ? (
+                              <span className="text-orange-500 font-medium text-xs">
+                                Auto-Checkout 9 PM
+                              </span>
+                            ) : (
+                              <span className="text-green-600 text-xs">
+                                Manual
+                              </span>
+                            )}
+                          </td>
+                          <td className="border border-border px-3 py-2">
+                            {durationHrs ? `${durationHrs} hrs` : "—"}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
         )}
 
         {/* ── MULTI-EMPLOYEE compare mode (Admin/HR only, 2+ selected) ───── */}
